@@ -1,0 +1,8 @@
+.navigation-links.active {
+	/* background-color: hsl(var(--primary)) !important; */
+  /* color: hsl(var(--primary-foreground)); */
+}
+.navigation-links.active:hover {
+	/* background-color: hsl(var(--primary) / 0.9) !important; */
+  /* color: hsl(var(--primary-foreground)); */
+}

@@ -1,0 +1,8 @@
+.thead > tr{
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+.thead > tr:hover{
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
