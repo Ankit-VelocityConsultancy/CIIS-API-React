@@ -57,8 +57,13 @@ const ChangeCoursePage = () => {
     let response;
     if (enrollmentId) {
       // Fetching student data by enrollment ID
-      response = await axios.get(
-        `${baseURL}api/search-by-enrollment-id/?enrollment_id=${enrollmentId}`
+      const response = await axios.get(
+        `${baseURL}api/search-by-enrollment-id/?enrollment_id=${enrollmentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        }
       );
       console.log("Enroll ID" + response.data.data);
       setStudentData(response.data.data);
@@ -70,8 +75,13 @@ const ChangeCoursePage = () => {
       setCourseDetails(courseResponse.data); // Set course details in the state
     } else if (studentName) {
       // Searching by student name (partial)
-      response = await axios.get(
-        `${baseURL}api/search-by-student-name/?name=${studentName}`
+      const response = await axios.get(
+        `${baseURL}api/search-by-student-name/?name=${studentName}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`, // or use your stored apiToken
+          },
+        }
       );
       console.log("Student Name" + response.data.data);
       setStudentsList(response.data);

@@ -4,8 +4,8 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo from '../../assets/images/btulogo.png'; // Added by tejasvi 2-12-2024
-import loginBg from '../../assets/images/login-bg.png'; // Added by tejasvi 2-12-2024
+import logo from '../../assets/images/btulogo.png';
+import loginBg from '../../assets/images/login-bg.png';
 import { ReloadIcon } from "@radix-ui/react-icons";
 import {
   accessTokenAtom,
@@ -27,15 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { OtpInput } from "../ui/otpinput";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "../ui/use-toast";
@@ -62,13 +54,6 @@ export function Login() {
   const setUserId = useSetRecoilState(userIdAtom);
   const setUserVersion = useSetRecoilState(userVersion);
   const setLoggedin = useSetRecoilState(isLoggedinAtom);
-  const accessToken = useRecoilValue(accessTokenAtom);
-  const refreshToken = useRecoilValue(refreshTokenAtom);
-  const name = useRecoilValue(usernameAtom);
-  const email = useRecoilValue(useremailAtom);
-  const version = useRecoilValue(userVersion);
-  const usertype = useRecoilValue(userTypeAtom);
-  const userid = useRecoilValue(userIdAtom);
   const baseURL = useRecoilValue(baseURLAtom);
   const [loading, setLoading] = useState(false);
   const [wrongPass, setWrongPass] = useState(false);
@@ -79,30 +64,18 @@ export function Login() {
 
   useEffect(() => {
     if (localStorage.getItem("is_login") === "true") {
-      navigate("/"); // Redirect to home page if the user is already logged in
+      navigate("/");
     }
   }, [navigate]);
 
-  const form = useForm({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const showForgotPassword = () => {
-    setShowForgotPasswordPopup(true);
-  };
+  const form = useForm({ resolver: zodResolver(loginSchema) });
 
   const loginUser = async (payload) => {
     try {
       setLoading(true);
-  
-      // Make API request
       const response = await axios.post(`${baseURL}api/login/`, payload);
-  
       if (response.status === 200 || response.status === 201) {
-        setLoading(false);
         const { token, name, user_id, email, is_user, version } = response.data;
-  
-        // Save to Recoil and localStorage
         setAccessToken(token.access);
         setRefreshToken(token.refresh);
         setUsername(name);
@@ -111,63 +84,50 @@ export function Login() {
         setUserType(is_user ? "User" : "Admin");
         setUserVersion(version);
         setLoggedin(true);
-  
-        // Save data to localStorage
-        localStorage.setItem("access", token.access); // Save token directly as string
-        localStorage.setItem("refresh", token.refresh); // Save token directly as string
-        localStorage.setItem("username", name); // Store name as string
-        localStorage.setItem("useremail", email); // Store email as string
-        localStorage.setItem("user_type", is_user ? "User" : "Admin"); // Store user type as string
-        localStorage.setItem("user_id", user_id); // Store user id as string
-        localStorage.setItem("version", version); // Store version as string
+        localStorage.setItem("access", token.access);
+        localStorage.setItem("refresh", token.refresh);
+        localStorage.setItem("username", name);
+        localStorage.setItem("useremail", email);
+        localStorage.setItem("user_type", is_user ? "User" : "Admin");
+        localStorage.setItem("user_id", user_id);
+        localStorage.setItem("version", version);
         localStorage.setItem("is_login", "true");
-  
         setShowPopup(true);
-        navigate("/"); // Redirect after login
+        navigate("/");
       }
     } catch (error) {
-      setLoading(false);
-      if (error.response && error.response.status === 404) {
-        const errorMessage = error.response.data.error;
-        toast({
-          title: "Error",
-          description: errorMessage,
-        });
+      if (error.response?.status === 404) {
+        toast({ title: "Error", description: error.response.data.error });
       } else {
-        console.log("An error occurred: ", error.response?.status || error.message);
+        console.error("Login error:", error);
       }
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   const forgetPassword = async (payload) => {
     try {
       setLoading(true);
       const response = await axios.post(`${baseURL}api/forgotpassword/`, payload);
       if (response.status === 200 || response.status === 201) {
-        setLoading(false);
         setShowForgotPasswordPopup(false);
-        toast({
-          title: response.data.message,
-        });
+        toast({ title: response.data.message });
       }
     } catch (error) {
-      setLoading(false);
-      if (error.response && error.response.status === 404) {
-        const errorMessage = error.response.data.error;
-        toast({
-          title: "Error",
-          description: errorMessage,
-        });
+      if (error.response?.status === 404) {
+        toast({ title: "Error", description: error.response.data.error });
       } else {
-        console.log("An error occurred: ", error.response?.status || error.message);
+        console.error("Forgot password error:", error);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div
-      className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-1 h-svh"
+      className="w-full min-h-screen grid place-items-center p-4"
       style={{
         backgroundImage: `url(${loginBg})`,
         backgroundRepeat: "no-repeat",
@@ -176,88 +136,57 @@ export function Login() {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="flex items-center justify-center py-12">
-        <Card className="mx-auto min-w-[550px] max-w-lg p-6 rounded-3xl">
-          <CardHeader>
-            <div className="d-flex justify-content-center mb-3">
-              <img src={logo} alt="Logo" className="logo" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                className="grid gap-2 space-y-4"
-                method="post"
-                onSubmit={form.handleSubmit(loginUser)}
-              >
-                <div className="grid gap-1">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Email Address"
-                            type="email"
-                            {...field}
-                            className="p-4" // Add padding to the input
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="Password"
-                            className="bg-white dark:bg-transparent p-4"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex items-center">
-                    <Link
-                      className="ml-auto inline-block text-sm underline cursor-pointer"
-                      onClick={showForgotPassword}
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
-                </div>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-red-500 text-white hover:bg-red-600 disabled:bg-red-300 p-4"
-                >
-                  {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
-                  {loading ? "Logging in..." : "Login"}
-                </Button>
-                {wrongPass ? (
-                  <Alert variant="destructive">
-                    <AlertTitle className="mb-0">{wrongPass}</AlertTitle>
-                  </Alert>
-                ) : null}
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="w-full max-w-lg p-6 rounded-3xl shadow-xl">
+        <CardHeader className="text-center">
+          <img src={logo} alt="Logo" className="mx-auto h-16" />
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form className="space-y-4" onSubmit={form.handleSubmit(loginUser)}>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Email Address" type="email" {...field} className="p-4" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Password" type="password" className="p-4" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="text-right">
+                <Link onClick={() => setShowForgotPasswordPopup(true)} className="text-sm underline cursor-pointer">
+                  Forgot your password?
+                </Link>
+              </div>
+              <Button type="submit" disabled={loading} className="w-full p-4 bg-red-500 text-white hover:bg-red-600">
+                {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />} {loading ? "Logging in..." : "Login"}
+              </Button>
+              {wrongPass && (
+                <Alert variant="destructive">
+                  <AlertTitle>{wrongPass}</AlertTitle>
+                </Alert>
+              )}
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
-      {/* Forgot Password Popup */}
       <Dialog open={showForgotPasswordPopup} onOpenChange={setShowForgotPasswordPopup}>
-        <DialogContent className="gap-8 sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Forgot Password</DialogTitle>
             <DialogDescription>
@@ -277,7 +206,7 @@ export function Login() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={loading} className="mt-4">
+            <Button type="submit" disabled={loading} className="mt-4 w-full">
               {loading ? "Sending..." : "Send Reset Link"}
             </Button>
           </form>

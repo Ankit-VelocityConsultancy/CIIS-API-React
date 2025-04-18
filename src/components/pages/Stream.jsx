@@ -86,9 +86,6 @@ const validateForm = () => {
     errors.streamName = "Stream Name is required.";
   }
 
-  if (!streamYear.trim()) {
-    errors.streamYear = "Stream Year is required.";
-  }
 
   if (!sem.trim()) {
     errors.sem = "Course Duration is required.";

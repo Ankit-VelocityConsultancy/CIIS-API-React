@@ -45,6 +45,8 @@ import StudentExam from "./components/pages/StudentExam"; // Added by tejasvi 24
 import ExamTest from "./components/pages/ExamTest"; // Added by tejasvi 24-2-2025
 import AllRegisteredStudents from "./components/pages/AllRegisteredStudents"; // Added by tejasvi 26-2-2025
 
+import CanclledStudent from "./components/pages/CanclledStudent"
+
 const App = () => {
 
   const isLoggedin = useRecoilValue(isLoggedinAtom);
@@ -86,6 +88,8 @@ const App = () => {
             <Route path="/exam" element={<StudentExam />} />
             <Route path="/test" element={<ExamTest />} />
             <Route path="/all-registered-student" element={<AllRegisteredStudents />} />
+            <Route path="/canclled-students" element={<CanclledStudent />} />
+
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

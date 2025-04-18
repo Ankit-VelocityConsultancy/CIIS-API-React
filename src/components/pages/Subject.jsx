@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { baseURLAtom } from "../../recoil/atoms";
 import { useRecoilValue } from "recoil";
-
 const Subject = () => {
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [universities, setUniversities] = useState([]);
@@ -39,13 +38,13 @@ const Subject = () => {
   const [modalMessage, setModalMessage] = useState("");
   
   useEffect(() => {
-    const apiToken = localStorage.getItem("access");
+    
   
     const fetchUniversities = async () => {
       try {
         const response = await axios.get(`${baseURL}api/universities/`, {
           headers: {
-            Authorization: `Bearer ${apiToken}`,
+            Authorization: `Bearer ${localStorage.getItem('access')}`,
           },
         });
         setUniversities(response.data);
@@ -57,18 +56,16 @@ const Subject = () => {
   
     fetchUniversities();
   }, []);
-
   useEffect(() => {
     if (selectedUniversity) {
       const fetchCourses = async () => {
         try {
-          const apiToken = localStorage.getItem("access"); // Retrieve the token
   
           const response = await axios.get(
             `${baseURL}api/courses-with-id/?university_id=${selectedUniversity}`,
             {
               headers: {
-                Authorization: `Bearer ${apiToken}`, // Add the token to the headers
+                Authorization: `Bearer ${localStorage.getItem('access')}`, // Add the token to the headers
               },
             }
           );
@@ -86,13 +83,12 @@ const Subject = () => {
     if (selectedCourse && selectedUniversity) {
       const fetchStreams = async () => {
         try {
-          const apiToken = localStorage.getItem("access"); // Retrieve the token
   
           const response = await axios.get(
             `${baseURL}api/streams-with-id/?course_id=${selectedCourse}&university_id=${selectedUniversity}`,
             {
               headers: {
-                Authorization: `Bearer ${apiToken}`, // Add the token to the headers
+                Authorization: `Bearer ${localStorage.getItem('access')}`, // Add the token to the headers
               },
             }
           );
@@ -104,18 +100,16 @@ const Subject = () => {
       fetchStreams();
     }
   }, [selectedCourse, selectedUniversity]);
-
   useEffect(() => {
     if (selectedStream && selectedCourse && selectedUniversity) {
       const fetchSubstreams = async () => {
         try {
-          const apiToken = localStorage.getItem("access"); // Retrieve the token
   
           const response = await axios.get(
             `${baseURL}api/substreams-with-id/?course_id=${selectedCourse}&university_id=${selectedUniversity}&stream_id=${selectedStream}`,
             {
               headers: {
-                Authorization: `Bearer ${apiToken}`, // Add the token to the headers
+                Authorization: `Bearer ${localStorage.getItem('access')}`, // Add the token to the headers
               },
             }
           );
@@ -131,7 +125,6 @@ const Subject = () => {
 
 
 
-   // Fetch courses for all universities when universities data is available
    useEffect(() => {
     if (universities.length > 0) {
       universities.forEach((university) => {
@@ -139,26 +132,19 @@ const Subject = () => {
       });
     }
   }, [universities]);
-
-   // Function to close the second modal
    const closeCourseModal = () => {
     setShowCourseModal(false);
     setSelectedCourse(null); // Reset the selected course
   };
-
- // Handle course click to open modal
  const handleCourseClick = (courseName, universityName) => {
   setSelectedCourse(courseName);
   setShowModal(true);
   fetchStreamsForCourse(courseName, universityName); // Pass both course and university
 };
   
-   // Modal close handler
    const closeModal = () => {
     setShowModal(false);
   };
-
-  const apiToken = localStorage.getItem("access"); // Retrieve the token
 
   const handleUpdateStream = async () => {
     console.log('selectedCourseID in handleUpdateStream:', selectedCourseID);
@@ -183,7 +169,7 @@ const Subject = () => {
         }),
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiToken}`,
+          Authorization: `Bearer ${localStorage.getItem('access')}`,
         },
       });
   
@@ -197,7 +183,6 @@ const Subject = () => {
       setError({ message: error.message });
     }
   };
-
   const openCourseModal = (course, course_id) => {
     console.log('Course passed to modal:', course);  // Ensure this is the full object
     setSelectedCourse(course);  // Set the full course object here
@@ -205,19 +190,15 @@ const Subject = () => {
     fetchStreamsForCourse(course, selectedUniversity);  // Pass both course and university
     setSelectedCourseID(course_id);
    };
-
- // Fetch courses for a specific university
 const fetchCoursesForUniversity = async (universityName) => {
   try {
-    const apiToken = localStorage.getItem("access"); // Retrieve the token
 
     const response = await axios.get(`${baseURL}api/courses/`, {
       headers: {
-        Authorization: `Bearer ${apiToken}`, // Add the token to the headers
+        Authorization: `Bearer ${localStorage.getItem('access')}`, // Add the token to the headers
       },
       params: { university: universityName },
     });
-
     setCoursesByUniversity((prevState) => ({
       ...prevState,
       [universityName]: response.data.courses,
@@ -227,28 +208,21 @@ const fetchCoursesForUniversity = async (universityName) => {
   }
 };
 
-
   useEffect(() => {
-    // Fetch data only if all required dependencies are present
     if (selectedStream && selectedCourse && selectedUniversity) {
       const fetchSem = async () => {
         setLoading(true); // Show loading spinner/message
         try {
-          // Fetch semester value based on selected parameters
           const response = await axios.get(
             `${baseURL}api/get_course_duration/?course=${selectedCourse}&university=${selectedUniversity}&stream=${selectedStream}`,
             {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${apiToken}`,
+                Authorization: `Bearer ${localStorage.getItem('access')}`,
               },
             }
           );
-
-          // Log the API response for debugging
           console.log("Fetched data:", JSON.stringify(response.data, null, 2));
-
-          // Update the input field with the 'sem' value from the API
           setViewCourseDuration(response.data.sem || ""); // Default to empty string if 'sem' is undefined
         } catch (err) {
           setError("Error fetching semester data");
@@ -257,18 +231,14 @@ const fetchCoursesForUniversity = async (universityName) => {
           setLoading(false); // Hide loading spinner/message
         }
       };
-
       fetchSem();
     }
   }, [selectedStream, selectedCourse, selectedUniversity]);
-
 
   useEffect(() => {
     if (studyPattern && ViewCourseDuration) {
       const duration = parseInt(ViewCourseDuration, 10); // Parse course duration as integer
       const options = [];
-
-      // Populate options based on Study Pattern and Duration
       if (studyPattern === "Semester") {
         for (let i = 1; i <= duration * 2; i++) {
           options.push({ yearSem: `Semester ${i}`, value: `${i}` });
@@ -283,10 +253,8 @@ const fetchCoursesForUniversity = async (universityName) => {
       setSelectedSemYear(""); // Reset selected value when options change
     }
   }, [studyPattern, ViewCourseDuration]);
-
   const validateForm = () => {
     let errors = {};
-
     if (!selectedUniversity.trim()) {
       errors.selectedUniversity = "University Name is required.";
     }
@@ -314,17 +282,12 @@ const fetchCoursesForUniversity = async (universityName) => {
       errors.selectedSemYear = "Semester/Year is required.";
     }
 
-    // if (!selectedSubstream.trim()) {
-    //   errors.selectedSubstream = "SubStream is required.";
-    // }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
   const submitForm = async (event) => {
     event.preventDefault(); // Prevent default form submission behavior
     if (!validateForm()) return;
-
     const payload = {
       stream_id: selectedStream, // ID of the Stream
       name : subjectname, // Subject Name
@@ -336,23 +299,20 @@ const fetchCoursesForUniversity = async (universityName) => {
     console.log(payload);
   
     try {
-      const apiToken = localStorage.getItem("access"); // Retrieve the token
   
       const response = await axios.post(
         `${baseURL}api/create-subject/`,
         payload,
         {
           headers: {
-            Authorization: `Bearer ${apiToken}`, // Add the token to the headers
+            Authorization: `Bearer ${localStorage.getItem('access')}`, // Add the token to the headers
           },
         }
       );
   
-      // Handle the success of the subject creation
       console.log("Subject created:", response.data);
       alert("Subject created successfully!");
   
-      // Reset form fields
       setSubjectName("");
       setSubjectCode("");
       setStudyPattern("");
@@ -360,12 +320,10 @@ const fetchCoursesForUniversity = async (universityName) => {
       setSelectedStream("");
       setSelectedSubstream("");
       setLoading(false);
-
       setSuccessMessage("Subject added successfully!"); // Set the success message
       setTimeout(() => {
         setSuccessMessage(""); // Reset the success message after 10 seconds
       }, 10000);
-
     } catch (error) {
       setLoading(false);
       setError("Error creating subject");
@@ -373,17 +331,15 @@ const fetchCoursesForUniversity = async (universityName) => {
     }
   };
   
- // Fetch streams for the selected course and university
  const fetchStreamsForCourse = async (courseName, universityName) => {
   try {
     const response = await axios.get(`${baseURL}api/streams/`, {
       params: { course: courseName, university: universityName },
       headers: {
-        Authorization: `Bearer ${apiToken}`,
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
       },
     });
     
-    // If no streams are found, set the appropriate message
     if (response.data.streams.length === 0) {
       setStreams([]); // Clear any previous streams
       setModalStreams([]); // Clear modal streams
@@ -399,30 +355,22 @@ const fetchCoursesForUniversity = async (universityName) => {
   }
 };
 
-
 const handleStreamClick = async (stream) => {
   setSelectedStream(stream);
   setModalStreamss(modalStreamss);
-
-  // Use the correct ID property for fetching subjects:
   const subjects = await fetchSubjectsByStream(stream.stream_id);
-
   console.log("Subjects fetched:", subjects);
-
   setSelectedStream((prevStream) => ({
     ...prevStream,
-    // Only include substreams if they're defined elsewhere
     subjects: subjects, // Store subjects in state
   }));
-
   setShowStreamModal(true);
 };
-
 const fetchSubjectsByStream = async (streamId) => {
   try {
     const response = await axios.get(`${baseURL}api/get_subjects_by_stream/${streamId}/`, {
       headers: {
-        Authorization: `Bearer ${apiToken}`,
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
       },
     });
     
@@ -438,7 +386,6 @@ const fetchSubjectsByStream = async (streamId) => {
   }
 };
 
-
 const handleSubjectChange = (index, field, value) => {
   setSelectedStream((prevStream) => {
     const updatedSubjects = prevStream.subjects.map((subject, i) =>
@@ -448,13 +395,11 @@ const handleSubjectChange = (index, field, value) => {
   });
 };
 
-
 useEffect(() => {
   if (selectedStream && selectedStream.substreams) {
     setUpdatedSubstreams(selectedStream.substreams); // Set initial substreams to updatedSubstreams
   }
 }, [selectedStream]);
-
 
 const UpdateSubject = async () => {
   try {
@@ -465,22 +410,18 @@ const UpdateSubject = async () => {
       studypattern: subject.studypattern,
       semyear: subject.semyear,
     }));
-
     const response = await axios.put(
       "http://127.0.0.1:8000/api/update-multiple-subjects/",
       { subjects: subjectsToUpdate },
       {
         headers: {
-          Authorization: `Bearer ${apiToken}`,
+          Authorization: `Bearer ${localStorage.getItem('access')}`,
           "Content-Type": "application/json",
         },
       }
     );
-
     console.log(response.data);
     alert("Subjects updated successfully!");
-
-    // Update the selectedStream subjects with the updated subjects from the response
     setSelectedStream((prevStream) => ({
       ...prevStream,
       subjects: prevStream.subjects.map((subject) => {
@@ -490,7 +431,6 @@ const UpdateSubject = async () => {
         return updatedSubject ? { ...subject, ...updatedSubject } : subject;
       }),
     }));
-
     closeStreamModal();
   } catch (error) {
     console.error("Error updating subjects:", error);
@@ -498,25 +438,18 @@ const UpdateSubject = async () => {
   }
 };
 
-
  const closeStreamModal = () => {
   setShowStreamModal(false);
   setSelectedStream(null);
 };
-
- // Opens the delete confirmation modal
  const openDeleteConfirmModal = (subjectId) => {
   setSubjectToDelete(subjectId);
   setShowDeleteConfirmModal(true);
 };
-
-// Closes the delete confirmation modal without deleting
 const cancelDelete = () => {
   setSubjectToDelete(null);
   setShowDeleteConfirmModal(false);
 };
-
-// Confirms deletion and calls the API
 const confirmDeleteSubject = async () => {
   setShowDeleteConfirmModal(false);
   try {
@@ -524,11 +457,9 @@ const confirmDeleteSubject = async () => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiToken}`,
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
       },
     });
-
-    // Try to parse JSON response if available
     let data = {};
     try {
       data = await response.json();
@@ -537,11 +468,9 @@ const confirmDeleteSubject = async () => {
     }
 
     if (data.message) {
-      // Show the returned message (could be an error)
       setModalMessage(data.message);
     } else if (response.ok) {
       setModalMessage("Subject deleted successfully!");
-      // Remove the subject from state
       const updatedSubjects = selectedStream.subjects.filter((subject) => subject.id !== subjectToDelete);
       setSelectedStream({ ...selectedStream, subjects: updatedSubjects });
     } else {
@@ -554,13 +483,10 @@ const confirmDeleteSubject = async () => {
   setSubjectToDelete(null);
   setShowMessageModal(true);
 };
-
-// Closes the message modal
 const closeMessageModal = () => {
   setModalMessage("");
   setShowMessageModal(false);
 };
-
 
   return (
     <div className="quick-registration-page">
@@ -690,7 +616,7 @@ const closeMessageModal = () => {
                   setFormErrors((prevErrors) => ({ ...prevErrors, studyPattern: "" }));
                 }
               }}
-              className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+              className="w-full p-2 border rounded-md bg-[#f5f5f5] text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select Study Pattern</option>
               <option value="Semester">Semester</option>
@@ -712,7 +638,7 @@ const closeMessageModal = () => {
                                     setFormErrors((prevErrors) => ({ ...prevErrors, selectedSemYear: "" }));
                                   }
                                 }}
-                                className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+                                className="w-full p-2 border rounded-md bg-[#f5f5f5] text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                               >
                                 <option value="">Select Semester & Year</option>
                                 {semYearOptions.map((option, index) => (
@@ -738,7 +664,7 @@ const closeMessageModal = () => {
                                 }}
                                 min="1"
                                 max="10" // You can adjust this range as per your needs
-                                className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+                                className="w-full p-2 border rounded-md bg-[#f5f5f5] text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                               />
                                {formError.ViewCourseDuration && <p className="text-red-500 text-xs">{formError.ViewCourseDuration}</p>}
                           </div>
@@ -758,7 +684,7 @@ const closeMessageModal = () => {
                   setFormErrors((prevErrors) => ({ ...prevErrors, subjectname: "" }));
                 }
               }}
-              className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+              className="w-full p-2 border rounded-md bg-[#f5f5f5] text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
              {formError.subjectname && <p className="text-red-500 text-xs">{formError.subjectname}</p>}
           </div>
@@ -778,7 +704,7 @@ const closeMessageModal = () => {
                   setFormErrors((prevErrors) => ({ ...prevErrors, subjectcode: "" }));
                 }
               }}
-              className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+              className="w-full p-2 border rounded-md bg-[#f5f5f5] text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
              {formError.subjectcode && <p className="text-red-500 text-xs">{formError.subjectcode}</p>}
           </div>
@@ -995,5 +921,4 @@ const closeMessageModal = () => {
     </div>
   );
 };
-
 export default Subject;

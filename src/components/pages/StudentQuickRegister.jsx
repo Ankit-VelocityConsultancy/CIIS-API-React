@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";  // Make sure to import useRef
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import "./QualificationTable.css";
@@ -33,6 +33,101 @@ const StudentQuickRegistrationPage = () => {
   const [bankName, setBankName] = useState("");
   const [remarks, setRemarks] = useState("");
   const [universities, setUniversities] = useState([]);
+  const studentFileRef = useRef(null);  // Ref for student file input
+
+
+  const fetchUniversities = async () => {
+    console.log('inside fethc fetchUniversities')
+    try {
+      const apiToken = localStorage.getItem("access");
+      const response = await axios.get(`${baseURL}api/universities/`, {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+        },
+      });
+      setUniversities(response.data); // Populate university dropdown options again after reset
+    } catch (error) {
+      console.error("Error fetching universities:", error);
+    }
+  };
+
+useEffect(() => {
+  
+
+  fetchUniversities();
+}, []);  // Fetch universities once when component mounts
+
+  const resetForm = () => {
+    setStudentName("");
+    setFatherName("");
+    setDob("");
+    setMobileNumber("");
+    setEmail("");
+    setGender("");
+    setCategory("");
+    setCurrentAddress("");
+    setAlternateAddress("");
+    setUniversityEnrollmentNumber("");
+    setSelectedCourse("");
+    setSelectedStream("");
+    setSelectedSubstream("");
+    setStudyPattern("");
+    setStudentRemarks("");
+    setSession("");
+    setAdmissionType("");
+    setSelectedSemYear("");
+    setRegistrationNumber("");
+    setSelectedUniversity("");
+    setCounselorName("");
+    setReferenceName("");
+    setFeeReceipt("");
+    setTransactionDate("");
+    setPaymentMode("");
+    setSelectedBank("");
+    setChequeNo("");
+    setAmount("");
+    setRemarks("");
+    setSelectedCountry("");
+    setSelectedState("");
+    setSelectedCity("");
+    
+    setViewCourseDuration([]); // Reset Course Duration field
+
+    setError(null);
+    setPincode("");
+    setUniversities([]); // Clear universities
+    setCourses([]); // Clear courses
+    setStreams([]); // Clear streams
+    setSessions([]); // Clear sessions
+    setBanks([]); // Clear banks
+    setFeeReceiptOptions([]); // Clear fee receipt options
+    setPaymentModes([]); // Clear payment modes
+    setSemYearOptions([]); // Clear semester-year options
+    setSubstreams([]); // Clear substreams
+    setCountries([]); // Clear countries
+    setStates([]); // Clear states
+    setCities([]); // Clear cities
+    setFormErrors({}); // Clear form errors
+    setSuccessMessage("Form submitted successfully!");
+
+    // Re-fetch dropdown options
+    fetchUniversities(); // Re-fetch universities
+    fetchCourses(); // Re-fetch courses
+    fetchStreams(); // Re-fetch streams
+    fetchSubstreams(); // Re-fetch substreams
+    fetchSessions(); // Re-fetch sessions
+    fetchBanks(); // Re-fetch banks
+    fetchFeeReceiptOptions(); // Re-fetch fee receipt options
+    fetchPaymentModes(); // Re-fetch payment modes
+    fetchUniversities();
+    fetchCountries(); // Re-fetch countries
+    setViewCourseDuration([]); // Reset Course Duration field
+    if (studentFileRef.current) {
+      console.log()
+      studentFileRef.current.value = null; // Reset file input field
+    }
+  };
+
   const [courses, setCourses] = useState([]);
   const [streams, setStreams] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -60,13 +155,13 @@ const StudentQuickRegistrationPage = () => {
   const [ViewCourseDuration, setViewCourseDuration] = useState([]);
 
  // States for Country, State, City
- const [countries, setCountries] = useState([]);
- const [states, setStates] = useState([]);
- const [cities, setCities] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
- const [selectedCountry, setSelectedCountry] = useState("");
- const [selectedState, setSelectedState] = useState("");
- const [selectedCity, setSelectedCity] = useState("");  // Added this state for selected city
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");  // Added this state for selected city
   // New fields
   const [gender, setGender] = useState("");
   const [category, setCategory] = useState("");
@@ -81,24 +176,6 @@ const StudentQuickRegistrationPage = () => {
 
   const apiToken = localStorage.getItem("access"); // Replace with your token source
   console.log("API Token=="+apiToken);
-
- // Fetch universities with authentication
- useEffect(() => {
-  const fetchUniversities = async () => {
-    try {
-      const apiToken = localStorage.getItem("access"); // Retrieve the token
-      const response = await axios.get(`${baseURL}api/universities/`, {
-        headers: {
-          Authorization: `Bearer ${apiToken}`, // Add the token to the headers
-        },
-      });
-      setUniversities(response.data);
-    } catch (error) {
-      console.error("Error fetching universities:", error);
-    }
-  };
-  fetchUniversities();
-}, []);
 
 // Fetch courses for the selected university with authentication
 useEffect(() => {
@@ -490,13 +567,17 @@ useEffect(() => {
   const submitForm = async (event) => {
     event.preventDefault();
     setLoading(true);
+    setError(""); // Clear previous error
   
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
   
     try {
       const formData = new FormData();
   
-      // Append form fields
+      // Append all form fields
       formData.append("name", studentName);
       formData.append("father_name", fatherName);
       formData.append("dateofbirth", dateOfBirth);
@@ -527,17 +608,14 @@ useEffect(() => {
       formData.append("state", selectedState);
       formData.append("city", selectedCity);
   
-      // Append image file (if available)
+      // Add image files if present
       if (StudFile && StudFile.length > 0) {
-        StudFile.forEach((file) => formData.append("image", file));
+        StudFile.forEach((file) => {
+          formData.append("image", file);
+        });
       }
   
-      // Debugging: Check form data before sending
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-  
-      // Send API request
+      // Send the request
       const response = await axios.post(
         `${baseURL}api/quick-registration/`,
         formData,
@@ -549,60 +627,17 @@ useEffect(() => {
         }
       );
   
-      // Reset form fields upon success
-      setStudentName("");
-      setFatherName("");
-      setDob("");
-      setMobileNumber("");
-      setEmail("");
-      setGender("");
-      setCategory("");
-      setCurrentAddress("");
-      setAlternateAddress("");
-      setUniversityEnrollmentNumber("");
-      setSelectedCourse("");
-      setSelectedStream("");
-      setSelectedSubstream("");
-      setStudyPattern("");
-      setStudentRemarks("");
-      setSession("");
-      setAdmissionType("");
-      setSelectedSemYear("");
-      setRegistrationNumber("");
-      setSelectedUniversity("");
-      setCounselorName("");
-      setReferenceName("");
-      setFeeReceipt("");
-      setTransactionDate("");
-      setPaymentMode("");
-      setSelectedBank("");
-      setChequeNo("");
-      setAmount("");
-      setRemarks("");
-      setSelectedCountry("");
-      setSelectedState("");
-      setSelectedCity("");
-      setStudFile(null);
-      setError(null);
-      setPincode("");
-      setUniversities([]);
-      setCourses([]);
-      setStreams([]);
-      setSessions([]);
-      setBanks([]);
-      setFeeReceiptOptions([]);
-      setPaymentModes([]);
-      setSemYearOptions([]);
-      setSubstreams([]);
-      setCountries([]);
-      setStates([]);
-      setCities([]);
-      setFormErrors({});
-      setSuccessMessage("Form submitted successfully!");
-  
+      // ✅ Success: No error shown, success message shown
+      if (response.status === 201 && response.data.message) {
+        setError(""); // clear error
+        setSuccessMessage(response.data.message);
+        alert(response.data.message);
+        resetForm();
+        setStudFile(null);
+      }
     } catch (error) {
       console.error("Submit error:", error);
-      
+  
       if (error.response && error.response.data) {
         setError(error.response.data.error || "An error occurred during registration.");
       } else {
@@ -612,6 +647,8 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  
+  
   
   
   

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRef } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import "./QualificationTable.css";
@@ -73,7 +74,77 @@ const StudentRegistrationPage = () => {
   const [ViewCourseDuration, setViewCourseDuration] = useState([]);
   const [formError, setFormErrors] = useState({});
   const [StudFile, setStudFile] = useState({});
-  const [feesData, setFeesData] = useState([]); // Store fetched fees data
+  const [feesData, setFeesData] = useState([]);
+const studentFileRef = useRef(null);
+
+  const resetForm = () => {
+    setStudentName("");
+    setFatherName("");
+    setDob("");
+    setMobileNumber("");
+    setEmail("");
+    setAltMobileNumber("");
+    setAltEmail("");
+    setGender("");
+    setCategory("");
+    setCurrentAddress("");
+    setAlternateAddress("");
+    setNationality("");
+    setPincode("");
+    setRegistrationNumber("");
+    setReferenceName("");
+    setUniversityEnrollmentNumber("");
+    setSelectedUniversity("");
+    setSelectedCourse("");
+    setSelectedStream("");
+    setSelectedSubstream("");
+    setStudyPattern("");
+    setStudentRemarks("");
+    setSession("");
+    setAdmissionType("");
+    setSelectedSemYear("");
+    setViewCourseDuration("");
+    setCounselorName("");
+    setFeeReceipt("");
+    setTransactionDate("");
+    setPaymentMode("");
+    setSelectedBank("");
+    setChequeNo("");
+    setAmount("");
+    setRemarks("");
+    setSelectedCountry("");
+    setSelectedState("");
+    setSelectedCity("");
+    setStudFile(null);
+    setErrors({});
+    setFormErrors({});
+    setShowAltMobile(false);
+    setShowAltEmail(false);
+    setRows([
+      { exam: "Secondary/High School", year: "", board: "", percentage: "", document: null },
+      { exam: "Sr. Secondary", year: "", board: "", percentage: "", document: null },
+      { exam: "Under Graduation", year: "", board: "", percentage: "", document: null },
+      { exam: "Post Graduation", year: "", board: "", percentage: "", document: null },
+      { exam: "Eng. Diploma / ITI", year: "", board: "", percentage: "", document: null },
+      { exam: "Others", year: "", board: "", percentage: "", document: null },
+    ]);
+    
+    setTotalFees("");
+    if (studentFileRef.current) {
+      studentFileRef.current.value = null;
+    }
+
+    setDocuments([
+      {
+        documentType: "",
+        nameAsOnDocument: "",
+        idNumber: "",
+        uploadFront: null,
+        uploadBack: null,
+      },
+    ]);
+  };
+ // Store fetched fees data
   const baseURL = useRecoilValue(baseURLAtom);
 
   const [rows, setRows] = useState([
@@ -426,6 +497,12 @@ useEffect(() => {
 
   // Add a new row to the documents list
   const handleAddRow = () => {
+    
+    setTotalFees("");
+    if (studentFileRef.current) {
+      studentFileRef.current.value = null;
+    }
+
     setDocuments([
       ...documents,
       {
@@ -765,7 +842,7 @@ const submitForm = async (event) => {
     // If submission is successful, clear any previous error message
     if (response.status >= 200 && response.status < 300) {
       setError(null);
-      setFormErrors({});
+      resetForm();
       setStudentName("");
       setFatherName("");
       setDob("");
@@ -800,19 +877,7 @@ const submitForm = async (event) => {
       setSelectedCity("");
       setStudFile(null);
       setPincode("");
-      setUniversities([]);
-      setCourses([]);
-      setStreams([]);
-      setSessions([]);
-      setBanks([]);
-      setFeeReceiptOptions([]);
-      setPaymentModes([]);
-      setSemYearOptions([]);
-      setSubstreams([]);
-      setCountries([]);
-      setStates([]);
-      setCities([]);
-    } else {
+                                                                            } else {
       setError("An error occurred during registration.");
     }
     setSuccessMessage("Student registered successfully!");
@@ -1095,6 +1160,7 @@ useEffect(() => {
           <input
                 type="file"
                 id="studentFile"
+                ref={studentFileRef}
                 name="image"
                 onChange={handlestudFileChange}
                 className="w-full p-2 border rounded-md bg-[#f5f5f5]"

@@ -203,9 +203,9 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                       link="/all-registered-student"
                       isCollapsed={isCollapsed}
                     />
-                    <Navigation
+                      <Navigation
                       title="Cancelled Students"
-                      link="/cancel-student"
+                      link="/canclled-students"
                       isCollapsed={isCollapsed}
                     />
                   </AccordionContent>
@@ -270,16 +270,16 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     )}
                   </AccordionTrigger>
                   <AccordionContent className="pt-1 space-y-1">
-                    <Navigation
-                      title="Add Student"
-                      link="/add-student"
-                      isCollapsed={isCollapsed}
-                    />
-                    <Navigation
-                      title="Edit Student"
-                      link="/add-student"
-                      isCollapsed={isCollapsed}
-                    />
+                      <Navigation
+                        title="Add Student"
+                        link="/student-register" 
+                        isCollapsed={isCollapsed}
+                      />
+                      <Navigation
+                        title="Edit Student"
+                        link="/all-registered-student"
+                        isCollapsed={isCollapsed}
+                      />
                     <Navigation
                       title="View Students"
                       link="/view-student"

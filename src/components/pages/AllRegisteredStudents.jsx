@@ -29,7 +29,7 @@ const StudentRegistrationViewPage = () => {
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [enrollmentId, setEnrollmentId] = useState("");
-  const [NewEnrollUniversitymodalOpen, setNewEnrollUniversityModalOpen] = useState(false); // ✅ Fix: This should be boolean
+  const [NewEnrollUniversitymodalOpen, setNewEnrollUniversityModalOpen] = useState(false);
   const [newEnrollmentModal, setnewEnrollmentModal] = useState(false); // ✅ Fix: This should be boolean
   const [oldUniversityEnrollModalOpen, setOldUniversityEnrollModalOpen] = useState(false);
   const [oldEnrollmentFormModalOpen, setOldEnrollmentFormModalOpen] = useState(false);
