@@ -254,9 +254,9 @@ const SetExamination = () => {
       errors.selectedStream = "Stream is required.";
     }
   
-    if (!selectedSubstream.trim()) {
-      errors.selectedSubstream = "Sub Stream is required.";
-    }
+    // if (!selectedSubstream.trim()) {
+    //   errors.selectedSubstream = "Sub Stream is required.";
+    // }
   
     if (!session.trim()) {
       errors.session = "Session is required.";
@@ -511,9 +511,9 @@ const SetExamination = () => {
         errors.selectedViewStream = "Stream is required.";
       }
     
-      if (!selectedViewSubstream.trim()) {
-        errors.selectedViewSubstream = "Sub Stream is required.";
-      }
+      // if (!selectedViewSubstream.trim()) {
+      //   errors.selectedViewSubstream = "Sub Stream is required.";
+      // }
     
       // if (!ViewSession.trim()) {
       //   errors.ViewSession = "Session is required.";
@@ -681,7 +681,7 @@ const SetExamination = () => {
       e.preventDefault(); // Prevent form reload
       
       try {
-        if (!selectedUniversity || !selectedCourse || !selectedStream || !selectedSubstream || !session || !studyPattern || !selectedSemYear) {
+        if (!selectedUniversity || !selectedCourse || !selectedStream || !session || !studyPattern || !selectedSemYear) {
           alert("Please fill out all the required fields.");
           return;
         }
@@ -830,7 +830,7 @@ const SetExamination = () => {
                               {formError.selectedStream && <p className="text-red-500 text-xs">{formError.selectedStream}</p>}
                           </div>
                           <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
-                              <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500">*</span></label>
+                              <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500"></span></label>
                               <select
                                   id="substream"
                                   value={selectedSubstream}

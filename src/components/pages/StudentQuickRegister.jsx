@@ -475,9 +475,9 @@ useEffect(() => {
       errors.selectedStream = "Stream is required.";
     }
   
-    if (!selectedSubstream.trim()) {
-      errors.selectedSubstream = "Sub Stream is required.";
-    }
+    // if (!selectedSubstream.trim()) {
+    //   errors.selectedSubstream = "Sub Stream is required.";
+    // }
   
     // Student Details Validations
     if (!studentName.trim()) {
@@ -1146,7 +1146,7 @@ useEffect(() => {
             {/* Substream dropdown */}
             {/* {streams && substreams.length > 0 && ( */}
               <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
-                <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500">*</span></label>
+                <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500"></span></label>
                 <select
               id="substream"
               value={selectedSubstream}

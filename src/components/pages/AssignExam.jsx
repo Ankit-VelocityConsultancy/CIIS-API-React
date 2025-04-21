@@ -513,9 +513,9 @@ const AssignExamination = () => {
           errors.selectedStream = "Stream is required.";
         }
       
-        if (!selectedSubstream.trim()) {
-          errors.selectedSubstream = "Sub Stream is required.";
-        }
+        // if (!selectedSubstream.trim()) {
+        //   errors.selectedSubstream = "Sub Stream is required.";
+        // }
       
         if (!session.trim()) {
           errors.session = "Session is required.";
@@ -923,9 +923,9 @@ const validateSearchForm = () => {
     errors.selectedViewStream = "Stream is required.";
   }
 
-  if (!selectedViewSubstream.trim()) {
-    errors.selectedViewSubstream = "Sub Stream is required.";
-  }
+  // if (!selectedViewSubstream.trim()) {
+  //   errors.selectedViewSubstream = "Sub Stream is required.";
+  // }
 
   if (!selectedSubject.trim()) {
     errors.selectedSubject = "Semester/Year is required.";

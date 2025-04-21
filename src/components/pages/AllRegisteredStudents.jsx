@@ -790,263 +790,104 @@ const openIDCardModal = async (studentId) => {
   }
 };
 
-  return (
-    <div className="quick-student-registration-page">
-      <h1 className="font-bold text-2xl mb-4">List of Registered Students</h1>
-      <DataTable
-        columns={columns}
-        data={students}
-        pagination
-        highlightOnHover
-        striped
-        responsive
-        noDataComponent="No students found"
-        expandableRows
-        expandableRowExpanded={(row) => !!expandedRows[row.enrollment_id]}
-        expandOnRowClicked={false}
-        expandableIcon={false} // ✅ Removes default arrow icon
-        expandableRowsComponent={({ data }) =>
-          expandedRows[data.enrollment_id] ? (
-            <div className="p-4 bg-gray-100 border rounded-md">
-              {/* Account Section */}
-              <div className="mb-4">
-                <p><strong>Account:</strong></p>
-                <div className="flex gap-2">
-                  <button onClick={() => openFeesModal("Fees")} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">Fees</button>
-                  <button onClick={() => openAddFeesModal(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">Additional Fees</button>
-                  <button onClick={() => openIDCardModal(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">ID Card</button>
-                  <button onClick={() => ResultUpload(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">Result Uploaded</button>
-                  <button onClick={() => openUniRegisterModal(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">University Re-Registration</button>
-                </div>
+return (
+  <div className="quick-student-registration-page">
+    <h1 className="font-bold text-3xl mb-4 text-center">List of Registered Students</h1>
+    <DataTable
+      columns={columns}
+      data={students}
+      pagination
+      highlightOnHover
+      striped
+      responsive
+      noDataComponent="No students found"
+      expandableRows
+      expandableRowExpanded={(row) => !!expandedRows[row.enrollment_id]}
+      expandOnRowClicked={false}
+      expandableIcon={false} // Removes default arrow icon
+      expandableRowsComponent={({ data }) =>
+        expandedRows[data.enrollment_id] ? (
+          <div className="p-4 bg-gray-100 border border-gray-300 rounded-md">
+            {/* Account Section */}
+            <div className="mb-4">
+              <p><strong>Account:</strong></p>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => openFeesModal("Fees")} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">Fees</button>
+                <button onClick={() => openAddFeesModal(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">Additional Fees</button>
+                <button onClick={() => openIDCardModal(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">ID Card</button>
+                <button onClick={() => ResultUpload(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">Result Uploaded</button>
+                <button onClick={() => openUniRegisterModal(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">University Re-Registration</button>
               </div>
+            </div>
 
-              {/* Extra Section */}
-              <div className="mb-4">
-                <p><strong>Extra:</strong></p>
-                <div className="flex gap-2">
-                  <button onClick={() => openNewUniversityEnrollModal(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">New University Enrollment Number</button>
-                  <button onClick={() => openOldUniversityEnrollModal(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">Old University Enrollment Number</button>
-                  <button onClick={() => openModal("Send Reminder")} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">Send Reminder</button>
-                  <button onClick={() => OpenUpdatePaymentModal(data.id)} className="bg-[#d3eaff] px-2 py-1 text-[#4259A6] rounded">Update Payment</button>
-                </div>
+            {/* Extra Section */}
+            <div className="mb-4">
+              <p><strong>Extra:</strong></p>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => openNewUniversityEnrollModal(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">New University Enrollment Number</button>
+                <button onClick={() => openOldUniversityEnrollModal(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">Old University Enrollment Number</button>
+                <button onClick={() => openModal("Send Reminder")} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">Send Reminder</button>
+                <button onClick={() => OpenUpdatePaymentModal(data.id)} className="bg-[#d3eaff] px-4 py-2 text-[#4259A6] rounded mb-2 md:mb-0">Update Payment</button>
               </div>
+            </div>
 
-              {/* Action Section */}
-              <div className="mb-4">
-                <p><strong>Action:</strong></p>
-                <div className="flex gap-2">
-                <button onClick={() => openEnrollModals(data.id)} className="bg-[#d3eaff] text-[#4259A6] px-2 py-1 rounded">
+            {/* Action Section */}
+            <div className="mb-4">
+              <p><strong>Action:</strong></p>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => openEnrollModals(data.id)} className="bg-[#d3eaff] text-[#4259A6] px-4 py-2 rounded mb-2 md:mb-0">
                   Enroll To Next Semester / Year
                 </button>
-                  <button onClick={() => openStudEnrollModal(data.id)} className="bg-[#d3eaff] text-[#4259A6] px-2 py-1 rounded">Cancel Student Enrollment</button>
-                </div>
+                <button onClick={() => openStudEnrollModal(data.id)} className="bg-[#d3eaff] text-[#4259A6] px-4 py-2 rounded mb-2 md:mb-0">Cancel Student Enrollment</button>
               </div>
-            </div>
-          ) : null
-        }
-      />
-
-       {/* ID Card Modal */}
-       {idCardModalOpen && studentData && (
-         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-         <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center border-2 border-gray-300">
-           
-           {/* University Logo */}
-           {studentData.university_logo && (
-             <img
-               src={`http://127.0.0.1:8000${studentData.university_logo}`}
-               alt="University Logo"
-               className="w-24 h-24 mx-auto mb-4 rounded-full border border-gray-300 object-cover"
-             />
-           )}
-   
-           {/* Enrollment ID & Name */}
-           <h2 className="text-lg font-bold">{studentData.name}</h2>
-           <p className="text-gray-700 font-medium mb-3">Enrollment ID: {studentData.enrollment_id}</p>
-   
-           {/* Divider */}
-           <hr className="border-gray-400 my-3" />
-   
-           {/* University Information */}
-           <div className="text-left text-sm mb-3">
-             <p><strong>University Name:</strong> {studentData.university_name}</p>
-             <p><strong>University Address:</strong> {studentData.university_address}, {studentData.university_city}, {studentData.university_state}, {studentData.university_pincode}, {studentData.country}</p>
-           </div>
-   
-           {/* Divider */}
-           <hr className="border-gray-400 my-3" />
-   
-           {/* Student Address */}
-           <div className="text-left text-sm mb-3">
-             <p><strong>Address:</strong> {studentData.address}</p>
-             <p>{studentData.city}, {studentData.state}, {studentData.country}, {studentData.pincode}</p>
-           </div>
-   
-           {/* Contact Information */}
-           <div className="text-sm">
-             <p><strong>Ph:</strong> {studentData.mobile} | <strong>Email:</strong> {studentData.email}</p>
-           </div>
-   
-           {/* Close Button */}
-           <div className="mt-4">
-             <button onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded-md">
-               Close
-             </button>
-           </div>
-         </div>
-       </div>
-      )}
-
-
-     
-      {AddFeemodalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[700px]">
-            <h2 className="text-lg font-bold mb-4">{selectedAddFeeAction}</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Payment For</label>
-                <select className="w-full p-2 border rounded-md" value={paymentFor} onChange={(e) => setPaymentFor(e.target.value)}>
-                  <option value="">Select</option>
-                  <option value="Library Fees">Library Fees</option>
-                  <option value="Lab Fees">Lab Fees</option>
-                  <option value="Exam Fees">Exam Fees</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Amount</label>
-                <input type="number" className="w-full p-2 border rounded-md" value={amount} onChange={(e) => setAmount(e.target.value)} />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Payment Type</label>
-                <select className="w-full p-2 border rounded-md" value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
-                  <option value="">Select</option>
-                  <option value="One-time">One-time</option>
-                  <option value="Recurring">Recurring</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Year / Semester</label>
-                <select className="w-full p-2 border rounded-md" value={yearSemester} onChange={(e) => setYearSemester(e.target.value)}>
-                  <option value="">Select</option>
-                  {[...Array(8).keys()].map((num) => (
-                    <option key={num + 1} value={num + 1}>
-                      {num + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Transaction Date</label>
-                <input type="date" className="w-full p-2 border rounded-md" value={transactionDate} onChange={(e) => setTransactionDate(e.target.value)} />
-              </div>
-            
-              <div>
-                <label className="block text-sm font-medium mb-1">Payment Mode</label>
-                <select className="w-full p-2 border rounded-md" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
-                  <option value="">Select</option>
-                  <option value="Online">Online</option>
-                  <option value="Cheque">Cheque</option>
-                  <option value="DD">Demand Draft (DD)</option>
-                  <option value="Credit Card">Credit Card</option>
-                </select>
-              </div>
-
-              {paymentMode !== "Online" && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Cheque/DD/CC Number</label>
-                  <input type="text" className="w-full p-2 border rounded-md" value={chequeNumber} onChange={(e) => setChequeNumber(e.target.value)} />
-                </div>
-              )}
-
-                {paymentMode !== "Online" && (
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Bank Name</label>
-                    <select
-                      className="w-full p-2 border rounded-md"
-                      value={bankName}
-                      onChange={(e) => setBankName(e.target.value)}
-                    >
-                      <option value="">Select Bank</option>
-                      <option value="State Bank of India">State Bank of India</option>
-                      <option value="HDFC Bank">HDFC Bank</option>
-                      <option value="ICICI Bank">ICICI Bank</option>
-                      <option value="Axis Bank">Axis Bank</option>
-                      <option value="Punjab National Bank">Punjab National Bank</option>
-                      <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
-                      <option value="Bank of Baroda">Bank of Baroda</option>
-                      <option value="Union Bank of India">Union Bank of India</option>
-                    </select>
-                  </div>
-                )}
-
-
-              <div className="col-span-3">
-                <label className="block text-sm font-medium mb-1">Remarks</label>
-                <textarea className="w-full p-2 border rounded-md" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-              </div>
-            </div>
-
-            <div className="mt-6 text-right">
-              <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">
-                Cancel
-              </button>
-              <button onClick={handleAdditionalFeeSubmit} className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                Save
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        ) : null
+      }
+    />
 
-
-    {oldUniversityEnrollModalOpen && (
+    {/* ID Card Modal */}
+    {idCardModalOpen && studentData && (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-5 rounded-lg shadow-lg w-[600px]">
-          <h2 className="text-lg font-bold mb-4">Old Enrollment Records</h2>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center border-2 border-gray-300">
+          {/* University Logo */}
+          {studentData.university_logo && (
+            <img
+              src={`http://127.0.0.1:8000${studentData.university_logo}`}
+              alt="University Logo"
+              className="w-24 h-24 mx-auto mb-4 rounded-full border border-gray-300 object-cover"
+            />
+          )}
+          {/* Enrollment ID & Name */}
+          <h2 className="text-lg font-bold">{studentData.name}</h2>
+          <p className="text-gray-700 font-medium mb-3">Enrollment ID: {studentData.enrollment_id}</p>
 
-          {/* Button to open the form modal */}
-          <button
-            onClick={openOldEnrollmentFormModal}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4"
-          >
-            Add Old Enrollment ID
-          </button>
+          {/* Divider */}
+          <hr className="border-gray-400 my-3" />
 
-          {/* Show Table of Old Enrollments */}
-        
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2">Sr.No</th>
-                  <th className="border p-2">Course Name</th>
-                  <th className="border p-2">Enrollment ID</th>
-                </tr>
-              </thead>
-              {loadingOldEnrollments ? (
-            <p>Loading...</p>
-          ) : oldEnrollments.length > 0 ? (
-              <tbody>
-                {oldEnrollments.map((item, index) => (
-                  <tr key={item.id}>
-                    <td className="border p-2">{index + 1}</td>
-                    <td className="border p-2">{item.course_name}</td>
-                    <td className="border p-2">{item.enrollment_id}</td>
-                  </tr>
-                ))}
-              </tbody>
-                 ) : (
-                  <p>No old enrollments found.</p>
-                )}
-            </table>
-       
+          {/* University Information */}
+          <div className="text-left text-sm mb-3">
+            <p><strong>University Name:</strong> {studentData.university_name}</p>
+            <p><strong>University Address:</strong> {studentData.university_address}, {studentData.university_city}, {studentData.university_state}, {studentData.university_pincode}, {studentData.country}</p>
+          </div>
 
-          <div className="text-right mt-4">
-            <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md">
+          {/* Divider */}
+          <hr className="border-gray-400 my-3" />
+
+          {/* Student Address */}
+          <div className="text-left text-sm mb-3">
+            <p><strong>Address:</strong> {studentData.address}</p>
+            <p>{studentData.city}, {studentData.state}, {studentData.country}, {studentData.pincode}</p>
+          </div>
+
+          {/* Contact Information */}
+          <div className="text-sm">
+            <p><strong>Ph:</strong> {studentData.mobile} | <strong>Email:</strong> {studentData.email}</p>
+          </div>
+
+          {/* Close Button */}
+          <div className="mt-4">
+            <button onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded-md">
               Close
             </button>
           </div>
@@ -1054,739 +895,110 @@ const openIDCardModal = async (studentId) => {
       </div>
     )}
 
-
-    {oldEnrollmentFormModalOpen && (
+    {/* Add Fee Modal */}
+    {AddFeemodalOpen && (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-5 rounded-lg shadow-lg w-[500px]">
-          <h2 className="text-lg font-bold mb-4">Add Old Enrollment</h2>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-[700px]">
+          <h2 className="text-lg font-bold mb-4">{selectedAddFeeAction}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Payment For</label>
+              <select className="w-full p-2 border rounded-md" value={paymentFor} onChange={(e) => setPaymentFor(e.target.value)}>
+                <option value="">Select</option>
+                <option value="Library Fees">Library Fees</option>
+                <option value="Lab Fees">Lab Fees</option>
+                <option value="Exam Fees">Exam Fees</option>
+              </select>
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">University Name</label>
-            <select
-              className="w-full p-2 border rounded-md"
-              value={selectedUniversity}
-              onChange={(e) => setSelectedUniversity(e.target.value)}
-            >
-              <option value="">Select University</option>
-              {universities.map((univ) => (
-                <option key={univ.id} value={univ.id}>
-                  {univ.university_name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Amount</label>
+              <input type="number" className="w-full p-2 border rounded-md" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Course Name</label>
-            <select
-              className="w-full p-2 border rounded-md"
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              disabled={!selectedUniversity}
-            >
-              <option value="">Select Course</option>
-              {courses.map((course) => (
-                <option key={course.course_id} value={course.course_id}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Payment Type</label>
+              <select className="w-full p-2 border rounded-md" value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
+                <option value="">Select</option>
+                <option value="One-time">One-time</option>
+                <option value="Recurring">Recurring</option>
+              </select>
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Enrollment ID</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={enrollmentId}
-              onChange={(e) => setEnrollmentId(e.target.value)}
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Year / Semester</label>
+              <select className="w-full p-2 border rounded-md" value={yearSemester} onChange={(e) => setYearSemester(e.target.value)}>
+                <option value="">Select</option>
+                {[...Array(8).keys()].map((num) => (
+                  <option key={num + 1} value={num + 1}>{num + 1}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="text-right">
-            <button
-              onClick={() => setOldEnrollmentFormModalOpen(false)}
-              className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2"
-            >
-              Back
-            </button>
-            <button
-              onClick={() => handleOldEnrollSubmit(selectedStudentId, "old")}
-              className="bg-green-500 text-white px-4 py-2 rounded-md"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
+            <div>
+              <label className="block text-sm font-medium mb-1">Transaction Date</label>
+              <input type="date" className="w-full p-2 border rounded-md" value={transactionDate} onChange={(e) => setTransactionDate(e.target.value)} />
+            </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-1">Payment Mode</label>
+              <select className="w-full p-2 border rounded-md" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+                <option value="">Select</option>
+                <option value="Online">Online</option>
+                <option value="Cheque">Cheque</option>
+                <option value="DD">Demand Draft (DD)</option>
+                <option value="Credit Card">Credit Card</option>
+              </select>
+            </div>
 
-{NewEnrollUniversitymodalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-5 rounded-lg shadow-lg w-[800px]">
-      <h2 className="text-lg font-bold mb-4">Enrollment Numbers</h2>
-      <button onClick={() => openNewEnrollmentModal(selectedStudentId)} className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4">
-        Add New Enrollment ID
-      </button>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Sr.No</th>
-              <th className="border p-2">Course Name</th>
-              <th className="border p-2">Enrollment ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.length > 0 ? (
-              tableData.map((item, index) => (
-                <tr key={item.id}>
-                  <td className="border p-2">{index + 1}</td>
-                  <td className="border p-2">{item.course_name}</td>
-                  <td className="border p-2">{item.enrollment_id}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="border p-2 text-center">
-                  No records found.
-                </td>
-              </tr>
+            {paymentMode !== "Online" && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Cheque/DD/CC Number</label>
+                <input type="text" className="w-full p-2 border rounded-md" value={chequeNumber} onChange={(e) => setChequeNumber(e.target.value)} />
+              </div>
             )}
-          </tbody>
-        </table>
-      )}
 
-      <div className="text-right mt-4">
-        <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md">
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-    {newEnrollmentModal && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-5 rounded-lg shadow-lg w-[500px]">
-          <h2 className="text-lg font-bold mb-4">New University Enrollment ID</h2>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">University Name</label>
-            <select
-            className="w-full p-2 border rounded-md"
-            value={selectedUniversity}
-            onChange={(e) => setSelectedUniversity(e.target.value)}
-          >
-            <option value="">Select University</option>
-            {universities.map((univ) => (
-              <option key={univ.id} value={univ.id}>
-                {univ.university_name}
-              </option>
-            ))}
-          </select>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Course Name</label>
-            <select
-            className="w-full p-2 border rounded-md"
-            value={selectedCourse}
-            onChange={(e) => setSelectedCourse(e.target.value)}
-            disabled={!selectedUniversity}
-          >
-            <option value="">Select Course</option>
-            {courses.map((course) => (
-              <option key={course.course_id} value={course.course_id}>
-                {course.name}
-              </option>
-            ))}
-          </select>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Enrollment ID</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={enrollmentId}
-              onChange={(e) => setEnrollmentId(e.target.value)}
-            />
-          </div>
-
-          <div className="text-right">
-            <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
-            <button onClick={() => handleSubmit(selectedStudentId)} className="bg-blue-500 text-white px-4 py-2 rounded-md">
-              Submit
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-
-
-        {/* Modal Component */}
-        {ResultUploadModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-200">
-         
-            <h2 className="text-lg font-bold mb-4">Result Uploads</h2>
-            <button onClick={() => openCreateResultModal(selectedStudentId)} className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4">
-              Create New Result
-            </button>
-
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-300 mb-4">
-                  <thead>
-                    <tr className="bg-gray-200 text-center">
-                      <th className="border p-2">Student ID</th>
-                      <th className="border p-2">Date</th>
-                      <th className="border p-2">Examination</th>
-                      <th className="border p-2">Semester Year</th>
-                      <th className="border p-2">Uploaded</th>
-                      <th className="border p-2">Remarks</th>
-                      <th className="border p-2">Action</th>
-                    </tr>
-                  </thead>
-                  {loading ? (
-                <p className="text-center text-gray-500">Loading...</p>
-                 ) : resultData.length > 0 ? (
-                  <tbody>
-                    {resultData.map((item) => (
-                      <tr key={item.id} className="text-center">
-                        <td className="border p-2">{item.student}</td>
-                        <td className="border p-2">{item.date}</td>
-                        <td className="border p-2">{item.examination}</td>
-                        <td className="border p-2">{item.semyear}</td>
-                        <td className="border p-2">{item.uploaded}</td>
-                        <td className="border p-2">{item.remarks}</td>
-                        <td className="border p-2">
-                        <button
-                          onClick={() => {
-                            setSelectedResult(item); // Set the clicked row's data
-                            setEditModalOpen(true); // Open the modal
-                          }}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded-md"
-                        >
-                          Edit
-                        </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                    ) : (
-                      <p className="text-center text-gray-500">No results found.</p>
-                    )}
-                </table>
-            </div>
-
-            <div className="mt-4 text-right">
-              <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-{CreateResultUploadModal && (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-5 rounded-lg shadow-lg w-96">
-            <h2 className="text-lg font-bold mb-4">Create Result Upload</h2>
-            <form onSubmit={handleCheckResultSubmit}> {/* ✅ Fixed */}
-                <input
-                    type="date"
-                    name="date"
-                    value={formDataa.date}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded mb-2"
-                    required
-                />
-                <input
-                    type="text"
-                    name="examination"
-                    placeholder="Examination"
-                    value={formDataa.examination}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded mb-2"
-                    required
-                />
-                <input
-                    type="text"
-                    name="semyear"
-                    placeholder="Semester Year"
-                    value={formDataa.semyear}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded mb-2"
-                    required
-                />
+            {paymentMode !== "Online" && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Bank Name</label>
                 <select
-                    name="uploaded"
-                    value={formDataa.uploaded}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded mb-2"
-                    required
+                  className="w-full p-2 border rounded-md"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
                 >
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
+                  <option value="">Select Bank</option>
+                  <option value="State Bank of India">State Bank of India</option>
+                  <option value="HDFC Bank">HDFC Bank</option>
+                  <option value="ICICI Bank">ICICI Bank</option>
+                  <option value="Axis Bank">Axis Bank</option>
+                  <option value="Punjab National Bank">Punjab National Bank</option>
+                  <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                  <option value="Bank of Baroda">Bank of Baroda</option>
+                  <option value="Union Bank of India">Union Bank of India</option>
                 </select>
-                <input
-                    type="text"
-                    name="remarks"
-                    placeholder="Remarks"
-                    value={formDataa.remarks}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded mb-2"
-                    required
-                />
-               
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                    Submit
-                </button>
-                <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">
-                    Cancel
-                </button>
-            </form>
-        </div>
-    </div>
-)}
-
-
-
-        {/* Modal Component */}
-        {UpdatePaymentModal && (
-           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-           <div className="bg-white p-6 rounded-lg shadow-lg w-[900px] max-h-[80vh] overflow-y-auto">
-             <h2 className="text-xl font-semibold mb-4">Update Payment</h2>
-             <p className="text-gray-600">Payment details for Student ID: {selectedStudentId}</p>
-   
-            {feesData && feesData.length > 0 ? (
-              <table className="w-full mt-4 border-collapse border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-200 text-center">
-                    <th className="border p-2">Sr.No</th>
-                    <th className="border p-2">Year/Sem</th>
-                    <th className="border p-2">Transaction Date</th>
-                    <th className="border p-2">Mode</th>
-                    <th className="border p-2">No</th>
-                    <th className="border p-2">Total Fees</th>
-                    <th className="border p-2">Paid Amount</th>
-                    <th className="border p-2">Advance Amount</th>
-                    <th className="border p-2">Pending Amount</th>
-                    <th className="border p-2">Payment Status</th>
-                    <th className="border p-2">Change Payment Status</th>
-                    <th className="border p-2">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {feesData.map((fee, index) => (
-                    <tr key={fee.fees_id} className="text-center">
-                      <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">{fee.semyear}</td>
-                      <td className="border p-2">{fee.transaction_date}</td>
-                      <td className="border p-2">{fee.paymentmode}</td>
-                      <td className="border p-2">{fee.cheque_no || "-"}</td>
-                      <td className="border p-2">
-                        {parseFloat(fee.paidamount) + parseFloat(fee.pendingamount)}
-                      </td>
-                      <td className="border p-2">{fee.paidamount}</td>
-                      <td className="border p-2">0</td>
-                      <td className="border p-2">{fee.pendingamount}</td>
-                      <td className="border p-2">{statusMap[fee.fees_id] || "Not Realised"}</td>
-                      <td className="border p-2">
-                        <select
-                          className="border rounded p-1"
-                          value={statusMap[fee.fees_id] || "Not Realised"}
-                          onChange={(e) => handleStatusChange(fee.fees_id, e.target.value)}
-                        >
-                          <option value="Realised">Realised</option>
-                          <option value="Not Realised">Not Realised</option>
-                        </select>
-                      </td>
-                      <td className="border p-2">
-                        <button
-                          onClick={() => handleUpdatePayment(fee)}
-                          className={`bg-blue-500 text-white px-3 py-1 rounded-md ${
-                            loading ? "opacity-50 cursor-not-allowed" : ""
-                          }`}
-                          disabled={loading}
-                        >
-                          {loading ? "Updating..." : "Update"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="mt-4 text-gray-600">No additional fees found.</p>
+              </div>
             )}
 
-   
-             {/* Buttons */}
-             <div className="mt-4 text-right">
-               <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">
-                 Close
-               </button>
-             </div>
-           </div>
-         </div>
-      )}
+            <div className="col-span-3">
+              <label className="block text-sm font-medium mb-1">Remarks</label>
+              <textarea className="w-full p-2 border rounded-md" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+            </div>
+          </div>
 
-
-{editModalOpen && selectedResult && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-5 rounded-lg shadow-lg w-96">
-      <h2 className="text-lg font-bold mb-4">Edit Result</h2>
-      
-      <form onSubmit={handleUploadUpdate}>
-        <label className="block mb-2">
-          Date:
-          <input
-            type="date"
-            className="border p-2 w-full"
-            value={selectedResult.date}
-            onChange={(e) => setSelectedResult({ ...selectedResult, date: e.target.value })}
-          />
-        </label>
-
-        <label className="block mb-2">
-          Examination:
-          <input
-            type="text"
-            className="border p-2 w-full"
-            value={selectedResult.examination}
-            onChange={(e) => setSelectedResult({ ...selectedResult, examination: e.target.value })}
-          />
-        </label>
-
-        <label className="block mb-2">
-          Semester Year:
-          <input
-            type="text"
-            className="border p-2 w-full"
-            value={selectedResult.semyear}
-            onChange={(e) => setSelectedResult({ ...selectedResult, semyear: e.target.value })}
-          />
-        </label>
-
-        <label className="block mb-2">
-          Uploaded:
-          <select
-            className="border p-2 w-full"
-            value={selectedResult.uploaded}
-            onChange={(e) => setSelectedResult({ ...selectedResult, uploaded: e.target.value })}
-          >
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </label>
-
-        <label className="block mb-4">
-          Remarks:
-          <input
-            type="text"
-            className="border p-2 w-full"
-            value={selectedResult.remarks}
-            onChange={(e) => setSelectedResult({ ...selectedResult, remarks: e.target.value })}
-          />
-        </label>
-
-        <div className="flex justify-end">
-          <button type="button" onClick={() => setEditModalOpen(false)} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">
-            Cancel
-          </button>
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-            Update
-          </button>
+          <div className="mt-6 text-right">
+            <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">
+              Cancel
+            </button>
+            <button onClick={handleAdditionalFeeSubmit} className="bg-blue-500 text-white px-4 py-2 rounded-md">
+              Save
+            </button>
+          </div>
         </div>
-      </form>
-    </div>
+      </div>
+    )}
   </div>
-)}
+);
 
-
-     
-    {openEnrollModal && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-5 rounded-lg shadow-lg w-[600px]">
-          <h2 className="text-lg font-bold mb-4">Enroll to Next Year</h2>
-
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : (
-            <form onSubmit={(e) => e.preventDefault()}>
-              {/* First Row */}
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Course</label>
-                  <input type="text" className="w-full p-2 border rounded-md" value={formData.course} readOnly />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Stream</label>
-                  <input type="text" className="w-full p-2 border rounded-md" value={formData.stream} readOnly />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Total Semester/Year</label>
-                  <input type="text" className="w-full p-2 border rounded-md" value={formData.total_semyear} readOnly />
-                </div>
-              </div>
-
-              {/* Second Row */}
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Current Semester/Year</label>
-                  <input type="text" className="w-full p-2 border rounded-md" value={formData.current_semyear} readOnly />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Next Semester/Year</label>
-                  <input type="text" className="w-full p-2 border rounded-md bg-gray-100" value={formData.next_semyear} readOnly />
-                </div>
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    className="w-full bg-blue-500 text-white px-4 py-2 rounded-md"
-                    onClick={handleEnrollConfirmation}
-                  >
-                    Enroll
-                  </button>
-                </div>
-              </div>
-
-              {/* Cancel Button */}
-              <div className="text-right">
-                <button onClick={closeModal} type="button" className="bg-gray-400 text-white px-4 py-2 rounded-md">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </div>
-    )}
-
-    {successModal && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-5 rounded-lg shadow-lg w-[400px] text-center">
-          <h2 className="text-lg font-bold mb-4">Success</h2>
-          <p>Student Enrolled successfully</p>
-          <button
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md"
-            onClick={closeSuccessModal}
-          >
-            OK
-          </button>
-        </div>
-      </div>
-    )}
-
-
-     {UniRegisterModal && (
-       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-       <div className="bg-white p-5 rounded-lg shadow-lg w-[800px] max-h-[80vh] overflow-y-auto">
-
-         <h2 className="text-lg font-bold mb-4 text-center">University Re-Registration Details</h2>
-          {/* Add New University Button */}
-          <div className="text-right mb-4">
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            onClick={() => handleOpenAddModal(selectedStudentId)}
-          >
-            Add New University
-          </button>
-          </div>
-           <table className="w-[700px] border-collapse border border-gray-300 text-sm">
-             <thead>
-               <tr className="bg-gray-200 text-center">
-                 <th className="border p-2">ID</th>
-                 <th className="border p-2">Type</th>
-                 <th className="border p-2">Amount</th>
-                 <th className="border p-2">Date</th>
-                 <th className="border p-2">Examination</th>
-                 <th className="border p-2">Sem/Year</th>
-                 <th className="border p-2">Payment Mode</th>
-                 <th className="border p-2">Remarks</th>
-               </tr>
-             </thead>
-             {loading ? (
-             <p className="text-center text-gray-500">Loading...</p>
-              ) : registrationData.length > 0 ? (
-             <tbody>
-               {registrationData.map((item) => (
-                 <tr key={item.id} className="text-center">
-                   <td className="border p-2">{item.id}</td>
-                   <td className="border p-2">{item.type}</td>
-                   <td className="border p-2">{item.amount}</td>
-                   <td className="border p-2">{item.date}</td>
-                   <td className="border p-2">{item.examination}</td>
-                   <td className="border p-2">{item.semyear}</td>
-                   <td className="border p-2">{item.paymentmode}</td>
-                   <td className="border p-2">{item.remarks}</td>
-                 </tr>
-               ))}
-             </tbody>
-              ) : (
-                <p className="text-center text-gray-500">No registration data found.</p>
-              )}
-           </table>
-         <div className="mt-4 text-center">
-           <button
-             className="bg-green-500 text-white px-4 py-2 rounded-md"
-             onClick={closeSuccessModal}
-           >
-             OK
-           </button>
-         </div>
-       </div>
-     </div>
-    )}
-
-
-      {/* Add New University Registration Modal */}
-      {isAddUniModalOpen && (
-           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-           <div className="bg-white p-5 rounded-lg shadow-lg w-[500px] max-h-[80vh] overflow-y-auto">
-             <h2 className="text-lg font-bold mb-4 text-center">Add University Registration</h2>
-   
-             <div className="space-y-3">
-               <input
-                 type="text"
-                 name="amount"
-                 placeholder="Amount"
-                 className="border p-2 w-full rounded"
-                 value={reregisterFormData.amount}
-                 onChange={handleReregisterInputChange}
-               />
-               <input
-                 type="date"
-                 name="date"
-                 className="border p-2 w-full rounded"
-                 value={reregisterFormData.date}
-                 onChange={handleReregisterInputChange}
-               />
-               <input
-                 type="text"
-                 name="examination"
-                 placeholder="Examination"
-                 className="border p-2 w-full rounded"
-                 value={reregisterFormData.examination}
-                 onChange={handleReregisterInputChange}
-               />
-               <input
-                 type="text"
-                 name="semyear"
-                 placeholder="Sem/Year"
-                 className="border p-2 w-full rounded"
-                 value={reregisterFormData.semyear}
-                 onChange={handleReregisterInputChange}
-               />
-               <select
-                 name="paymentmode"
-                 className="border p-2 w-full rounded"
-                 value={reregisterFormData.paymentmode}
-                 onChange={handleReregisterInputChange}
-               >
-                 <option value="">Select Payment Mode</option>
-                 <option value="Online">Online</option>
-                 <option value="NEFT">NEFT</option>
-                 <option value="Cheque">Cheque</option>
-               </select>
-               <input
-                 type="text"
-                 name="remarks"
-                 placeholder="Remarks"
-                 className="border p-2 w-full rounded"
-                 value={reregisterFormData.remarks}
-                 onChange={handleReregisterInputChange}
-               />
-             </div>
-   
-             <div className="mt-4 flex justify-end space-x-2">
-               <button className="bg-gray-400 text-white px-4 py-2 rounded-md" onClick={closeModal}>
-                 Close
-               </button>
-               <button className="bg-blue-500 text-white px-4 py-2 rounded-md" onClick={handleSaveReregister}>
-                 Save
-               </button>
-             </div>
-           </div>
-         </div>
-        )}
-
-
-      {StudEnrollmodalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-[800px]">
-            <h2 className="text-lg font-bold mb-4">Cancel Student Enrollment</h2>
-            {loading ? (
-              <p>Loading...</p>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : (
-              <>
-                {/* Student Info Table */}
-                <table className="w-full border-collapse border border-gray-300 mb-4">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border p-2">Name</th>
-                      <th className="border p-2">Mobile</th>
-                      <th className="border p-2">Email</th>
-                      <th className="border p-2">Enrolled</th>
-                      <th className="border p-2">Active</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2">{studentData.name}</td>
-                      <td className="border p-2">{studentData.mobile}</td>
-                      <td className="border p-2">{studentData.email}</td>
-                      <td className="border p-2">{studentData.enrolled ? "Yes" : "No"}</td>
-                      <td className="border p-2">{studentData.active ? "Yes" : "No"}</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                {/* Student ID & Status Dropdown */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Student ID</label>
-                  <input type="text" className="w-full p-2 border rounded-md bg-gray-100" value={studentData.id} readOnly />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select
-                    className="w-full p-2 border rounded-md"
-                    value={cancelStatus}
-                    onChange={(e) => setCancelStatus(e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    <option value="in-active">In-Active</option>
-                  </select>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="text-right">
-                  <button onClick={closeModal} className="bg-gray-400 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
-                  <button onClick={handleUpdate} className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                    {updating ? "Updating..." : "Update"}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-
-
-
-    </div>
-  );
 };
 
 export default StudentRegistrationViewPage;

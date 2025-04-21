@@ -587,9 +587,10 @@ const handleChange = (index, event) => {
       errors.selectedStream = "Stream is required.";
     }
   
-    if (!selectedSubstream.trim()) {
-      errors.selectedSubstream = "Sub Stream is required.";
-    }
+    // modify by ankit 
+    // if (!selectedSubstream.trim()) {
+    //   errors.selectedSubstream = "Sub Stream is required.";
+    // }
   
     // Student Details Validations
     if (!studentName.trim()) {
