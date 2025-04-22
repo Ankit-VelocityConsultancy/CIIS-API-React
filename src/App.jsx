@@ -47,6 +47,8 @@ import AllRegisteredStudents from "./components/pages/AllRegisteredStudents"; //
 
 import CanclledStudent from "./components/pages/CanclledStudent"
 
+import DocumentSummary from "./components/pages/DocumentSummary";  
+
 const App = () => {
 
   const isLoggedin = useRecoilValue(isLoggedinAtom);
@@ -89,7 +91,7 @@ const App = () => {
             <Route path="/test" element={<ExamTest />} />
             <Route path="/all-registered-student" element={<AllRegisteredStudents />} />
             <Route path="/canclled-students" element={<CanclledStudent />} />
-
+            
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

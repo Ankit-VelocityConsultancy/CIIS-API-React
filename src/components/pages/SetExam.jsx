@@ -682,13 +682,13 @@ const SetExamination = () => {
       
       try {
         if (!selectedUniversity || !selectedCourse || !selectedStream || !session || !studyPattern || !selectedSemYear) {
-          alert("Please fill out all the required fields.");
-          return;
+          // alert("Please fill out all the required fields.");
+          // return;
         }
     
         if (selectedRows.length === 0) {
-          alert("Please select at least one subject from the table.");
-          return;
+          // alert("Please select at least one subject from the table.");
+          // return;
         }
     
         // Iterate over selected rows to prepare data for API
@@ -728,7 +728,7 @@ const SetExamination = () => {
           }
         }
     
-        alert("All selected subjects have been saved successfully.");
+        // alert("All selected subjects have been saved successfully.");
       } catch (error) {
         console.error("Error saving exam data:", error);
         alert("An error occurred while saving data. Please try again.");

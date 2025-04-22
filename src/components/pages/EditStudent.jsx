@@ -482,13 +482,14 @@ const addRow = () => {
           percentage: other.percentage || "",
           document: other.file_path || null,
         }))]);
-        
+        setStudentData(data);
+        console.log('daytatimg',data)
   
       } catch (error) {
         console.error("Error fetching student data:", error);
       }
     };
-  
+
     fetchStudentData();
   }, [enrollmentId]);
   
@@ -631,27 +632,54 @@ const personaldoccolumns = [
   {
     name: 'Upload Front',
     selector: (row, index) => (
-      <input
-        type="file"
-        name="uploadFront"
-        accept=".jpg, .jpeg, .png, .pdf"
-        onChange={(e) => handleFileChange(index, e)}
-        className="w-full p-2 border rounded-md"
-      />
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          name="uploadFront"
+          accept=".jpg,.jpeg,.png,.pdf"
+          onChange={(e) => handleFileChange(index, e)}
+          className="p-1 border rounded-md"
+        />
+        {row.uploadFront && typeof row.uploadFront === 'string' && (
+          <a
+            href={`${baseURL}${row.uploadFront}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 text-sm underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View
+          </a>
+        )}
+      </div>
     ),
   },
   {
     name: 'Upload Back',
     selector: (row, index) => (
-      <input
-        type="file"
-        name="uploadBack"
-        accept=".jpg, .jpeg, .png, .pdf"
-        onChange={(e) => handleFileChange(index, e)}
-        className="w-full p-2 border rounded-md"
-      />
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          name="uploadBack"
+          accept=".jpg,.jpeg,.png,.pdf"
+          onChange={(e) => handleFileChange(index, e)}
+          className="p-1 border rounded-md"
+        />
+        {row.uploadBack && typeof row.uploadBack === 'string' && (
+          <a
+            href={`${baseURL}${row.uploadBack}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 text-sm underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View
+          </a>
+        )}
+      </div>
     ),
-  },
+  }
+  
 ];
 
 
@@ -704,13 +732,28 @@ const newcolumns = [
   {
     name: "Upload Document",
     selector: (row, index) => (
-      <input
-        type="file"
-        accept=".pdf, .jpg"
-        onChange={(e) => handleInputChange(index, "document", e.target.files[0])}
-      />
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={(e) => handleInputChange(index, "document", e.target.files[0])}
+          className="p-1 border rounded-md"
+        />
+        {row.document && typeof row.document === "string" && (
+          <a
+            href={`${baseURL}${row.document}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 text-sm underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View
+          </a>
+        )}
+      </div>
     ),
-  },
+  }
+  
 ];
 
 
@@ -738,15 +781,49 @@ const newcolumns = [
             {/* Add university options dynamically if available */}
           </select>
         </div>
+
         <div className="w-full sm:w-1/2 lg:w-1/2 mb-4 sm:mb-0 pr-2">
-          <label htmlFor="studentFile" className="block text-sm font-medium text-[#838383]">Student File</label>
-          <input
-                type="file"
-                id="studentFile"
-                onChange={(e) => setStudentFile(e.target.files[0])}
-                className="w-full p-2 border rounded-md bg-[#f5f5f5]"
-              />
-        </div>
+        <label htmlFor="studentFile" className="block text-sm font-medium text-[#838383] mb-1">
+          Student Photo
+        </label>
+
+        <label
+          htmlFor="studentFile"
+          className="flex justify-between items-center p-2 border rounded-md bg-[#f5f5f5] cursor-pointer"
+        >
+          {/* Simulated input field with optional link */}
+          <span className="text-gray-600">
+            {studentFile?.name
+              ? studentFile.name
+              : studentData?.image
+              ? 'Click to change photo'
+              : 'Choose a file'}
+          </span>
+
+          {studentData?.image && (
+            <a
+              href={`${baseURL}${studentData.image}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()} // Prevent input trigger when clicking link
+              className="text-blue-600 text-sm underline ml-2"
+            >
+              View Uploaded Photo
+            </a>
+          )}
+        </label>
+
+        <input
+          type="file"
+          id="studentFile"
+          name="studentFile"
+          accept="image/*"
+          onChange={(e) => setStudentFile(e.target.files[0])}
+          className="hidden"
+        />
+      </div>
+
+
       </div>
 
       {/* Name, Father/Husband Name, Date of Birth */}

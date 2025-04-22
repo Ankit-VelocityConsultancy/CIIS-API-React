@@ -22,7 +22,7 @@ const StudentRegistrationViewPage = () => {
       try {
         const apiToken = localStorage.getItem("access");
         const response = await axios.get(
-          `${baseURL}api/quick-registered-students/`,
+          `${baseURL}api/registered-students-list/`,
           {
             headers: {
               'Authorization': `Bearer ${apiToken}`,

@@ -5,12 +5,14 @@ import DataTable from "react-data-table-component";
 import { baseURLAtom } from "../../recoil/atoms";
 import { useRecoilValue } from "recoil";
 import { FaPlusCircle, FaMinusCircle } from "react-icons/fa";
+import { FaEye, FaPen, FaPrint, FaDollarSign } from 'react-icons/fa';
 
 const StudentRegistrationViewPage = () => {
   const [students, setStudents] = useState([]);
   const [expandedRows, setExpandedRows] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
   const navigate = useNavigate();
   const baseURL = useRecoilValue(baseURLAtom);
   const [modalOpen, setModalOpen] = useState(false);
@@ -57,6 +59,10 @@ const StudentRegistrationViewPage = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [idCardModalOpen, setIdCardModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
+
+
+  
+
   const [reregisterFormData, setReregisterFormData] = useState({
     student_id: "", 
     type: "Re-registration",
@@ -585,44 +591,108 @@ const handleOpenAddModal = (studentId) => {
       });
   };
   
+  const customTableStyles = {
+    headRow: {
+      style: {
+        backgroundColor: '#d24845',
+        fontSize: '16px',
+        borderRadius: '7px',
+        marginBottom: '6px',
+        color: 'white',
+      },
+    },
+    headCells: {
+      style: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+        color: 'white',
+      },
+    },
+    rows: {
+      style: {
+        fontSize: '16px',
+      },
+    },
+    cells: {
+      style: {
+        fontSize: '16px',
+      },
+    },
+  };
+  
 
-  const columns = [
-    {
-      name: "Sr. No",
-      cell: (row) => (
-        <button onClick={() => toggleRow(row.enrollment_id)} className="text-xl">
-          {expandedRows[row.enrollment_id] ? (
-            <FaMinusCircle className="text-red-500" />
-          ) : (
-            <FaPlusCircle className="text-green-500" />
-          )}
-        </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    { name: "Student Name", selector: (row) => row.student_name, sortable: true },
-    { name: "Enrollment ID", selector: (row) => row.enrollment_id, sortable: true },
-    { name: "University", selector: (row) => row.university_name, sortable: true },
-    { name: "Study Mode", selector: (row) => row.study_pattern_mode, sortable: true },
-    { name: "Entry Mode", selector: (row) => row.entry_mode, sortable: true },
-    { name: "Enrollment Date", selector: (row) => row.enrollment_date, sortable: true },
-    {
-      name: "View/Edit",
-      cell: (row) => (
+
+const columns = [
+  {
+    name: "Sr. No",
+    selector: (row, index) => index + 1, // Adding serial number
+    sortable: true,
+  },
+  {
+    name: "Current Semester/Year",
+    selector: (row) => row.current_semyear,
+    sortable: true,
+  },
+  {
+    name: "Enrollment ID",
+    selector: (row) => row.enrollment_id,
+    sortable: true,
+  },
+  {
+    name: "Student Name",
+    selector: (row) => row.student_name,
+    sortable: true,
+  },
+  {
+    name: "Source",
+    selector: (row) => row.source,
+    sortable: true,
+  },
+  {
+    name: "Study Pattern / Mode",
+    selector: (row) => row.study_pattern_mode,
+    sortable: true,
+  },
+  {
+    name: "Enrollment Date",
+    selector: (row) => row.enrollment_date,
+    sortable: true,
+  },
+  {
+    name: "Action",
+    cell: (row) => (
+      <div className="flex gap-2">
+        {/* Eye Icon for Viewing */}
         <button
-          onClick={() => handleViewEdit(row.enrollment_id)}
-          className="bg-blue-500 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 text-sm"
+          onClick={() => handleView(row.enrollment_id)}
+          className="bg-[#d3eaff] text-[#4259A6] p-2 rounded-md"
         >
-          View/Edit
+          <FaEye />
         </button>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-  ];
+        
+        {/* Pen Icon for Editing */}
+        <button
+          onClick={() => handleEdit(row.enrollment_id)}
+          className="bg-[#d3eaff] text-[#4259A6] p-2 rounded-md"
+        >
+          <FaPen />
+        </button>
+        
+        {/* Print Icon */}
+        <button
+          onClick={() => handlePrint(row.enrollment_id)}
+          className="bg-[#d3eaff] text-[#4259A6] p-2 rounded-md"
+        >
+          <FaPrint />
+        </button>        
+      </div>
+    ),
+    ignoreRowClick: true,
+    button: true,
+  },
+];
+
+
 
   const handleCheckResultSubmit = (event) => {
     event.preventDefault(); // ✅ Prevents page reload
@@ -796,6 +866,7 @@ return (
     <DataTable
       columns={columns}
       data={students}
+      customStyles={customTableStyles} // 🔥 Add this line
       pagination
       highlightOnHover
       striped
