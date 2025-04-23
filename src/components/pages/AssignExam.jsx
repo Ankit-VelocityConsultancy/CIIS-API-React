@@ -67,29 +67,15 @@ const AssignExamination = () => {
   
     // Function to generate and download the empty Excel file
     const handleDownload = () => {
-      // Prepare the data for the Excel file
-      const dataToExport = student.map((row, index) => ({
-        "Sr. No": index + 1,
-        "Student Name": row.student_name,
-        "Email": row.student_email,
-        "Mobile": row.student_mobile,
-        "Exam Start Time": row.examstarttime,
-        "Exam End Time": row.examendtime,
-        "Exam Start Date": row.examstartdate,
-        "Exam End Date": row.examenddate,
-        "Status": row.status,
-      }));
-    
-      // Create a worksheet
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    
-      // Create a workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
-    
-      // Export the workbook to an Excel file
-      XLSX.writeFile(workbook, "StudentData.xlsx");
+      const fileUrl = '/templates/SubjectWiseQuestionTemplate.xlsx'; // Path relative to the public directory
+      const link = document.createElement('a'); // Create an anchor element
+      link.href = fileUrl; // Set the href to the file's URL
+      link.download = 'SubjectWiseQuestionTemplate.xlsx'; // Set the name of the file to be downloaded
+      document.body.appendChild(link); // Append the link to the body (required for some browsers)
+      link.click(); // Trigger the download
+      document.body.removeChild(link); // Clean up by removing the link
     };
+    
 
     const openReassignModal = (row) => {
       setSelectedRow(row);
@@ -1020,12 +1006,12 @@ const handleSearch = async (event) => {
       // Ensure exams and students are selected
       if (selectedExams.length === 0) {
         console.error("No exams selected");
-        alert("Please select at least one exam.");
+        // alert("Please select at least one exam.");
         return;
       }
       if (selectedSubjects.length === 0) {
         console.error("No students selected");
-        alert("Please select at least one student.");
+        // alert("Please select at least one student.");
         return;
       }
     

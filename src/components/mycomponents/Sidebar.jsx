@@ -438,13 +438,13 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             </div>
           </>
         ) : null}
-       <div
-        className="logout-wrapper p-2 font-bold text-red-500 flex gap-2 cursor-pointer" // Apply red text color
-        onClick={logoutUser}
-      >
-        <LogOut className="text-red-500" />  {/* Apply red color to the icon as well */}
-        {!isCollapsed && "Logout"}
-      </div>
+       {/* Show only Logout for Student */}
+        {userType === "Student" && (
+          <div className="logout-wrapper p-2 font-bold text-red-500 flex gap-2 cursor-pointer" onClick={logoutUser}>
+            <LogOut className="text-red-500" />
+            {!isCollapsed && "Logout"}
+          </div>
+        )}
       </div>
     </div>
   );

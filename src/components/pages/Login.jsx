@@ -75,25 +75,35 @@ export function Login() {
       setLoading(true);
       const response = await axios.post(`${baseURL}api/login/`, payload);
       if (response.status === 200 || response.status === 201) {
-        const { token, name, user_id, email, is_user, version } = response.data;
+        const { token, name, user_id, email, is_student, version } = response.data;
         setAccessToken(token.access);
         setRefreshToken(token.refresh);
         setUsername(name);
         setUserId(user_id);
         setUseremail(email);
-        setUserType(is_user ? "User" : "Admin");
+        setUserType(is_student ? "Student" : "Admin");
         setUserVersion(version);
         setLoggedin(true);
         localStorage.setItem("access", token.access);
         localStorage.setItem("refresh", token.refresh);
         localStorage.setItem("username", name);
         localStorage.setItem("useremail", email);
-        localStorage.setItem("user_type", is_user ? "User" : "Admin");
+        localStorage.setItem("user_type", is_student ? "Student" : "Admin");
         localStorage.setItem("user_id", user_id);
         localStorage.setItem("version", version);
         localStorage.setItem("is_login", "true");
+
         setShowPopup(true);
-        navigate("/");
+
+
+        // Redirect based on user type
+        if (is_student) {
+          navigate("/exam");  // Redirect to Assign Exam page if student
+        } else {
+          navigate("/");  // Redirect to Dashboard if Admin
+        }
+
+        setShowPopup(true);
       }
     } catch (error) {
       if (error.response?.status === 404) {

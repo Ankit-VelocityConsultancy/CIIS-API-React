@@ -58,6 +58,10 @@ const App = () => {
       {/* <AuthHandler /> */}
       <Routes>
         <Route path="login" element={<Login />} />
+
+        <Route path="exam" element={<StudentExam />} />
+        <Route path="dashboard" element={<Dashboard />} />
+
         <Route path="examination_login" element={<StudentExaminationLogin />} />
         <Route path="signup" element={<SignUp />} />
         <Route path="/password_reset/:uid/:token" element={<ResetPassword />} />
