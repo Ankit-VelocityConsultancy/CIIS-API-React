@@ -75,7 +75,17 @@ export function Login() {
       setLoading(true);
       const response = await axios.post(`${baseURL}api/login/`, payload);
       if (response.status === 200 || response.status === 201) {
-        const { token, name, user_id, email, is_student, version } = response.data;
+        const {
+          token,
+          name,
+          user_id,
+          email,
+          is_student,
+          version,
+          exam_details,
+          examination_data,
+        } = response.data;
+  
         setAccessToken(token.access);
         setRefreshToken(token.refresh);
         setUsername(name);
@@ -84,6 +94,7 @@ export function Login() {
         setUserType(is_student ? "Student" : "Admin");
         setUserVersion(version);
         setLoggedin(true);
+  
         localStorage.setItem("access", token.access);
         localStorage.setItem("refresh", token.refresh);
         localStorage.setItem("username", name);
@@ -92,17 +103,22 @@ export function Login() {
         localStorage.setItem("user_id", user_id);
         localStorage.setItem("version", version);
         localStorage.setItem("is_login", "true");
-
-        setShowPopup(true);
-
-
-        // Redirect based on user type
+  
+        console.log("user_type", is_student ? "Student" : "Admin");
+  
         if (is_student) {
-          navigate("/exam");  // Redirect to Assign Exam page if student
-        } else {
-          navigate("/");  // Redirect to Dashboard if Admin
-        }
+          // Save student-related data like in StudentExaminationLogin.jsx
+          const studentIdToUse = is_student ? response.data.student_id : user_id;          
+          localStorage.setItem("student_id", String(studentIdToUse));
 
+          
+          localStorage.setItem("examDetails", JSON.stringify(exam_details || []));
+          localStorage.setItem("examinationData", JSON.stringify(examination_data || []));
+          navigate("/exam"); // Redirect to exam page
+        } else {
+          navigate("/"); // Redirect to dashboard
+        }
+  
         setShowPopup(true);
       }
     } catch (error) {
@@ -115,6 +131,7 @@ export function Login() {
       setLoading(false);
     }
   };
+  
 
   const forgetPassword = async (payload) => {
     try {
