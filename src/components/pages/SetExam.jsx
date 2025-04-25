@@ -274,31 +274,42 @@ const SetExamination = () => {
     return Object.keys(errors).length === 0;
   };
 
-      const handleFetchStudents = async (event) => {
-        event.preventDefault();
-        console.log("In Fetch");
-        if (!validateForm()) return;
-
-        try {
-          // Fetch data from the API with query parameters
-          const response = await fetch(`${baseURL}api/fetch-subject/?stream=${selectedStream}&substream=${selectedSubstream}&study_pattern=${studyPattern}&semyear=${selectedSemYear}`, {
-            method: "GET", // Use GET method since we're passing parameters in the URL
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiToken}`,
-            },
-          });
-      
-          const data = await response.json();
-          console.log("Fetched data", JSON.stringify(data, null, 2));
-      
-          // Set the fetched subjects data into the students state
-          setStudents(data.data); // Access 'data' key to get the array of subjects
-        } catch (error) {
-          console.error("Error fetching data:", error);
+  const handleFetchStudents = async (event) => {
+    event.preventDefault();
+    console.log("In Fetch");
+    if (!validateForm()) return;
+  
+    try {
+      const response = await fetch(
+        `${baseURL}api/fetch-subject/?stream=${selectedStream}&substream=${selectedSubstream}&study_pattern=${studyPattern}&semyear=${selectedSemYear}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiToken}`,
+          },
         }
-      };
-      
+      );
+  
+      const data = await response.json();
+      console.log("Fetched data", JSON.stringify(data, null, 2));
+  
+      // ✅ Ensure default fields like examtype are added
+      const enrichedSubjects = data.data.map((row) => ({
+        ...row,
+        examtype: row.examtype || "THEORY",     // Set default
+        exam_duration: row.exam_duration || "", // Optional
+        max_marks: row.max_marks || "",
+        min_marks: row.min_marks || "",
+        file: null,
+      }));
+  
+      setStudents(enrichedSubjects);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  
 
      // Handle input change for editable fields
   const handleInputChange = (event, index, field) => {
