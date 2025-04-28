@@ -334,7 +334,7 @@ export const Dashboard = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `${baseURL}/all-users-api/?year=${year}`,
+        `${baseURL}all-users-api/?year=${year}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -352,7 +352,7 @@ export const Dashboard = () => {
   const resetDate = async (user_id) => {
     try {
       const response = await axios.post(
-        `${baseURL}/reset-user-start-date-api/?user_id=${user_id}&year=${year}`,
+        `${baseURL}reset-user-start-date-api/?user_id=${user_id}&year=${year}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -378,7 +378,7 @@ export const Dashboard = () => {
 
     try {
       const response = await axios.post(
-        `${baseURL}/export-users-api/`,
+        `${baseURL}export-users-api/`,
         modifiedPayload,
         {
           headers: {
@@ -418,7 +418,7 @@ export const Dashboard = () => {
       e.preventDefault();
       setLoading(true);
       const response = await axios.post(
-        `${baseURL}/versionchange-api/?year=${year}&user_id=${user_id}`,
+        `${baseURL}versionchange-api/?year=${year}&user_id=${user_id}`,
         {
           selected_version: e.target.selected_version.value,
         }
@@ -439,7 +439,7 @@ export const Dashboard = () => {
   const downgradeUser = async (user_id) => {
     try {
       const response = await axios.post(
-        `${baseURL}/downgrade-user-api/?user_id=${user_id}&year=${year}`,
+        `${baseURL}downgrade-user-api/?user_id=${user_id}&year=${year}`,
         {
           user_id,
           year,
@@ -464,7 +464,7 @@ export const Dashboard = () => {
   const deleteUser = async (user_id) => {
     try {
       const response = await axios.post(
-        `${baseURL}/delete-user-api/?user_id=${user_id}&year=${year}`,
+        `${baseURL}delete-user-api/?user_id=${user_id}&year=${year}`,
         {
           user_id,
           year,

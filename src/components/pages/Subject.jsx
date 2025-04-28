@@ -411,7 +411,7 @@ const UpdateSubject = async () => {
       semyear: subject.semyear,
     }));
     const response = await axios.put(
-      "http://127.0.0.1:8000/api/update-multiple-subjects/",
+      `${baseURL}api/update-multiple-subjects/`,
       { subjects: subjectsToUpdate },
       {
         headers: {
@@ -453,7 +453,7 @@ const cancelDelete = () => {
 const confirmDeleteSubject = async () => {
   setShowDeleteConfirmModal(false);
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/delete_subject/${subjectToDelete}/`, {
+    const response = await fetch(`${baseURL}api/delete_subject/${subjectToDelete}/`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

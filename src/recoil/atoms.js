@@ -9,7 +9,7 @@ export const companyAtom = atom({
 
 export const baseURLAtom = atom({
   key: "baseURLAtom",
-  default: "http://127.0.0.1:8000/"
+  default: "dev.onlineexaminationportal.com"
 });
 
 // Use simple string value for tokens, no need to parse them

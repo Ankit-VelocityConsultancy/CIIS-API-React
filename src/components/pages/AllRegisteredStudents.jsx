@@ -112,7 +112,7 @@ useEffect(() => {
         return;
       }
   
-      await axios.post("http://127.0.0.1:8000/api/create_university_reregistration/", reregisterFormData);
+      await axios.post(`${baseURL}api/create_university_reregistration/`, reregisterFormData);
       alert("University re-registration added successfully!");
       closeModal();
       fetchRegistrationData(selectedStudentId);
@@ -135,7 +135,7 @@ useEffect(() => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/get_university_reregistration/?student_id=${studentId}`
+        `${baseURL}api/get_university_reregistration/?student_id=${studentId}`
       );
       setRegistrationData(response.data);
       console.log(response.data);
@@ -180,7 +180,7 @@ useEffect(() => {
       console.log("Fetching data for studentId:", studentId);
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/get_additional_fees/?student_id=${studentId}`
+          `${baseURL}api/get_additional_fees/?student_id=${studentId}`
         );
         setFeesData(response.data || []); // ✅ Ensure response is an array
       } catch (error) {
@@ -570,7 +570,7 @@ const handleOpenAddModal = (studentId) => {
     };
     console.log("Submitting Data:", postData);
     axios
-      .post("http://127.0.0.1:8000/api/create_additional_fees/", postData, {
+      .post(`${baseURL}api/create_additional_fees/`, postData, {
         headers: {
           Authorization: `Bearer ${apiToken}`,
           "Content-Type": "application/json",
@@ -692,7 +692,7 @@ const handleOpenAddModal = (studentId) => {
     console.log("Submitting Data:", postData);
   
     axios
-      .post("http://127.0.0.1:8000/api/create_result_uploaded/", postData, {
+      .post(`${baseURL}api/create_result_uploaded/`, postData, {
         headers: {
           Authorization: `Bearer ${apiToken}`,
           "Content-Type": "application/json",
@@ -738,7 +738,7 @@ const handleUpdatePayment = async (fee) => {
       status: statusMap[fee.fees_id] || "Not Realised", // Pass selected status dynamically
     };
 
-    await axios.put("http://127.0.0.1:8000/api/update_additional_fees/", updateData);
+    await axios.put(`${baseURL}api/update_additional_fees/`, updateData);
     alert("Payment updated successfully!");
 
     // Refresh the table data
@@ -756,7 +756,7 @@ const fetchResults = async (studentId) => {
     setLoading(true);
     console.log("Fetching results for student ID:", studentId);
 
-    const response = await axios.get(`http://127.0.0.1:8000/api/result_uploaded_view/?student_id=${studentId}`);
+    const response = await axios.get(`${baseURL}api/result_uploaded_view/?student_id=${studentId}`);
     
     console.log("API Response:", response); // Log full response
     console.log("Data:", response.data); // Log only data
@@ -793,7 +793,7 @@ const handleUploadUpdate = async (e) => {
     console.log("Sending updated data:", updatedData);
 
     const response = await axios.put(
-      `http://127.0.0.1:8000/api/update_result_uploaded/${selectedResult.id}/`,
+      `${baseURL}api/update_result_uploaded/${selectedResult.id}/`,
       updatedData,
       { headers: { "Content-Type": "application/json" } }
     );
@@ -827,7 +827,7 @@ const handleUploadUpdate = async (e) => {
 const openIDCardModal = async (studentId) => {
   setLoading(true);
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/get_paid_fees/?student_id=${studentId}`);
+    const response = await axios.get(`${baseURL}api/get_paid_fees/?student_id=${studentId}`);
     setStudentData(response.data);
     setIdCardModalOpen(true);
   } catch (error) {
@@ -903,8 +903,8 @@ const openIDCardModal = async (studentId) => {
            {/* University Logo */}
            {studentData.university_logo && (
              <img
-               src={`http://127.0.0.1:8000${studentData.university_logo}`}
-               alt="University Logo"
+             src={`${baseURL}${studentData.university_logo}`}
+             alt="University Logo"
                className="w-24 h-24 mx-auto mb-4 rounded-full border border-gray-300 object-cover"
              />
            )}

@@ -88,7 +88,7 @@ export const Header = () => {
   const changePassword = async (payload) => {
     setLoading(true);
     try {
-      await axios.post(`${baseURL}/change-password-api/`, payload, {
+      await axios.post(`${baseURL}change-password-api/`, payload, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
