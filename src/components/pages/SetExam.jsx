@@ -57,15 +57,15 @@ const SetExamination = () => {
       // Create an empty array with the column headers
       const emptyData = [
         {
-          Question: "",
-          Question_Type: "",
-          Marks: "",
-          Difficulty_Level: "",
-          Option1: "",
-          Option2: "",
-          Option3: "",
-          Option4: "",
-          Answer: ""
+          "Question": "",
+          "Question Type": "",
+          "Marks": "",
+          "Difficulty Level": "",
+          "Option 1": "",
+          "Option 2": "",
+          "Option 3": "",
+          "Option 4": "",
+          "Answer": ""
         }
       ];
   

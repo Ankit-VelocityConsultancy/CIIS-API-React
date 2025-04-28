@@ -1222,18 +1222,25 @@ useEffect(() => {
         <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
           <label htmlFor="mobileNumber" className="block text-sm font-medium text-[#838383]">Mobile Number<span className="text-red-500">*</span></label>
           <div className="flex items-center">
-            <input
-              type="text"
-              id="mobileNumber"
-              value={mobileNumber}
-              onChange={(e) => {
-                setMobileNumber(e.target.value);
+
+          <input
+            type="text"
+            id="mobileNumber"
+            value={mobileNumber}
+            onChange={(e) => {
+              const input = e.target.value;
+              // Allow only numbers and limit to 10 digits
+              if (/^\d{0,10}$/.test(input)) {
+                setMobileNumber(input);
                 if (formError.mobileNumber) {
                   setFormErrors((prevErrors) => ({ ...prevErrors, mobileNumber: "" }));
                 }
-              }}
-              className="w-full p-2 border rounded-md bg-[#f5f5f5]"
-            />
+              }
+            }}
+            className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+            maxLength={10} // Just in case, extra protection
+          />
+
             {formError.mobileNumber && <p className="text-red-500 text-xs">{formError.mobileNumber}</p>}
             <button
               type="button"
@@ -1252,9 +1259,20 @@ useEffect(() => {
               type="text"
               id="altMobileNumber"
               value={altMobileNumber}
-              onChange={(e) => setAltMobileNumber(e.target.value)}
+              onChange={(e) => {
+                const input = e.target.value;
+                // Allow only numbers and limit to 10 digits
+                if (/^\d{0,10}$/.test(input)) {
+                  setAltMobileNumber(input);
+                }
+              }}
               className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+              maxLength={10}
             />
+
+
+
+            
           </div>
         )}
 

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { baseURLAtom } from "../../recoil/atoms";
 import { useRecoilValue } from "recoil";
 
+
 const AssignExamination = () => {
     const [universities, setUniversities] = useState([]);
     const [university, setUniversity] = useState("");
@@ -64,18 +65,66 @@ const AssignExamination = () => {
     const baseURL = useRecoilValue(baseURLAtom);
 
     const apiToken = localStorage.getItem("access");
+
+
+    const resetForm = () => {
+      setSelectedUniversity("");
+      setSelectedCourse("");
+      setSelectedStream("");
+      setSelectedSubstream("");
+      setSession("");
+      setStudyPattern("");
+      setSelectedSemYear("");
+      setCourseDuration("");
+      setSelectedViewUniversity("");
+      setSelectedViewCourse("");
+      setSelectedViewStream("");
+      setSelectedViewSubstream("");
+      setSelectedViewSemYear("");
+      setSubjects([]);
+      setSelectedSubject("");
+      setViewSession("");
+      setViewStudyPattern("");
+      setViewCourseDuration("");
+      setStudents([]);
+      setSelectedRows([]);
+      setSelectedSubjects([]);
+      setSelectedExams([]);
+      setStartDate("");
+      setEndDate("");
+      setStartTime("");
+      setEndTime("");
+      setExams([]);
+      setShowTables(false);
+      setFormErrors({});
+      setStudent([]);
+    };
   
     // Function to generate and download the empty Excel file
     const handleDownload = () => {
-      const fileUrl = '/templates/SubjectWiseQuestionTemplate.xlsx'; // Path relative to the public directory
-      const link = document.createElement('a'); // Create an anchor element
-      link.href = fileUrl; // Set the href to the file's URL
-      link.download = 'SubjectWiseQuestionTemplate.xlsx'; // Set the name of the file to be downloaded
-      document.body.appendChild(link); // Append the link to the body (required for some browsers)
-      link.click(); // Trigger the download
-      document.body.removeChild(link); // Clean up by removing the link
-    };
+      // Prepare the data for the Excel file
+      const dataToExport = student.map((row, index) => ({
+        "Sr. No": index + 1,
+        "Student Name": row.student_name,
+        "Email": row.student_email,
+        "Mobile": row.student_mobile,
+        "Exam Start Time": row.examstarttime,
+        "Exam End Time": row.examendtime,
+        "Exam Start Date": row.examstartdate,
+        "Exam End Date": row.examenddate,
+        "Status": row.status,
+      }));
     
+      // Create a worksheet
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    
+      // Create a workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    
+      // Export the workbook to an Excel file
+      XLSX.writeFile(workbook, "StudentData.xlsx");
+    };
 
     const openReassignModal = (row) => {
       setSelectedRow(row);
@@ -451,22 +500,25 @@ const AssignExamination = () => {
         }
       }, [studyPattern, CourseDuration]);
 
+      
       useEffect(() => {
-        // Fetch subjects if all required parameters are provided
-        if (selectedViewStream && selectedViewSubstream) {
+        if (selectedViewStream) {
           const fetchSubjects = async () => {
             setLoading(true);
             setError(""); // Clear previous errors
             try {
-              const response = await axios.get(
-                `${baseURL}api/get_all_subjects/?stream=${selectedViewStream}&substream=${selectedViewSubstream}`,
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${apiToken}`,
-                  },
-                }
-              );
+              // Build URL based on selectedStream and (optional) selectedSubstream
+              let url = `${baseURL}api/get_all_subjects/?stream=${selectedViewStream}`;
+              if (selectedViewSubstream) {
+                url += `&substream=${selectedViewSubstream}`;
+              }
+      
+              const response = await axios.get(url, {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${apiToken}`,
+                },
+              });
       
               console.log("Fetched subjects:", response.data.subjects);
               setSubjects(response.data.subjects || []); // Use empty array if no data
@@ -482,6 +534,7 @@ const AssignExamination = () => {
         }
       }, [selectedViewStream, selectedViewSubstream]);
       
+
 
       const validateForm = () => {
         let errors = {};
@@ -499,9 +552,6 @@ const AssignExamination = () => {
           errors.selectedStream = "Stream is required.";
         }
       
-        // if (!selectedSubstream.trim()) {
-        //   errors.selectedSubstream = "Sub Stream is required.";
-        // }
       
         if (!session.trim()) {
           errors.session = "Session is required.";
@@ -554,8 +604,8 @@ const AssignExamination = () => {
           console.log("Fetched Data:", response.data);
       
           // Set the exams and students data
-          setExams(response.data.exams_data || []); // Ensure exams_data is an array
-          setStudents(response.data.student_data || []); // Ensure student_data is an array
+          setExams(response.data.exams || []);         // exams
+          setStudents(response.data.studentdata || []); // studentdatastudent_data is an array
           setShowTables(true);
         } catch (err) {
           console.error("Error fetching data:", err);
@@ -579,32 +629,34 @@ const AssignExamination = () => {
   };
 
   const handleSubjectSelection = (row) => {
-    console.log("in handleSubjectSelection");
-    if (selectedSubjects.some((student) => student.id === row.id)) {
-      console.log("in handleSubjectSelection",selectedSubjects);
-      setSelectedSubjects(selectedSubjects.filter((student) => student.id !== row.id));
+    const alreadySelected = selectedSubjects.some(
+      (student) => student.id === row.id
+    );
+  
+    if (alreadySelected) {
+      setSelectedSubjects(selectedSubjects.filter(
+        (student) => student.id !== row.id
+      ));
     } else {
       setSelectedSubjects([...selectedSubjects, row]);
     }
   };
   
   const handleExamSelection = (row) => {
-    setSelectedExams((prevSelectedExams) => {
-      const isSelected = prevSelectedExams.some(
-        (exam) => exam.examination_id === row.examination_id
-      );
+    const alreadySelected = selectedExams.some(
+      (exam) => exam.id === row.id
+    );
   
-      if (isSelected) {
-        // Remove the row if already selected
-        return prevSelectedExams.filter(
-          (exam) => exam.examination_id !== row.examination_id
-        );
-      } else {
-        // Add the row if not selected
-        return [...prevSelectedExams, row];
-      }
-    });
+    if (alreadySelected) {
+      setSelectedExams(selectedExams.filter(
+        (exam) => exam.id !== row.id
+      ));
+    } else {
+      setSelectedExams([...selectedExams, row]);
+    }
   };
+  
+  
   
 
 
@@ -615,10 +667,11 @@ const AssignExamination = () => {
       cell: (row) => (
         <input
           type="checkbox"
+          
           checked={selectedExams.some(
-            (exam) => exam.examination_id === row.examination_id
+            (exam) => exam.id === row.id
           )}
-          onChange={() => handleExamSelection(row)} // Toggle selection
+          onChange={() => handleExamSelection(row)}
         />
       ),
       allowOverflow: true,
@@ -626,23 +679,18 @@ const AssignExamination = () => {
     },
     {
       name: "Subject Name",
-      selector: (row) => row.subject_name,
+      selector: (row) => row.subject?.name || "N/A",
       sortable: true,
     },
     {
       name: "Exam Type",
-      selector: (row) => row.examtype,
+      selector: (row) => 
+        row.examtype
+          .toLowerCase() // Convert the entire string to lowercase
+          .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitalize the first letter of each word
       sortable: true,
-      cell: (row, index) => (
-        <select
-          value={row.examtype}
-          onChange={(e) => handleExamChange(e, index, "examtype")}
-        >
-          <option value="THEORY">Theory</option>
-          <option value="PRACTICAL">Practical</option>
-        </select>
-      ),
     },
+    
     {
       name: "Start Date",
       selector: (row) => row.start_date,
@@ -909,10 +957,6 @@ const validateSearchForm = () => {
     errors.selectedViewStream = "Stream is required.";
   }
 
-  // if (!selectedViewSubstream.trim()) {
-  //   errors.selectedViewSubstream = "Sub Stream is required.";
-  // }
-
   if (!selectedSubject.trim()) {
     errors.selectedSubject = "Semester/Year is required.";
   }
@@ -1006,18 +1050,22 @@ const handleSearch = async (event) => {
       // Ensure exams and students are selected
       if (selectedExams.length === 0) {
         console.error("No exams selected");
-        // alert("Please select at least one exam.");
+        alert("Please select at least one exam.");
         return;
       }
       if (selectedSubjects.length === 0) {
         console.error("No students selected");
-        // alert("Please select at least one student.");
+        alert("Please select at least one student.");
         return;
+      }
+      if (selectedExams.some((exam) => !exam.id)) {
+        alert("Selected exams are missing valid IDs. Please refresh and try again.");
+        return; 
       }
     
       // Prepare the request data
       const examsData = selectedExams.map((exam) => ({
-        examination_id: exam.examination_id,
+        examination_id: exam.id,
         subject_id: exam.subject_id,
         subject_name: exam.subject_name,
         examtype: exam.examtype,
@@ -1051,13 +1099,24 @@ const handleSearch = async (event) => {
           },
         })
         .then((response) => {
-          console.log("Data submitted successfully:", response.data);
-          alert("Data submitted successfully!");
+          if (response.status === 200 || response.status === 201) {
+            console.log("Data submitted successfully:", response.data);
+            alert("Data submitted successfully!");
+            resetForm();  // Reset fields
+          } else {
+            console.error("Unexpected status code:", response.status);
+            alert("Something went wrong. Please try again."); 
+          }
         })
         .catch((error) => {
           console.error("Error submitting data:", error);
-          alert("Error submitting data. Please try again.");
+          if (error.response && error.response.data) {
+            alert(`Error: ${error.response.data.message || "Submitting failed."}`);
+          } else {
+            alert("Error submitting data. Please try again.");
+          }
         });
+
     };
     
 
@@ -1432,7 +1491,7 @@ const handleSearch = async (event) => {
                               {formError.selectedViewStream && <p className="text-red-500 text-xs">{formError.selectedViewStream}</p>}
                           </div>
                           <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
-                              <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500">*</span></label>
+                              <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream</label>
                               <select
                                   id="substream"
                                   value={selectedViewSubstream}

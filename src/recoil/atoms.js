@@ -7,9 +7,13 @@ export const companyAtom = atom({
   default: "CIIS"
 });
 
+const envBaseURL = process.env.NODE_ENV === "development"
+  ? "http://127.0.0.1:8000/"
+  : "https://dev.onlineexaminationportal.com/";
+
 export const baseURLAtom = atom({
   key: "baseURLAtom",
-  default: "dev.onlineexaminationportal.com/"
+  default: envBaseURL
 });
 
 // Use simple string value for tokens, no need to parse them

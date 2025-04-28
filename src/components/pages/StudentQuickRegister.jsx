@@ -34,6 +34,7 @@ const StudentQuickRegistrationPage = () => {
   const [remarks, setRemarks] = useState("");
   const [universities, setUniversities] = useState([]);
   const studentFileRef = useRef(null);  // Ref for student file input
+  const [feesData, setFeesData] = useState([]);
 
 
   const fetchUniversities = async () => {
@@ -421,6 +422,44 @@ useEffect(() => {
   }
 }, [selectedState]);
 
+
+useEffect(() => {
+  if (selectedStream && selectedSubstream) {
+    const fetchFees = async () => {
+      try {
+        let apiUrl = "";
+        if (studyPattern === "Semester") {
+          apiUrl = `${baseURL}api/get-sem-fees/?stream_id=${selectedStream}&substream_id=${selectedSubstream}`;
+        } else if (studyPattern === "Annual") {
+          apiUrl = `${baseURL}api/get-year-fees/?stream_id=${selectedStream}&substream_id=${selectedSubstream}`;
+        }
+
+        if (apiUrl) {
+          const response = await axios.get(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${apiToken}`, // Pass token in Authorization header
+            },
+          });
+          setFeesData(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching fees data:", error);
+      }
+    };
+
+    fetchFees();
+  }
+}, [selectedStream, selectedSubstream, studyPattern]);
+
+
+useEffect(() => {
+  if (selectedSemYear && feesData.length > 0) {
+    const selectedFee = feesData.find(
+      (item) => item.year === selectedSemYear || item.sem === selectedSemYear
+    );
+    setTotalFees(selectedFee ? selectedFee.fees_details.totalfees : "");
+  }
+}, [selectedSemYear, feesData]);
 
 
  const [documents, setDocuments] = useState([
@@ -810,18 +849,27 @@ useEffect(() => {
         <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
           <label htmlFor="mobileNumber" className="block text-sm font-medium text-[#838383]">Mobile Number<span className="text-red-500">*</span></label>
           <div className="flex items-center">
-            <input
-              type="text"
-              id="mobileNumber"
-              value={mobileNumber}
-              onChange={(e) => {
-                setMobileNumber(e.target.value);
+            
+          <input
+            type="text"
+            id="mobileNumber"
+            value={mobileNumber}
+            onChange={(e) => {
+              const input = e.target.value;
+              // Allow only numbers and limit to 10 digits
+              if (/^\d{0,10}$/.test(input)) {
+                setMobileNumber(input);
                 if (formError.mobileNumber) {
                   setFormErrors((prevErrors) => ({ ...prevErrors, mobileNumber: "" }));
                 }
-              }}
-              className="w-full p-2 border rounded-md bg-[#f5f5f5]"
-            />
+              }
+            }}
+            className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+            maxLength={10} // Just in case, extra protection
+          />
+
+
+
              {formError.mobileNumber && <p className="text-red-500 text-xs">{formError.mobileNumber}</p>}
             <button
               type="button"
@@ -836,13 +884,22 @@ useEffect(() => {
         {showAltMobile && (
           <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
             <label htmlFor="altMobileNumber" className="block text-sm font-medium text-[#838383]">Alternative Mobile Number</label>
+            
             <input
               type="text"
               id="altMobileNumber"
               value={altMobileNumber}
-              onChange={(e) => setAltMobileNumber(e.target.value)}
+              onChange={(e) => {
+                const input = e.target.value;
+                // Allow only numbers and limit to 10 digits
+                if (/^\d{0,10}$/.test(input)) {
+                  setAltMobileNumber(input);
+                }
+              }}
               className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+              maxLength={10}
             />
+
           </div>
         )}
 
@@ -1238,28 +1295,30 @@ useEffect(() => {
               </select>
               {formError.admissionType && <p className="text-red-500 text-xs">{formError.admissionType}</p>}
             </div>
+
             <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
-                              <label htmlFor="semesterYear" className="block text-sm font-medium text-[#838383]">Semester/Year<span className="text-red-500">*</span></label>
-                              <select
-                                id="semYear"
-                                value={selectedSemYear}
-                                onChange={(e) => {
-                                  setSelectedSemYear(e.target.value);
-                                  if (formError.selectedSemYear) {
-                                    setFormErrors((prevErrors) => ({ ...prevErrors, selectedSemYear: "" }));
-                                  }
-                                }}
-                                className="w-full p-2 border rounded-md bg-[#f5f5f5]"
-                              >
-                                <option value="">Select Semester & Year</option>
-                                {semYearOptions.map((option, index) => (
-                                  <option key={index} value={option.value}>
-                                    {option.yearSem}
-                                  </option>
-                                ))}
-                              </select>
-                              {formError.selectedSemYear && <p className="text-red-500 text-xs">{formError.selectedSemYear}</p>}
-                          </div>
+            <label htmlFor="semesterYear" className="block text-sm font-medium text-[#838383]">
+              Semester/Year<span className="text-red-500">*</span>
+            </label>
+
+            <select
+            value={selectedSemYear}
+            onChange={(e) => setSelectedSemYear(e.target.value)}
+            className="w-full p-2 border rounded-md bg-[#f5f5f5]"
+          >
+            <option value="">Select Semester/Year</option>
+            {semYearOptions.map((option, index) => (
+              <option key={index} value={option.value}>
+                {option.yearSem}
+              </option>
+            ))}
+          </select>
+
+            {formError.selectedSemYear && <p className="text-red-500 text-xs">{formError.selectedSemYear}</p>}
+          </div>
+
+
+
             <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
                               <label htmlFor="courseDuration" className="block text-sm font-medium text-[#838383]">Course Duration (in years)<span className="text-red-500">*</span></label>
                               <input

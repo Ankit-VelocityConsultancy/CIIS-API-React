@@ -57,9 +57,9 @@ const Exam = () => {
     try {
       const response = await axios.get(`${baseURL}api/filter-questions/`, {
         params: {
-          examtype: "THEORY",
-          semyear: exam.semyear,
-          subject: exam.subject_name,
+        examtype: exam.examtype,   // 🛠️ dynamic based on exam data
+        semyear: exam.semyear,
+        subject: exam.subject_name,
         },
       });
 
