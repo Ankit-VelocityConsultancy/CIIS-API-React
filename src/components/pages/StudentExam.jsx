@@ -13,6 +13,7 @@ const Exam = () => {
   const [examinationData, setExaminationData] = useState([]);
   const [examStatus, setExamStatus] = useState({});
   const [submittedExams, setSubmittedExams] = useState({});
+  const [canStartTest, setCanStartTest] = useState({}); // New state to track if test can be started
 
   useEffect(() => {
     const storedExamDetails = localStorage.getItem("examDetails");
@@ -31,6 +32,12 @@ const Exam = () => {
         examDetailsData.forEach((exam) => {
           const startDateTime = new Date(`${exam.examstartdate}T${exam.examstarttime}`);
           const endDateTime = new Date(`${exam.examenddate || exam.examstartdate}T${exam.examendtime}`);
+          
+          // Log the start and end date and time
+          console.log(`Exam ID: ${exam.exam_id}`);
+          console.log(`Start DateTime: ${startDateTime}`);
+          console.log(`End DateTime: ${endDateTime}`);
+          
           status[exam.exam_id] = now >= startDateTime && now <= endDateTime;
         });
         setExamStatus(status);
@@ -53,13 +60,57 @@ const Exam = () => {
     setSubmittedExams(storedSubmittedExams);
   }, [examDetails]);
 
+  // New function to check if result exists for the exam and student
+  const checkIfCanStartTest = async (exam_id) => {
+    const student_id = localStorage.getItem("student_id");
+
+    try {
+      const response = await axios.get(`${baseURL}api/check_exam_result/`, {
+        params: {
+          student_id: student_id,
+          exam_id: exam_id,
+        },
+      });
+
+      if (response.status === 200 && response.data.has_result) {
+        setCanStartTest((prevState) => ({
+          ...prevState,
+          [exam_id]: false, // Don't allow starting the test if result exists
+        }));
+      } else {
+        setCanStartTest((prevState) => ({
+          ...prevState,
+          [exam_id]: true, // Allow starting the test if result doesn't exist
+        }));
+      }
+    } catch (error) {
+      console.error("Error checking exam result:", error);
+    }
+  };
+
+  // New function to check if the exam is active based on the current date and time
+  const checkIfExamIsActive = (exam) => {
+    const now = new Date();
+    const startDateTime = new Date(`${exam.examstartdate}T${exam.examstarttime}`);
+    const endDateTime = new Date(`${exam.examenddate}T${exam.examendtime}`);
+
+    return now >= startDateTime && now <= endDateTime;
+  };
+
+  useEffect(() => {
+    examDetails.forEach((exam) => {
+      // Check if result exists and if the exam is active
+      checkIfCanStartTest(exam.exam_id);
+    });
+  }, [examDetails]);
+
   const handleStartTest = async (exam) => {
     try {
       const response = await axios.get(`${baseURL}api/filter-questions/`, {
         params: {
-        examtype: exam.examtype,   // 🛠️ dynamic based on exam data
-        semyear: exam.semyear,
-        subject: exam.subject_name,
+          examtype: exam.examtype,   // 🛠️ dynamic based on exam data
+          semyear: exam.semyear,
+          subject: exam.subject_name,
         },
       });
 
@@ -99,6 +150,7 @@ const Exam = () => {
                 const examInfo = examinationData.find((e) => e.id === exam.exam_id);
                 const isActive = examStatus[exam.exam_id];
                 const isAlreadySubmitted = submittedExams[exam.exam_id];
+                const canStart = canStartTest[exam.exam_id] && checkIfExamIsActive(exam); // Check if exam is active and result doesn't exist
 
                 return (
                   <div key={exam.exam_id} className="p-6 border rounded-lg shadow-md bg-white">
@@ -116,11 +168,11 @@ const Exam = () => {
 
                     <button
                       onClick={() => handleStartTest(examInfo)}
-                      disabled={!isActive || isAlreadySubmitted}
+                      disabled={!isActive || isAlreadySubmitted || !canStart}
                       className={`w-full py-2 rounded-lg transition-colors mt-4 shadow-sm 
-                        ${!isActive || isAlreadySubmitted ? "bg-gray-400 text-gray-700 cursor-not-allowed" : "bg-[#fd0001] text-white hover:bg-red-700"}`}
+                        ${!isActive || isAlreadySubmitted || !canStart ? "bg-gray-400 text-gray-700 cursor-not-allowed" : "bg-[#fd0001] text-white hover:bg-red-700"}`}
                     >
-                      {isAlreadySubmitted ? "Test Already Submitted" : isActive ? "Start Test" : "Test Expired"}
+                      {isAlreadySubmitted || !canStart ? "Exam Given" : isActive ? "Start Test" : "Test Expired"}
                     </button>
                   </div>
                 );

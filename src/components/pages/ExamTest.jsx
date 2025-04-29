@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { baseURLAtom } from "../../recoil/atoms";
 import { useRecoilValue } from "recoil";
+import { toast, ToastContainer } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css"; // Import styles for toast
 
 const ExamTest = () => {
   const navigate = useNavigate();
@@ -52,7 +54,7 @@ const ExamTest = () => {
     if (timeLeft <= 0) {
       localStorage.removeItem("exam_time_left");
       localStorage.removeItem("exam_time_saved_at");
-      navigate("/exam/");
+      navigate("/exam");
       return;
     }
 
@@ -95,8 +97,9 @@ const ExamTest = () => {
     return { hours, minutes, seconds };
   };
 
+  // Save answer for a single question (including skipped questions)
   const saveSingleAnswer = async (questionId) => {
-    const submitted_answer = answers[questionId];
+    const submitted_answer = answers[questionId] || "NA"; // Use "NA" for skipped questions
     const studentId = localStorage.getItem("student_id");
     const examId = questions.length > 0 ? questions[0].exam : null;
 
@@ -115,6 +118,38 @@ const ExamTest = () => {
       });
     } catch (err) {
       console.error("Error saving single answer", err);
+    }
+  };
+
+  // Save the result after finishing the exam
+  const saveResultAfterExam = async () => {
+    const studentId = localStorage.getItem("student_id");
+    const examId = questions[0]?.exam;
+
+    if (!studentId || !examId) return;
+
+    try {
+      const response = await fetch(`${baseURL}api/save_result_after_exam/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_id: studentId,
+          exam_id: examId,
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        toast.success("Your examination has been saved successfully!"); // Show success message
+        setTimeout(() => {
+          navigate("/exam"); // Navigate after 2 seconds delay
+        }, 2000); // Navigate after 2 seconds delay
+      } else {
+        toast.error(result.error || "An error occurred while saving your results.");
+      }
+    } catch (error) {
+      console.error("Error saving result:", error);
+      toast.error("An error occurred while saving your results.");
     }
   };
 
@@ -159,9 +194,7 @@ const ExamTest = () => {
                         type="radio"
                         name={`question-${questions[currentStep].id}`}
                         value={`option ${index + 1}`}
-                        checked={
-                          answers[questions[currentStep].id] === `option ${index + 1}`
-                        }
+                        checked={answers[questions[currentStep].id] === `option ${index + 1}`}
                         onChange={() =>
                           setAnswers({
                             ...answers,
@@ -230,7 +263,9 @@ const ExamTest = () => {
                   }),
                 });
 
-                navigate("/exam/");
+                // Save result after exam
+                await saveResultAfterExam(); // Call the function to save result
+
               } else {
                 setCurrentStep(currentStep + 1);
               }
@@ -242,33 +277,8 @@ const ExamTest = () => {
         </div>
       </div>
 
-      <div className="w-full lg:w-1/3 p-4 bg-white shadow-lg rounded-lg mt-6 lg:mt-0 lg:ml-6">
-        <h3 className="text-xl font-semibold text-center mb-4">Questions</h3>
-        <div className="grid grid-cols-5 gap-3">
-          {questions.map((q, index) => {
-            const isAnswered = answers[q.id];
-            const isActive = index === currentStep;
-            return (
-              <button
-                key={q.id}
-                onClick={async () => {
-                  await saveSingleAnswer(questions[currentStep].id);
-                  setCurrentStep(index);
-                }}
-                className={`
-                  w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold
-                  border 
-                  ${isAnswered ? "bg-green-500 text-white" : "bg-gray-200 text-black"}
-                  ${isActive ? "border-red-500" : "border-gray-300"}
-                  hover:bg-gray-300 transition-all duration-200
-                `}
-              >
-                {index + 1}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Toast container to show success notification */}
+      <ToastContainer position="top-center" autoClose={2000} hideProgressBar={true} />
     </div>
   );
 };
