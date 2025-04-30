@@ -1050,7 +1050,6 @@ const handleSearch = async (event) => {
       // Ensure exams and students are selected
       if (selectedExams.length === 0) {
         console.error("No exams selected");
-        alert("Please select at least one exam.");
         return;
       }
       if (selectedSubjects.length === 0) {

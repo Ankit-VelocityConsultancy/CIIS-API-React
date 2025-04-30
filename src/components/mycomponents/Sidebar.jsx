@@ -155,21 +155,21 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                       link="/quick-register"
                       isCollapsed={isCollapsed}
                     />
-                    <Navigation
+                    {/* <Navigation
                       title="Payment Status"
                       link="/payment-status"
                       isCollapsed={isCollapsed}
-                    />
-                    <Navigation
+                    /> */}
+                    {/* <Navigation
                       title="Advanced Search"
                       link="/advanced-search"
                       isCollapsed={isCollapsed}
-                    />
-                    <Navigation
+                    /> */}
+                    {/* <Navigation
                       title="Validate"
                       link="/validate"
                       isCollapsed={isCollapsed}
-                    />
+                    /> */}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion> 
@@ -280,11 +280,11 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         link="/all-registered-student"
                         isCollapsed={isCollapsed}
                       />
-                    <Navigation
+                    {/* <Navigation
                       title="View Students"
                       link="/view-student"
                       isCollapsed={isCollapsed}
-                    />
+                    /> */}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion> 
@@ -319,11 +319,11 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                       link="/change-course"
                       isCollapsed={isCollapsed}
                     />
-                    <Navigation
+                    {/* <Navigation
                       title="Print Address"
                       link="/print-address"
                       isCollapsed={isCollapsed}
-                    />
+                    /> */}
                     <Navigation
                       title="Change Password"
                       link="/change-password"
@@ -353,11 +353,11 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                       link="/course-fees"
                       isCollapsed={isCollapsed}
                     />
-                    <Navigation
+                    {/* <Navigation
                       title="Student Fees"
                       link="/student-fees"
                       isCollapsed={isCollapsed}
-                    />
+                    /> */}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion> 

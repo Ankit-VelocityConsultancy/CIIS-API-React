@@ -46,15 +46,16 @@ const BulkdataUpload = () => {
         },
       });
 
+      // Process the errors and success messages
       if (response.data.errors?.length) {
-        const duplicates = response.data.errors
-          .filter(e => e.includes("Duplicate entry"))
-          .map(e => e.split('"')[1]);
-        const others = response.data.errors.filter(e => !e.includes("Duplicate entry"));
-        setErrorMessagee((duplicates.length ? duplicates : others).join("<br />"));
-        setTimeout(() => setErrorMessagee(""), 10000);
-      } else {
-        setSuccessMessagee(response.data.success.join(", "));
+        const errorMessages = response.data.errors.join("<br />");  // Join the error messages by line breaks
+        setErrorMessagee(errorMessages);
+        setTimeout(() => setErrorMessagee(""), 10000); // Reset after 10 seconds
+      }
+
+      if (response.data.success?.length) {
+        const successMessages = response.data.success.join(", ");
+        setSuccessMessagee(successMessages);
         setTimeout(() => setSuccessMessagee(""), 10000);
       }
     } catch (error) {

@@ -48,7 +48,7 @@ import { Input } from "../ui/input";
 
 export const Header = () => {
   const baseURL = useRecoilValue(baseURLAtom);
-  const username = useRecoilValue(usernameAtom);
+  const email = useRecoilValue(usernameAtom);  // This will store the email instead of the username
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const accessToken = useRecoilValue(accessTokenAtom);
@@ -137,26 +137,7 @@ export const Header = () => {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <DropdownMenu>
-        {/* <DropdownMenuTrigger asChild>
-          <Button variant="none" size="icon">
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
-        </DropdownMenuTrigger> */}
-        {/* <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setTheme("system")}>
-            System
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("light")}>
-            Light
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("dark")}>
-            Dark
-          </DropdownMenuItem>
-        </DropdownMenuContent> */}
-      </DropdownMenu>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
@@ -166,7 +147,7 @@ export const Header = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel className="capitalize">
-            {username ? username : "Anonymous"}
+            {email ? email : "Anonymous"} {/* Display email instead of username */}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <Dialog>

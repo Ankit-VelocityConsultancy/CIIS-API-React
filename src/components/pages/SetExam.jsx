@@ -6,6 +6,9 @@ import DataTable from 'react-data-table-component';
 import * as XLSX from 'xlsx';
 import { baseURLAtom } from "../../recoil/atoms";
 import { useRecoilValue } from "recoil";
+import { toast, ToastContainer } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css"; // Import styles for toast
+
 
 const SetExamination = () => {
     const [universities, setUniversities] = useState([]);
@@ -254,9 +257,6 @@ const SetExamination = () => {
       errors.selectedStream = "Stream is required.";
     }
   
-    // if (!selectedSubstream.trim()) {
-    //   errors.selectedSubstream = "Sub Stream is required.";
-    // }
   
     if (!session.trim()) {
       errors.session = "Session is required.";
@@ -732,18 +732,33 @@ const SetExamination = () => {
           });
     
           if (response.ok) {
-            console.log(`Exam set successfully for subject: ${row.name}`);
+            alert("Exam successfully set for selected subjects")
+            setFormErrors({}); // Clear form errors
+            resetForm(); // Reset the form fields after success
           } else {
             const error = await response.json();
-            console.error(`Failed to set exam for subject: ${row.name}`, error);
+            toast.error(`Failed to set exam for subject: ${row.name}. ${error.message}`);
+
           }
         }
     
         // alert("All selected subjects have been saved successfully.");
       } catch (error) {
         console.error("Error saving exam data:", error);
-        alert("An error occurred while saving data. Please try again.");
+        toast.error("An error occurred while setting exam data.");
       }
+    };
+    const resetForm = () => {
+      setSelectedUniversity("");
+      setSelectedCourse("");
+      setSelectedStream("");
+      setSelectedSubstream("");
+      setSession("");
+      setStudyPattern("");
+      setSelectedSemYear("");
+      setCourseDuration("");
+      setSelectedRows([]);
+      setStudents([]);
     };
     
     return (
