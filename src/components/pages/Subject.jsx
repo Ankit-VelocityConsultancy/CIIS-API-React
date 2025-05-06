@@ -759,118 +759,119 @@ const closeMessageModal = () => {
         </table>
         </div>
 
-         {/* Modal for showing streams */}
-      {showModal && (
-        <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="modal-content bg-white p-4 rounded-md w-1/2">
-            <h3 className="text-lg font-bold mb-4">Streams for {selectedCourse} {modalStreamss.university_name}</h3>
+{/* Modal for showing streams */}
+{showModal && (
+  <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="modal-content bg-white p-4 rounded-md w-1/2 max-h-[80vh] overflow-y-auto">
+      <h3 className="text-lg font-bold mb-4">Streams for {selectedCourse} {modalStreamss.university_name}</h3>
 
-            {/* Check if there's an error message */}
-            {error ? (
-              <p className="text-red-500">{error}</p> // Show error message if no streams
-            ) : (
-              <ul>
-                {modalStreams.map((stream) => (
-                  <li
-                  key={stream.stream_id}
-                  className="mb-2 cursor-pointer text-blue-500"
-                  onClick={() => handleStreamClick(stream)} // Open the stream modal on click
-                >
-                  {stream.stream_name}     
-                </li>
-                ))}
-                
-              </ul>
-            )}
-
-            <button
-              onClick={() => setShowModal(false)} 
-              className="bg-red-500 text-white py-2 px-4 rounded-md mt-4"
+      {/* Check if there's an error message */}
+      {error ? (
+        <p className="text-red-500">{error}</p> // Show error message if no streams
+      ) : (
+        <ul>
+          {modalStreams.map((stream) => (
+            <li
+              key={stream.stream_id}
+              className="mb-2 cursor-pointer text-blue-500"
+              onClick={() => handleStreamClick(stream)} // Open the stream modal on click
             >
-              Close
-            </button>
-          </div>
-        </div>
+              {stream.stream_name}     
+            </li>
+          ))}
+        </ul>
       )}
+
+      <button
+        onClick={() => setShowModal(false)} 
+        className="bg-red-500 text-white py-2 px-4 rounded-md mt-4"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
 
 
 
 {showStreamModal && selectedStream && (
-        <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="modal-content bg-white p-4 rounded-md w-1/2">
-            <h3 className="text-lg font-bold mb-4">
-              Details for {selectedStream.stream_name}
-            </h3>
+  <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="modal-content bg-white p-4 rounded-md w-1/2 max-h-[80vh] overflow-y-auto">
+      <h3 className="text-lg font-bold mb-4">
+        Details for {selectedStream.stream_name}
+      </h3>
 
-            {/* Subjects Section */}
-            <div className="mt-4">
-              <h4 className="text-md font-semibold">Subjects:</h4>
-              {selectedStream.subjects && selectedStream.subjects.length > 0 ? (
-                <ul>
-                  {selectedStream.subjects.map((subject, index) => (
-                    <li key={index} className="mb-2">
-                      <div className="grid grid-cols-6 gap-2 items-center">
-                        <span>{index + 1}</span>
-                        <input
-                          type="text"
-                          value={subject.name}
-                          onChange={(e) => handleSubjectChange(index, "name", e.target.value)}
-                          className="p-2 border rounded-md"
-                          placeholder="Subject Name"
-                        />
-                        <input
-                          type="text"
-                          value={subject.code}
-                          onChange={(e) => handleSubjectChange(index, "code", e.target.value)}
-                          className="p-2 border rounded-md"
-                          placeholder="Code"
-                        />
-                        <input
-                          type="text"
-                          value={subject.studypattern}
-                          onChange={(e) => handleSubjectChange(index, "studypattern", e.target.value)}
-                          className="p-2 border rounded-md"
-                          placeholder="Study Pattern"
-                        />
-                        <input
-                          type="text"
-                          value={subject.semyear}
-                          onChange={(e) => handleSubjectChange(index, "semyear", e.target.value)}
-                          className="p-2 border rounded-md"
-                          placeholder="Semester/Year"
-                        />
+      {/* Subjects Section */}
+      <div className="mt-4">
+        <h4 className="text-md font-semibold">Subjects:</h4>
+        {selectedStream.subjects && selectedStream.subjects.length > 0 ? (
+          <ul>
+            {selectedStream.subjects.map((subject, index) => (
+              <li key={index} className="mb-2">
+                <div className="grid grid-cols-6 gap-2 items-center">
+                  <span>{index + 1}</span>
+                  <input
+                    type="text"
+                    value={subject.name}
+                    onChange={(e) => handleSubjectChange(index, "name", e.target.value)}
+                    className="p-2 border rounded-md"
+                    placeholder="Subject Name"
+                  />
+                  <input
+                    type="text"
+                    value={subject.code}
+                    onChange={(e) => handleSubjectChange(index, "code", e.target.value)}
+                    className="p-2 border rounded-md"
+                    placeholder="Code"
+                  />
+                  <input
+                    type="text"
+                    value={subject.studypattern}
+                    onChange={(e) => handleSubjectChange(index, "studypattern", e.target.value)}
+                    className="p-2 border rounded-md"
+                    placeholder="Study Pattern"
+                  />
+                  <input
+                    type="text"
+                    value={subject.semyear}
+                    onChange={(e) => handleSubjectChange(index, "semyear", e.target.value)}
+                    className="p-2 border rounded-md"
+                    placeholder="Semester/Year"
+                  />
 
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => openDeleteConfirmModal(subject.id)}
-                          className="bg-red-500 text-white py-1 px-2 rounded-md"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No subjects available for this stream.</p>
-              )}
-            </div>
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => openDeleteConfirmModal(subject.id)}
+                    className="bg-red-500 text-white py-1 px-2 rounded-md"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No subjects available for this stream.</p>
+        )}
+      </div>
 
-            <button
-              onClick={UpdateSubject}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4"
-            >
-              Update
-            </button>
-            <button
-              onClick={closeStreamModal}
-              className="bg-gray-500 text-white py-2 px-4 rounded-md mt-4"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="flex justify-end gap-4 mt-6">
+        <button
+          onClick={UpdateSubject}
+          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+        >
+          Update
+        </button>
+        <button
+          onClick={closeStreamModal}
+          className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
 
   {/* Delete Confirmation Modal */}

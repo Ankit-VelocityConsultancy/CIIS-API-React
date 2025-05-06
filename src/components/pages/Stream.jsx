@@ -547,7 +547,7 @@ const validateForm = () => {
       {/* Modal for showing all courses of a university */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg w-96">
+          <div className="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto">
             <h3 className="font-bold text-xl mb-4">Courses for {selectedUniversity}</h3>
             <ul>
               {selectedUniversityCourses.map((course, i) => (
@@ -571,90 +571,92 @@ const validateForm = () => {
       )}
 
 {showCourseModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h3 className="font-bold text-xl mb-4">
-              Streams for {selectedCourse} = {selectedCourseID} = {selectedUniversity}
-            </h3>
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto">
+      <h3 className="font-bold text-xl mb-4">
+        Streams for   {selectedUniversity} {selectedCourse}
+      </h3>
 
-            {loading ? (
-              <p>Loading streams...</p>
-            ) : (
-              Array.isArray(streams) && streams.length > 0 ? (
-                streams.map((stream) => (
-                  <div key={stream.stream_id} className="mb-4">
-                    <h4 className="font-semibold">{stream.stream_name}</h4>
-                    <div className="flex gap-4 items-center">
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          name="stream_name"
-                          value={
-                            editedStreams[stream.stream_id]?.stream_name ||
-                            stream.stream_name
-                          }
-                          onChange={(e) =>
-                            handleStreamInputChange(e, stream.stream_id, 'stream_name')
-                          }
-                          className="mt-2 p-2 border rounded-md w-full"
-                          placeholder="Stream Name"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          type="number"
-                          name="year"
-                          value={
-                            editedStreams[stream.stream_id]?.year || stream.year
-                          }
-                          onChange={(e) =>
-                            handleStreamInputChange(e, stream.stream_id, 'year')
-                          }
-                          className="mt-2 p-2 border rounded-md w-full"
-                          placeholder="Year"
-                        />
-                      </div>
-                      {/* Delete Button for stream */}
-                      <button
-                        onClick={() => openStreamDeleteConfirmModal(stream.stream_id)}
-                        className="bg-red-500 text-white py-1 px-2 rounded-md mt-2"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>No streams available</p>
-              )
-            )}
-
-            <button
-              onClick={handleUpdateStreams}
-              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-            >
-              Update Streams
-            </button>
-
-            {successMessage && (
-              <p className="mt-2 text-green-500">{successMessage}</p>
-            )}
-
-            {error && (
-              <div className="text-red-500 mt-4">
-                <p>{error.detail || error.message || 'An error occurred'}</p>
+      {loading ? (
+        <p>Loading streams...</p>
+      ) : (
+        Array.isArray(streams) && streams.length > 0 ? (
+          streams.map((stream) => (
+            <div key={stream.stream_id} className="mb-4">
+              <h4 className="font-semibold">{stream.stream_name}</h4>
+              <div className="flex gap-4 items-center">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    name="stream_name"
+                    value={
+                      editedStreams[stream.stream_id]?.stream_name ||
+                      stream.stream_name
+                    }
+                    onChange={(e) =>
+                      handleStreamInputChange(e, stream.stream_id, 'stream_name')
+                    }
+                    className="mt-2 p-2 border rounded-md w-full"
+                    placeholder="Stream Name"
+                  />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    name="year"
+                    value={
+                      editedStreams[stream.stream_id]?.year || stream.year
+                    }
+                    onChange={(e) =>
+                      handleStreamInputChange(e, stream.stream_id, 'year')
+                    }
+                    className="mt-2 p-2 border rounded-md w-full"
+                    placeholder="Year"
+                  />
+                </div>
+                {/* Delete Button for stream */}
+                <button
+                  onClick={() => openStreamDeleteConfirmModal(stream.stream_id)}
+                  className="bg-red-500 text-white py-1 px-2 rounded-md mt-2"
+                >
+                  Delete
+                </button>
               </div>
-            )}
+            </div>
+          ))
+        ) : (
+          <p>No streams available</p>
+        )
+      )}
 
-            <button
-              onClick={closeCourseModal}
-              className="mt-4 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-            >
-              Close
-            </button>
-          </div>
+      <button
+        onClick={handleUpdateStreams}
+        className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+      >
+        Update Streams
+      </button>
+
+      {successMessage && (
+        <p className="mt-2 text-green-500">{successMessage}</p>
+      )}
+
+      {error && (
+        <div className="text-red-500 mt-4">
+          <p>{error.detail || error.message || 'An error occurred'}</p>
         </div>
       )}
+
+      <button
+        onClick={closeCourseModal}
+        className="mt-4 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+
 
       {/* Stream Delete Confirmation Modal */}
       {showStreamDeleteConfirmModal && (

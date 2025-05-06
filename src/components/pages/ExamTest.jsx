@@ -24,6 +24,7 @@ const ExamTest = () => {
 
       if (parsed.length > 0 && parsed[0].exam) {
         const examId = parsed[0].exam;
+        const examdetailsId = parsed[0].examdetails_id; // Assuming examdetails_id is part of each question
 
         try {
           const response = await fetch(`${baseURL}api/get_exam_timer/?student_id=${studentId}&exam_id=${examId}`);
@@ -47,63 +48,14 @@ const ExamTest = () => {
     fetchQuestions();
   }, []);
 
-  // Countdown timer logic with backend sync
-  useEffect(() => {
-    if (timeLeft === null) return;
-
-    if (timeLeft <= 0) {
-      localStorage.removeItem("exam_time_left");
-      localStorage.removeItem("exam_time_saved_at");
-      navigate("/exam");
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        const updated = Math.max(prev - 1000, 0);
-        localStorage.setItem("exam_time_left", updated.toString());
-        localStorage.setItem("exam_time_saved_at", Date.now().toString());
-
-        // Sync to backend every 10 seconds
-        if (updated % 10000 < 1000) {
-          const studentId = localStorage.getItem("student_id");
-          const examId = questions.length > 0 ? questions[0].exam : null;
-
-          if (studentId && examId) {
-            fetch(`${baseURL}api/save_exam_timer/`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                student_id: studentId,
-                exam_id: examId,
-                time_left_ms: updated,
-              }),
-            });
-          }
-        }
-
-        return updated;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timeLeft, questions]);
-
-  const formatTime = (ms) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return { hours, minutes, seconds };
-  };
-
   // Save answer for a single question (including skipped questions)
   const saveSingleAnswer = async (questionId) => {
     const submitted_answer = answers[questionId] || "NA"; // Use "NA" for skipped questions
     const studentId = localStorage.getItem("student_id");
     const examId = questions.length > 0 ? questions[0].exam : null;
+    const examdetailsId = questions.length > 0 ? questions[0].examdetails_id : null; // Get examdetails_id from the question
 
-    if (!submitted_answer || !studentId || !examId || !questionId) return;
+    if (!submitted_answer || !studentId || !examId || !questionId || !examdetailsId) return;
 
     try {
       await fetch(`${baseURL}api/save_single_answers/`, {
@@ -112,6 +64,7 @@ const ExamTest = () => {
         body: JSON.stringify({
           student_id: studentId,
           exam_id: examId,
+          examdetails_id: examdetailsId,  // Send examdetails_id
           question_id: questionId,
           submitted_answer,
         }),
@@ -125,8 +78,9 @@ const ExamTest = () => {
   const saveResultAfterExam = async () => {
     const studentId = localStorage.getItem("student_id");
     const examId = questions[0]?.exam;
+    const examdetailsId = questions[0]?.examdetails_id; // Ensure examdetails_id is fetched from the first question
 
-    if (!studentId || !examId) return;
+    if (!studentId || !examId || !examdetailsId) return;
 
     try {
       const response = await fetch(`${baseURL}api/save_result_after_exam/`, {
@@ -135,6 +89,7 @@ const ExamTest = () => {
         body: JSON.stringify({
           student_id: studentId,
           exam_id: examId,
+          examdetails_id: examdetailsId,  // Send examdetails_id here
         }),
       });
 
@@ -151,6 +106,15 @@ const ExamTest = () => {
       console.error("Error saving result:", error);
       toast.error("An error occurred while saving your results.");
     }
+  };
+
+  // Format the time in milliseconds
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return { hours, minutes, seconds };
   };
 
   if (questions.length === 0 || timeLeft === null) {

@@ -46,20 +46,27 @@ const BulkdataUpload = () => {
         },
       });
 
-      // Process the errors and success messages
       if (response.data.errors?.length) {
-        const errorMessages = response.data.errors.join("<br />");  // Join the error messages by line breaks
-        setErrorMessagee(errorMessages);
-        setTimeout(() => setErrorMessagee(""), 10000); // Reset after 10 seconds
+        const formattedErrors = response.data.errors.join("<br />");
+        setErrorMessagee(formattedErrors);
+      } else {
+        setErrorMessagee("");
       }
 
       if (response.data.success?.length) {
-        const successMessages = response.data.success.join(", ");
-        setSuccessMessagee(successMessages);
-        setTimeout(() => setSuccessMessagee(""), 10000);
+        const formattedSuccess = response.data.success.join("<br />");
+        setSuccessMessagee(formattedSuccess);
+      } else {
+        setSuccessMessagee("");
       }
+
+      setTimeout(() => {
+        setSuccessMessagee("");
+        setErrorMessagee("");
+      }, 10000);
     } catch (error) {
       setErrorMessagee(error.message);
+      setSuccessMessagee("");
       setTimeout(() => setErrorMessagee(""), 10000);
     }
   };
@@ -81,14 +88,25 @@ const BulkdataUpload = () => {
       });
 
       if (response.data.status === "success") {
-        setSuccessMessage(response.data.message);
-        setTimeout(() => setSuccessMessage(""), 10000);
+        const { message, success_logs = [], error_logs = [] } = response.data;
+
+        let formattedSuccess = [message, ...success_logs].join("<br/>");
+        let formattedErrors = error_logs.join("<br/>");
+
+        setSuccessMessage(formattedSuccess);
+        setErrorMessage(formattedErrors);
+
+        setTimeout(() => {
+          setSuccessMessage("");
+          setErrorMessage("");
+        }, 10000);
       } else {
         setErrorMessage(response.data.message);
         setTimeout(() => setErrorMessage(""), 10000);
       }
     } catch (error) {
       setErrorMessage(error.message);
+      setSuccessMessage("");
       setTimeout(() => setErrorMessage(""), 10000);
     }
   };
@@ -130,9 +148,17 @@ const BulkdataUpload = () => {
           </div>
         </div>
 
-        {successMessagee && !errorMessagee && <p className="mt-4 text-green-600">{successMessagee}</p>}
-        {errorMessagee && !successMessagee && (
-          <p className="mt-4 text-red-600" dangerouslySetInnerHTML={{ __html: errorMessagee }} />
+        {errorMessagee && (
+          <div
+            className="mt-4 p-4 bg-red-600 text-white rounded whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: errorMessagee }}
+          />
+        )}
+        {successMessagee && (
+          <div
+            className="mt-4 p-4 bg-green-600 text-white rounded whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: successMessagee }}
+          />
         )}
       </form>
 
@@ -191,8 +217,18 @@ const BulkdataUpload = () => {
           </div>
         </div>
 
-        {successMessage && !errorMessage && <p className="mt-4 text-green-600">{successMessage}</p>}
-        {errorMessage && !successMessage && <p className="mt-4 text-red-600">{errorMessage}</p>}
+        {errorMessage && (
+          <div
+            className="mt-4 p-4 bg-red-600 text-white rounded whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: errorMessage }}
+          />
+        )}
+        {successMessage && (
+          <div
+            className="mt-4 p-4 bg-green-600 text-white rounded whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: successMessage }}
+          />
+        )}
       </form>
     </div>
   );

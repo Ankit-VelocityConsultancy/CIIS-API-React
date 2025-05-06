@@ -56,6 +56,8 @@ const AssignExamination = () => {
     const [isReassignModalOpen, setReassignModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [formError, setFormErrors] = useState({});
+    const [successMessages, setSuccessMessages] = useState([]);
+
     const [reassignData, setReassignData] = useState({
       examstarttime: '',
       examendtime: '',
@@ -1099,9 +1101,18 @@ const handleSearch = async (event) => {
         })
         .then((response) => {
           if (response.status === 200 || response.status === 201) {
-            console.log("Data submitted successfully:", response.data);
-            alert("Data submitted successfully!");
-            resetForm();  // Reset fields
+            const apiMessages = response.data.messages || [];
+            const apiErrors = response.data.errors || [];
+
+            setSuccessMessages(apiMessages);
+
+            if (apiErrors.length > 0) {
+              alert("Some errors occurred:\n" + apiErrors.join("\n"));
+            }
+            setTimeout(() => {
+              resetForm();
+            }, 2000);
+            
           } else {
             console.error("Unexpected status code:", response.status);
             alert("Something went wrong. Please try again."); 
@@ -1140,6 +1151,14 @@ const handleSearch = async (event) => {
               {!isViewSetExamination ? (      
                  <>
                   <h2 className="font-bold text-2xl m-4">Assign Examinations</h2>
+                  {successMessages.length > 0 && (
+                    <div className="bg-green-500 text-white text-center py-2 px-4 rounded mb-4">
+                      {successMessages.map((msg, idx) => (
+                        <div key={idx}>{msg}</div>
+                      ))}
+                    </div>
+                  )}
+
                   <form onSubmit={handleSubmit} className="m-4 p-4 border rounded-lg shadow-md">
                       <div className="flex flex-wrap mb-4">
                           <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
@@ -1214,7 +1233,8 @@ const handleSearch = async (event) => {
                               {formError.selectedStream && <p className="text-red-500 text-xs">{formError.selectedStream}</p>}
                           </div>
                           <div className="w-full sm:w-1/2 lg:w-1/4 mb-4 sm:mb-0 pr-2">
-                              <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500">*</span></label>
+                              <label htmlFor="substream" className="block text-sm font-medium text-[#838383]">Substream<span className="text-red-500"></span>
+                              </label>
                               <select
                                   id="substream"
                                   value={selectedSubstream}
@@ -1403,11 +1423,12 @@ const handleSearch = async (event) => {
                       </div>
 
                       <div className="flex items-end pt-4">
-                          <button
-                              type="submit"
-                              className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-[#167fc7]">
-                              Assign Students
-                          </button>
+                      <button
+                        type="submit"
+                        className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-[#167fc7]">
+                        Assign Students
+                      </button>
+
                       </div>
                       </> 
                     )}
