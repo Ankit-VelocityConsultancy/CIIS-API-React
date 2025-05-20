@@ -111,7 +111,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       <Separator className="my-4" />
    
     
-      <div className="sidebar-menu-wrapper px-4 space-y-3 pb-40 pt-5">
+      <div className="sidebar-menu-wrapper px-4 space-y-3 pb-4">
       
         { userType == "Admin" ? (
           <>

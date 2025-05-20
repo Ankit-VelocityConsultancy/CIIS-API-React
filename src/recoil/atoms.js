@@ -16,6 +16,10 @@ export const baseURLAtom = atom({
   default: envBaseURL
 });
 
+export const showLogoutModalAtom = atom({
+  key: "showLogoutModal",
+  default: false,
+});
 // Use simple string value for tokens, no need to parse them
 export const accessTokenAtom = atom({
   key: "accessTokenAtom",

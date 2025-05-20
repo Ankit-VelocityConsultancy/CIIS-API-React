@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -16,6 +16,8 @@ const BulkdataUpload = () => {
   const [errorMessagee, setErrorMessagee] = useState("");
   const baseURL = useRecoilValue(baseURLAtom);
   const apiToken = localStorage.getItem("access");
+  const examFileRef = useRef(null);
+  const studentFileRef = useRef(null);
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -59,7 +61,8 @@ const BulkdataUpload = () => {
       } else {
         setSuccessMessagee("");
       }
-
+      setStudentFile(null);
+      if (studentFileRef.current) studentFileRef.current.value = "";
       setTimeout(() => {
         setSuccessMessagee("");
         setErrorMessagee("");
@@ -95,11 +98,14 @@ const BulkdataUpload = () => {
 
         setSuccessMessage(formattedSuccess);
         setErrorMessage(formattedErrors);
-
+        setUniversity("");
+        setExamFile(null);
+        if (examFileRef.current) examFileRef.current.value = "";
         setTimeout(() => {
           setSuccessMessage("");
           setErrorMessage("");
         }, 10000);
+     
       } else {
         setErrorMessage(response.data.message);
         setTimeout(() => setErrorMessage(""), 10000);
@@ -134,6 +140,7 @@ const BulkdataUpload = () => {
             <input
               type="file"
               id="studentFile"
+              ref={studentFileRef}
               onChange={(e) => setStudentFile(e.target.files[0])}
               className="p-2 block w-full border border-gray-300 rounded-md bg-[#f9f9f9]"
             />
@@ -202,6 +209,7 @@ const BulkdataUpload = () => {
             <input
               type="file"
               id="examFile"
+              ref={examFileRef} 
               onChange={(e) => setExamFile(e.target.files[0])}
               className="p-2 block w-full border border-gray-300 rounded-md bg-[#f9f9f9]"
             />

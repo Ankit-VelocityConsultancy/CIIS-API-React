@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Bell, CircleUser } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { showLogoutModalAtom } from "@/recoil/atoms";
 import {
   accessTokenAtom,
   baseURLAtom,
@@ -52,8 +53,31 @@ export const Header = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const accessToken = useRecoilValue(accessTokenAtom);
+  const setShowLogoutModal = useSetRecoilState(showLogoutModalAtom);
+  const setAccessToken = useSetRecoilState(accessTokenAtom);
+    const setRefreshToken = useSetRecoilState(refreshTokenAtom);
+    const setUsername = useSetRecoilState(usernameAtom);
+    const setUserType = useSetRecoilState(userTypeAtom);
+    const userType = useRecoilValue(userTypeAtom);
+    const setUserId = useSetRecoilState(userIdAtom);
+    const setLoggedin = useSetRecoilState(isLoggedinAtom);
+    // const user_version = useRecoilValue(userVersion);
+    const userName = useRecoilValue(usernameAtom);
+    const navigate = useNavigate();
+  
+  
+  
 
-  // const { setTheme } = useTheme();
+  const logoutUser = () => {
+    setAccessToken(null);
+    setRefreshToken(null);
+    setUsername(null);
+    setUserId(null);
+    setUserType(null);
+    setLoggedin(false);
+    localStorage.clear();
+    navigate("/login");
+  };
 
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
@@ -213,12 +237,22 @@ export const Header = () => {
               </Form>
             </DialogContent>
           </Dialog>
+          {userType === "Admin" ? (
           <DropdownMenuItem
-            onClick={()=>logOut()}
+            onClick={() => logOut()}
             className="text-destructive cursor-pointer focus:text-destructive"
           >
             Logout
           </DropdownMenuItem>
+        ) :  (
+          <DropdownMenuItem
+            onClick={() => setShowLogoutModal(true)}
+            className="text-destructive cursor-pointer focus:text-destructive"
+          >
+            Logout
+          </DropdownMenuItem>
+        ) }
+
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

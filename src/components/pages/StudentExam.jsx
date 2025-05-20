@@ -124,7 +124,7 @@ const Exam = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-column flex-lg-row">
       {/* Sidebar only for Student */}
       {userType === "Student" && <Sidebar isCollapsed={false} setIsCollapsed={() => {}} />}
       
@@ -155,11 +155,11 @@ const Exam = () => {
                 return (
                   <div key={exam.exam_id} className="p-6 border rounded-lg shadow-md bg-white">
                     <h3 className="text-xl font-semibold text-blue-600">
-                      {examInfo ? `${examInfo.course_name} - ${examInfo.substream_name}` : "Exam Details"}
+                      {examInfo ? `${examInfo.course_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear} - ${examInfo.substream_name}` : "Exam Details"}
                     </h3>
-                    <p className="text-gray-700 mt-1">
-                      {examInfo ? `${examInfo.subject_name} | ${examInfo.studypattern} | Year ${examInfo.semyear}` : ""}
-                    </p>
+                    {/* <p className="text-gray-700 mt-1">
+                      {examInfo ? `${examInfo.substream_name} | ${examInfo.studypattern} | Year ${examInfo.semyear}` : ""}
+                    </p> */}
                     <p className="text-gray-600 mt-2">Exam ID: <span className="font-semibold">{exam.exam_id}</span></p>
                     <p className="text-gray-600">
                       Time: <span className="font-medium">{exam.examstartdate} {exam.examstarttime}</span> - 

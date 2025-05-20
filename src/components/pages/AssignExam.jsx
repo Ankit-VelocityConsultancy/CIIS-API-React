@@ -664,21 +664,54 @@ const AssignExamination = () => {
 
   // Columns for the Exams Table
   const examColumns = [
-    {
-      name: "Select",
-      cell: (row) => (
-        <input
-          type="checkbox"
+   {
+  name: (
+    <input
+      type="checkbox"
+      onChange={(e) => {
+        const checked = e.target.checked;
+        if (checked) {
+          setSelectedExams(exams); // ✅ select all
+        } else {
+          setSelectedExams([]); // ✅ deselect all
+        }
+      }}
+      checked={exams.length > 0 && selectedExams.length === exams.length}
+      ref={(input) => {
+        if (input) {
+          input.indeterminate =
+            selectedExams.length > 0 && selectedExams.length < exams.length;
+        }
+      }}
+    />
+  ),
+  cell: (row) => (
+    <input
+      type="checkbox"
+      checked={selectedExams.some((exam) => exam.id === row.id)}
+      onChange={() => handleExamSelection(row)} // still use toggle for row
+    />
+  ),
+  ignoreRowClick: true,
+  allowOverflow: true,
+  button: true,
+},
+
+    // {
+    //   name: "Select",
+    //   cell: (row) => (
+    //     <input
+    //       type="checkbox"
           
-          checked={selectedExams.some(
-            (exam) => exam.id === row.id
-          )}
-          onChange={() => handleExamSelection(row)}
-        />
-      ),
-      allowOverflow: true,
-      button: true,
-    },
+    //       checked={selectedExams.some(
+    //         (exam) => exam.id === row.id
+    //       )}
+    //       onChange={() => handleExamSelection(row)}
+    //     />
+    //   ),
+    //   allowOverflow: true,
+    //   button: true,
+    // },
     {
       name: "Subject Name",
       selector: (row) => row.subject?.name || "N/A",
@@ -743,17 +776,50 @@ const AssignExamination = () => {
   // Columns for the Students Table
   const studentColumns = [
     {
-      name: "Select",
-      cell: (row) => (
-        <input
-          type="checkbox"
-          checked={selectedSubjects.some((student) => student.id === row.id)} // Check if this row is selected
-          onChange={() => handleSubjectSelection(row)} // Toggle the selection
-        />
-      ),
-      allowOverflow: true,
-      button: true,
-    },    
+  name: (
+    <input
+      type="checkbox"
+      onChange={(e) => {
+        const checked = e.target.checked;
+        if (checked) {
+          setSelectedSubjects(students); // ✅ select all
+        } else {
+          setSelectedSubjects([]); // ✅ deselect all
+        }
+      }}
+      checked={students.length > 0 && selectedSubjects.length === students.length}
+      ref={(input) => {
+        if (input) {
+          input.indeterminate =
+            selectedSubjects.length > 0 && selectedSubjects.length < students.length;
+        }
+      }}
+    />
+  ),
+  cell: (row) => (
+    <input
+      type="checkbox"
+      checked={selectedSubjects.some((student) => student.id === row.id)}
+      onChange={() => handleSubjectSelection(row)} // still use toggle for row
+    />
+  ),
+  ignoreRowClick: true,
+  allowOverflow: true,
+  button: true,
+},
+
+    // {
+    //   name: "Select",
+    //   cell: (row) => (
+    //     <input
+    //       type="checkbox"
+    //       checked={selectedSubjects.some((student) => student.id === row.id)} // Check if this row is selected
+    //       onChange={() => handleSubjectSelection(row)} // Toggle the selection
+    //     />
+    //   ),
+    //   allowOverflow: true,
+    //   button: true,
+    // },    
     {
       name: "ID",
       selector: (row) => row.id,

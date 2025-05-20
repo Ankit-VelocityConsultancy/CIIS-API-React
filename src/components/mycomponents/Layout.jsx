@@ -27,11 +27,11 @@ export const Layout = () => {
 
         <div
           className={`header-footer-content-wrapper transition-all ${
-            isCollapsed ? "w-[calc(100%-80px)]" : "w-[85%]"
+            isCollapsed ? "w-[calc(100%-80px)]" : "w-100 md:w-[85%]"
           } relative`}
         >
             <Header />
-            <div className="content-wrapper p-8">
+            <div className="content-wrapper md:!p-8 p-3">
               <Outlet />
             </div>
             <Footer />
