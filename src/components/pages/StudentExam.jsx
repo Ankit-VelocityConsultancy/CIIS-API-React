@@ -144,19 +144,49 @@ const Exam = () => {
       
       <div className="flex-1 min-h-screen flex flex-col items-center bg-gray-100 p-6">
         <div className="bg-white shadow-md rounded-lg p-8 w-full">
-          <h2>{student_name}</h2>
-          <div>
-            <img src={university_logo} alt="BigCo Inc. logo"/>
-          </div>
-          <h2 className="text-3xl font-bold mb-6 text-center">Exam Guidelines</h2>
-          <ul className="list-disc pl-6 mb-8 text-gray-700">
-            <li>Test link will be active on the given date and time as informed.</li>
-            <li>Test duration 120 minutes.</li>
-            <li>You must finish your examination within the given time.</li>
-            <li>The system shall automatically end the test after the cut-off time.</li>
-            <li>Do not refresh the browser or logout during the examination.</li>
-            <li>Ensure a stable internet connection before starting the examination.</li>
-          </ul>
+         
+      <div className="header-container flex flex-col items-center mb-8 w-full">
+        {/* Centered logo */}
+        <div className="flex justify-center w-full mb-4">
+          <img
+            src={university_logo}
+            alt="University Logo"
+            className="max-h-24 object-contain"
+            style={{ maxWidth: "300px", borderRadius: "50%" }}
+          />
+        </div>
+
+        {/* Greeting with student name centered */}
+        <div
+          className="text-center font-semibold text-xl"
+          style={{ color: "#1F2937", fontFamily: "'Poppins', sans-serif" }}
+        >
+          Hello, <span style={{ color: "#2563EB" }}>{student_name}</span>
+        </div>
+      </div>
+
+      <h2
+        className="text-4xl font-extrabold mb-8 text-left"
+        style={{ color: "#111827", fontFamily: "'Montserrat', sans-serif" }}
+      >
+        Exam Guidelines
+      </h2>
+      <ul
+        className="list-disc pl-8 mb-10"
+        style={{
+          color: "#374151",
+          fontSize: "18px",
+          lineHeight: "1.8",
+          fontFamily: "'Open Sans', sans-serif",
+        }}
+      >
+        <li>Test link will be active on the given date and time as informed.</li>
+        <li>Test duration 120 minutes.</li>
+        <li>You must finish your examination within the given time.</li>
+        <li>The system shall automatically end the test after the cut-off time.</li>
+        <li>Do not refresh the browser or logout during the examination.</li>
+        <li>Ensure a stable internet connection before starting the examination.</li>
+      </ul>
 
           {examDetails.length === 0 ? (
             <div className="text-center text-gray-600 text-lg font-semibold p-6">
