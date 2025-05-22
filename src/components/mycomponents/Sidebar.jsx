@@ -100,14 +100,14 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           <ChevronRightIcon className="h-4 w-4 " />
         )}
       </Button>
-
+{ userType == "Admin" ? (
       <div className="logo-wrapper flex items-center gap-3 !mt-8 p-4">
         {!isCollapsed ? (
           <img src={logo} alt="CIIS" className="logo" style={{ width: '120px', height: 'auto' }}/>
         ) : (
           <Hexagon className="m-auto" />
         )}
-      </div>
+      </div> ) : null}
       <Separator className="my-4" />
    
     
