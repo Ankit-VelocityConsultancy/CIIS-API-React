@@ -14,6 +14,8 @@ const Exam = () => {
   const [examStatus, setExamStatus] = useState({});
   const [submittedExams, setSubmittedExams] = useState({});
   const [canStartTest, setCanStartTest] = useState({}); // New state to track if test can be started
+  const university_logo = localStorage.getItem("university_logo");
+  const student_name = localStorage.getItem("student_name");
 
   useEffect(() => {
     const storedExamDetails = localStorage.getItem("examDetails");
@@ -106,12 +108,16 @@ const Exam = () => {
 
 
  const handleStartTest = async (examInfo) => {
+  const university=localStorage.getItem('university_id')
+  console.log("oidddddddd",university)
   try {
     const response = await axios.get(`${baseURL}api/filter-questions/`, {
       params: {
         examtype: examInfo.examtype,
         semyear: examInfo.semyear,
         subject: examInfo.subject_name,
+        university:university
+
       },
     });
 
@@ -138,6 +144,10 @@ const Exam = () => {
       
       <div className="flex-1 min-h-screen flex flex-col items-center bg-gray-100 p-6">
         <div className="bg-white shadow-md rounded-lg p-8 w-full">
+          <h2>{student_name}</h2>
+          <div>
+            <img src={university_logo} alt="BigCo Inc. logo"/>
+          </div>
           <h2 className="text-3xl font-bold mb-6 text-center">Exam Guidelines</h2>
           <ul className="list-disc pl-6 mb-8 text-gray-700">
             <li>Test link will be active on the given date and time as informed.</li>

@@ -97,8 +97,10 @@ export function Login() {
         localStorage.setItem("user_id", user_id);
         localStorage.setItem("version", version);
         localStorage.setItem("is_login", "true");
-  
         localStorage.setItem("student_id", student_id);
+        localStorage.setItem("university_id", response.data.university.id);
+        localStorage.setItem("student_name", response.data.student_name);
+        localStorage.setItem("university_logo", response.data.university_logo);
 
 
         if (is_student) {
