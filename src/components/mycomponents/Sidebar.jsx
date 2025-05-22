@@ -85,7 +85,8 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   };
 
 
-
+ const university_logo = localStorage.getItem("university_logo");
+ 
   return (
     <div className="sidebar-wrapper relative space-y-1 scroll-t">
       <Button
@@ -108,6 +109,15 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           <Hexagon className="m-auto" />
         )}
       </div> ) : null}
+       {userType === "Student" && (
+         <div className="logo-wrapper flex items-center gap-3 !mt-8 p-4">
+        {!isCollapsed ? (
+          <img src={university_logo} alt="CIIS" className="logo" style={{ width: '120px', height: 'auto' }}/>
+        ) : (
+          <Hexagon className="m-auto" />
+        )}
+      </div>
+       )}
       <Separator className="my-4" />
    
     

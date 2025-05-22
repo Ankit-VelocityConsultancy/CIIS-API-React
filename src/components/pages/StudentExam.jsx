@@ -124,12 +124,12 @@ const Exam = () => {
         <div className="bg-white shadow-md rounded-lg p-8 w-full">
           <div className="header-container flex flex-col items-center mb-8 w-full">
             <div className="flex justify-center w-full mb-4">
-              <img
+              {/* <img
                 src={university_logo}
                 alt="University Logo"
                 className="max-h-24 object-contain"
                 style={{ maxWidth: "300px", borderRadius: "50%" }}
-              />
+              /> */}
             </div>
 
             <div
