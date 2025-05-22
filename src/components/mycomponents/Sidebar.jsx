@@ -112,7 +112,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
        {userType === "Student" && (
          <div className="logo-wrapper flex items-center gap-3 !mt-8 p-4">
         {!isCollapsed ? (
-          <img src={university_logo} alt="CIIS" className="logo" style={{ width: '120px', height: 'auto' }}/>
+          <img src={university_logo} alt="CIIS" className="logo" style={{ width: '120px', height: '120px' ,borderRadius: "50%"}}/>
         ) : (
           <Hexagon className="m-auto" />
         )}
