@@ -104,24 +104,32 @@ const Exam = () => {
     });
   }, [examDetails]);
 
-  const handleStartTest = async (exam) => {
-    try {
-      const response = await axios.get(`${baseURL}api/filter-questions/`, {
-        params: {
-          examtype: exam.examtype,   // 🛠️ dynamic based on exam data
-          semyear: exam.semyear,
-          subject: exam.subject_name,
-        },
-      });
 
-      if (response.status === 200) {
-        localStorage.setItem("questions", JSON.stringify(response.data));
-        navigate("/test");
-      }
-    } catch (error) {
-      console.error("Error fetching questions:", error);
+ const handleStartTest = async (examInfo) => {
+  try {
+    const response = await axios.get(`${baseURL}api/filter-questions/`, {
+      params: {
+        examtype: examInfo.examtype,
+        semyear: examInfo.semyear,
+        subject: examInfo.subject_name,
+      },
+    });
+
+    if (response.status === 200) {
+      localStorage.setItem("questions", JSON.stringify(response.data));
+
+      const formattedTitle = `${examInfo.course_name} - ${examInfo.stream_name} - ${examInfo.substream_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear}`;
+      localStorage.setItem("selected_exam_title", formattedTitle);
+
+      navigate("/test");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+  }
+};
+
+
+
 
   return (
     <div className="flex flex-column flex-lg-row">
@@ -151,11 +159,12 @@ const Exam = () => {
                 const isActive = examStatus[exam.exam_id];
                 const isAlreadySubmitted = submittedExams[exam.exam_id];
                 const canStart = canStartTest[exam.exam_id] && checkIfExamIsActive(exam); // Check if exam is active and result doesn't exist
-
+                // const formattedTitle = `${exam.stream_name} - ${exam.subject_name} - Semester ${exam.semyear}`;
+                // localStorage.setItem("selected_exam_title", formattedTitle);
                 return (
                   <div key={exam.exam_id} className="p-6 border rounded-lg shadow-md bg-white">
                     <h3 className="text-xl font-semibold text-blue-600">
-                      {examInfo ? `${examInfo.course_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear} - ${examInfo.substream_name}` : "Exam Details"}
+                      {examInfo ? `${examInfo.course_name} - ${examInfo.stream_name} - ${examInfo.substream_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear}` : "Exam Details"}
                     </h3>
                     {/* <p className="text-gray-700 mt-1">
                       {examInfo ? `${examInfo.substream_name} | ${examInfo.studypattern} | Year ${examInfo.semyear}` : ""}

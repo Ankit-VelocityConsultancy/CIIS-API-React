@@ -24,6 +24,13 @@ const ExamTest = () => {
   
   useEffect(() => {
     const fetchQuestions = async () => {
+
+      const storedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
+      setAnswers(storedAnswers);
+
+      const savedStep = parseInt(localStorage.getItem("currentStep"), 10);
+      if (!isNaN(savedStep)) setCurrentStep(savedStep);
+
       const storedQuestions = JSON.parse(localStorage.getItem("questions") || "[]");
       const studentId = localStorage.getItem("student_id");
       setQuestions(storedQuestions);
@@ -33,11 +40,13 @@ const ExamTest = () => {
 
       if (examinationData.length > 0) {
         const examData = examinationData[0]; // Assuming we are working with the first record for simplicity
+        const savedTitle = localStorage.getItem("selected_exam_title");
         setExamDetails({
-          name: `${examData.course_name} - ${examData.stream_name}`,
-          semester: `Semester ${examData.semyear}`,
-          subject: examData.subject_name,
-          studyPattern: examData.studypattern
+          name: savedTitle
+          //  || `${examData.course_name} - ${examData.stream_name}`,
+          // semester: `Semester ${examData.semyear}`,
+          // subject: examData.subject_name,
+          // studyPattern: examData.studypattern
         });
       }
 
@@ -75,7 +84,9 @@ const ExamTest = () => {
     setShowLeaveModal(false);
     localStorage.removeItem("exam_time_left");
     localStorage.removeItem("exam_time_saved_at");
-    navigate("/exam"); // Navigate to the exam page
+    localStorage.removeItem("answers");
+    localStorage.removeItem("currentStep");
+    navigate("/exam");
   };
 
   const handleStayOnPage = () => {
@@ -141,23 +152,33 @@ const ExamTest = () => {
     return () => clearInterval(interval);
   }, [timeLeft, questions]);
 
-  const saveSingleAnswer = async (questionId) => {
-    const submitted_answer = answers[questionId] || "NA";
-    const studentId = localStorage.getItem("student_id");
-    const examId = questions[0]?.exam;
+ const saveSingleAnswer = async (questionId) => {
+  const submitted_answer = answers[questionId] || "NA";
+  const studentId = localStorage.getItem("student_id");
+  const examId = questions[0]?.exam;
 
-    if (!submitted_answer || !studentId || !examId || !questionId) return;
+  if (!submitted_answer || !studentId || !examId || !questionId) return;
 
-    try {
-      await fetch(`${baseURL}api/save_single_answers/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: studentId, exam_id: examId, question_id: questionId, submitted_answer }),
-      });
-    } catch (err) {
-      console.error("Error saving single answer", err);
-    }
-  };
+  try {
+    // Save answer remotely
+    const res = await fetch(`${baseURL}api/save_single_answers/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ student_id: studentId, exam_id: examId, question_id: questionId, submitted_answer }),
+    });
+
+    const result = await res.json();
+
+    // Save locally
+    const updatedAnswers = { ...answers, [questionId]: submitted_answer };
+    setAnswers(updatedAnswers);
+    localStorage.setItem("answers", JSON.stringify(updatedAnswers));
+    localStorage.setItem("currentStep", (currentStep + 1).toString());
+  } catch (err) {
+    console.error("Error saving single answer", err);
+  }
+};
+
 
   const saveResultAfterExam = async () => {
     const studentId = localStorage.getItem("student_id");
@@ -191,9 +212,9 @@ const ExamTest = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="bg-white p-8 rounded shadow-md text-center max-w-md">
           <h2 className="text-xl font-semibold mb-4">The Examination has been submitted successfully for</h2>
-          <h3 className="text-lg font-bold text-gray-800 mb-2">{examDetails.subject}</h3>
+          {/* <h3 className="text-lg font-bold text-gray-800 mb-2">{examDetails.subject}</h3> */}
           <h4 className="text-md text-gray-700 mb-2">{examDetails.name}</h4>
-          <h5 className="text-md text-gray-700 mb-6">{examDetails.semester}</h5>
+          {/* <h5 className="text-md text-gray-700 mb-6">{examDetails.semester}</h5> */}
           <button onClick={() => navigate("/exam")} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             Dashboard
           </button>
@@ -254,10 +275,10 @@ const ExamTest = () => {
         )}
 
         <div className="flex justify-between flex-wrap gap-2 mt-6">
-          <button onClick={() => navigate("/exam")} className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700">Previous</button>
+          <button onClick={() => navigate("/exam")} className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700">Dashboard</button>
 
           {currentStep > 0 && (
-            <button onClick={() => setCurrentStep(currentStep - 1)} className="bg-gray-500 text-white px-6 py-2 rounded-lg">Back</button>
+            <button onClick={() => setCurrentStep(currentStep - 1)} className="bg-gray-500 text-white px-6 py-2 rounded-lg">Previous</button>
           )}
 
           {currentStep < questions.length && (
