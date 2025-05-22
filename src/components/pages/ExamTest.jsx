@@ -1,30 +1,26 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { baseURLAtom } from "../../recoil/atoms";
-import { useRecoilValue } from "recoil";
+import { baseURLAtom, showLogoutModalAtom } from "../../recoil/atoms";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { showLogoutModalAtom } from "../../recoil/atoms";
-import { useRecoilState } from "recoil";
-
 
 const ExamTest = () => {
   const navigate = useNavigate();
   const baseURL = useRecoilValue(baseURLAtom);
+  const [showLogoutModal, setShowLogoutModal] = useRecoilState(showLogoutModalAtom);
 
   const [questions, setQuestions] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
   const [examSubmitted, setExamSubmitted] = useState(false);
-  const [examDetails, setExamDetails] = useState({ name: "", semester: "", subject: "", studyPattern: "" });
-  const [showLeaveModal, setShowLeaveModal] = useState(false); // New state for the modal visibility
-  // const [showLogoutModal, setShowLogoutModal] = useState(false); // Modal visibility for logout confirmation
-  const [showLogoutModal, setShowLogoutModal] = useRecoilState(showLogoutModalAtom);
-  
+  const [examDetails, setExamDetails] = useState({ name: "" });
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [selectedExamId, setSelectedExamId] = useState(null);
+
   useEffect(() => {
     const fetchQuestions = async () => {
-
       const storedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
       setAnswers(storedAnswers);
 
@@ -35,26 +31,29 @@ const ExamTest = () => {
       const studentId = localStorage.getItem("student_id");
       setQuestions(storedQuestions);
 
-      // Retrieve exam details from local storage
+      const storedExamId = localStorage.getItem("selected_exam_id");
+      if (storedExamId) {
+        setSelectedExamId(parseInt(storedExamId));
+      }
+
+      // Retrieve exam details for selected exam id
       const examinationData = JSON.parse(localStorage.getItem("examinationData") || "[]");
 
-      if (examinationData.length > 0) {
-        const examData = examinationData[0]; // Assuming we are working with the first record for simplicity
-        const savedTitle = localStorage.getItem("selected_exam_title");
+      if (examinationData.length > 0 && storedExamId) {
+        const examData = examinationData.find(
+          (e) => e.exam_id === parseInt(storedExamId) || e.id === parseInt(storedExamId)
+        );
+        const savedTitle = localStorage.getItem("selected_exam_title") || (examData ? `${examData.course_name} - ${examData.stream_name}` : "");
         setExamDetails({
-          name: savedTitle
-          //  || `${examData.course_name} - ${examData.stream_name}`,
-          // semester: `Semester ${examData.semyear}`,
-          // subject: examData.subject_name,
-          // studyPattern: examData.studypattern
+          name: savedTitle,
         });
       }
 
       if (storedQuestions.length > 0 && storedQuestions[0].exam) {
-        const examId = storedQuestions[0].exam;
+        const examIdToUse = storedExamId ? parseInt(storedExamId) : storedQuestions[0].exam;
 
         try {
-          const response = await fetch(`${baseURL}api/get_exam_timer/?student_id=${studentId}&exam_id=${examId}`);
+          const response = await fetch(`${baseURL}api/get_exam_timer/?student_id=${studentId}&exam_id=${examIdToUse}`);
           const data = await response.json();
           const restoredTime = parseInt(data.time_left_ms);
           setTimeLeft(restoredTime > 0 ? restoredTime : storedQuestions[0].examduration * 60000);
@@ -66,7 +65,6 @@ const ExamTest = () => {
 
     fetchQuestions();
 
-    // Handle page unload (refresh/close)
     const handleBeforeUnload = (e) => {
       e.preventDefault();
       setShowLeaveModal(true);
@@ -74,11 +72,8 @@ const ExamTest = () => {
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [baseURL]);
 
   const handleLeaveExam = () => {
     setShowLeaveModal(false);
@@ -86,27 +81,27 @@ const ExamTest = () => {
     localStorage.removeItem("exam_time_saved_at");
     localStorage.removeItem("answers");
     localStorage.removeItem("currentStep");
+    localStorage.removeItem("selected_exam_id");
     navigate("/exam");
   };
 
   const handleStayOnPage = () => {
-    setShowLeaveModal(false); // Close the modal and stay on the page
+    setShowLeaveModal(false);
   };
 
   const handleLogout = () => {
-    setShowLogoutModal(true); // Show logout confirmation modal
+    setShowLogoutModal(true);
   };
 
   const handleConfirmLogout = () => {
-    // Perform the logout logic (clear session or tokens, etc.)
     localStorage.removeItem("student_id");
     localStorage.removeItem("accessToken");
-    // Add your logOut() logic here (if needed)
-    navigate("/login"); // Navigate to login page after logout
+    localStorage.removeItem("selected_exam_id");
+    navigate("/login");
   };
 
   const handleCancelLogout = () => {
-    setShowLogoutModal(false); // Close the logout confirmation modal
+    setShowLogoutModal(false);
   };
 
   const formatTime = (ms) => {
@@ -123,6 +118,7 @@ const ExamTest = () => {
     if (timeLeft <= 0) {
       localStorage.removeItem("exam_time_left");
       localStorage.removeItem("exam_time_saved_at");
+      localStorage.removeItem("selected_exam_id");
       navigate("/exam");
       return;
     }
@@ -135,12 +131,12 @@ const ExamTest = () => {
 
         if (updated % 10000 < 1000) {
           const studentId = localStorage.getItem("student_id");
-          const examId = questions[0]?.exam;
-          if (studentId && examId) {
+          const examIdToUse = selectedExamId || questions[0]?.exam;
+          if (studentId && examIdToUse) {
             fetch(`${baseURL}api/save_exam_timer/`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ student_id: studentId, exam_id: examId, time_left_ms: updated }),
+              body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse, time_left_ms: updated }),
             });
           }
         }
@@ -150,26 +146,24 @@ const ExamTest = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timeLeft, questions]);
+  }, [timeLeft, questions, selectedExamId, baseURL]);
 
- const saveSingleAnswer = async (questionId) => {
+  const saveSingleAnswer = async (questionId) => {
   const submitted_answer = answers[questionId] || "NA";
   const studentId = localStorage.getItem("student_id");
-  const examId = questions[0]?.exam;
+  const examIdToUse = localStorage.getItem("selected_exam_id") 
+    ? parseInt(localStorage.getItem("selected_exam_id")) 
+    : questions[0]?.exam;
 
-  if (!submitted_answer || !studentId || !examId || !questionId) return;
+  if (!submitted_answer || !studentId || !examIdToUse || !questionId) return;
 
   try {
-    // Save answer remotely
-    const res = await fetch(`${baseURL}api/save_single_answers/`, {
+    await fetch(`${baseURL}api/save_single_answers/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ student_id: studentId, exam_id: examId, question_id: questionId, submitted_answer }),
+      body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse, question_id: questionId, submitted_answer }),
     });
 
-    const result = await res.json();
-
-    // Save locally
     const updatedAnswers = { ...answers, [questionId]: submitted_answer };
     setAnswers(updatedAnswers);
     localStorage.setItem("answers", JSON.stringify(updatedAnswers));
@@ -182,19 +176,19 @@ const ExamTest = () => {
 
   const saveResultAfterExam = async () => {
     const studentId = localStorage.getItem("student_id");
-    const examId = questions[0]?.exam;
-    if (!studentId || !examId) return;
+    const examIdToUse = selectedExamId || questions[0]?.exam;
+    if (!studentId || !examIdToUse) return;
 
     try {
       await fetch(`${baseURL}api/save_result_after_exam/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: studentId, exam_id: examId }),
+        body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse }),
       });
 
-      // Clear timer from local storage
       localStorage.removeItem("exam_time_left");
       localStorage.removeItem("exam_time_saved_at");
+      localStorage.removeItem("selected_exam_id");
 
       setExamSubmitted(true);
     } catch (error) {
@@ -206,15 +200,12 @@ const ExamTest = () => {
 
   if (questions.length === 0 || timeLeft === null) return <div>Loading questions...</div>;
 
-  // ✅ Final submit screen
   if (examSubmitted) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="bg-white p-8 rounded shadow-md text-center max-w-md">
           <h2 className="text-xl font-semibold mb-4">The Examination has been submitted successfully for</h2>
-          {/* <h3 className="text-lg font-bold text-gray-800 mb-2">{examDetails.subject}</h3> */}
           <h4 className="text-md text-gray-700 mb-2">{examDetails.name}</h4>
-          {/* <h5 className="text-md text-gray-700 mb-6">{examDetails.semester}</h5> */}
           <button onClick={() => navigate("/exam")} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             Dashboard
           </button>
@@ -234,51 +225,51 @@ const ExamTest = () => {
           <TimeBox label="Seconds" value={seconds} pulse />
         </div>
 
-        {/* Question Panel */}
         {currentStep < questions.length && (
           <div>
-            <p className="font-semibold">Question {currentStep + 1} of {questions.length}</p>
+            <p className="font-semibold">
+              Question {currentStep + 1} of {questions.length}
+            </p>
             <p className="mb-2">{questions[currentStep].question}</p>
-            {["option1", "option2", "option3", "option4"].map((opt, i) =>
-              questions[currentStep][opt] && (
-                <div key={i} className="mb-2">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name={`question-${questions[currentStep].id}`}
-                      value={`option ${i + 1}`}
-                      checked={answers[questions[currentStep].id] === `option ${i + 1}`}
-                      onChange={() =>
-                        setAnswers({ ...answers, [questions[currentStep].id]: `option ${i + 1}` })
-                      }
-                      className="mr-2 accent-red-600"
-                    />
-                    {questions[currentStep][opt]}
-                  </label>
-                </div>
-              )
+            {["option1", "option2", "option3", "option4"].map(
+              (opt, i) =>
+                questions[currentStep][opt] && (
+                  <div key={i} className="mb-2">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name={`question-${questions[currentStep].id}`}
+                        value={`option ${i + 1}`}
+                        checked={answers[questions[currentStep].id] === `option ${i + 1}`}
+                        onChange={() => setAnswers({ ...answers, [questions[currentStep].id]: `option ${i + 1}` })}
+                        className="mr-2 accent-red-600"
+                      />
+                      {questions[currentStep][opt]}
+                    </label>
+                  </div>
+                )
             )}
           </div>
         )}
 
-        {/* Submit screen */}
         {currentStep === questions.length && (
           <div className="text-center mt-8">
             <h3 className="text-xl font-semibold mb-4">Submit Exam</h3>
-            <button
-              onClick={saveResultAfterExam}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-            >
+            <button onClick={saveResultAfterExam} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
               Submit
             </button>
           </div>
         )}
 
         <div className="flex justify-between flex-wrap gap-2 mt-6">
-          <button onClick={() => navigate("/exam")} className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700">Dashboard</button>
+          <button onClick={() => navigate("/exam")} className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700">
+            Dashboard
+          </button>
 
           {currentStep > 0 && (
-            <button onClick={() => setCurrentStep(currentStep - 1)} className="bg-gray-500 text-white px-6 py-2 rounded-lg">Previous</button>
+            <button onClick={() => setCurrentStep(currentStep - 1)} className="bg-gray-500 text-white px-6 py-2 rounded-lg">
+              Previous
+            </button>
           )}
 
           {currentStep < questions.length && (
@@ -310,7 +301,6 @@ const ExamTest = () => {
         </div>
       </div>
 
-      {/* Modal for before unload */}
       {showLeaveModal && (
         <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-xs">
@@ -327,7 +317,6 @@ const ExamTest = () => {
         </div>
       )}
 
-      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-xs">
