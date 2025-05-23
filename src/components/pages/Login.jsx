@@ -145,6 +145,7 @@ export function Login() {
           localStorage.setItem("examDetails", JSON.stringify(exam_details || []));
           localStorage.setItem("examinationData", JSON.stringify(examination_data || []));
           localStorage.setItem("student_name", student_name || "");
+          localStorage.setItem("student_id", student_id);
           localStorage.setItem("university_logo", university_logo || "");
           if (university) {
             localStorage.setItem("university_id", university.id);
