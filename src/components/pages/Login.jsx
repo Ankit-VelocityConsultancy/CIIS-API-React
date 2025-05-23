@@ -147,9 +147,10 @@ export function Login() {
           localStorage.setItem("student_name", student_name || "");
           localStorage.setItem("student_id", student_id);
           localStorage.setItem("university_logo", university_logo || "");
-          if (university) {
-            localStorage.setItem("university_id", university.id);
-          }
+          localStorage.setItem("university_id", university.id);
+
+          localStorage.setItem("exam_progress", JSON.stringify(loginResponse.exam_progress));
+          localStorage.setItem("selected_exam_id", yourSelectedExamId);
           navigate("/exam"); // student exam page
         } else {
           navigate("/"); // admin dashboard

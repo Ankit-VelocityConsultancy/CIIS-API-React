@@ -19,44 +19,109 @@ const ExamTest = () => {
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState(null);
 
+  // Helper to set currentStep and persist it
+  const setStep = (step) => {
+    setCurrentStep(step);
+    localStorage.setItem("currentStep", step.toString());
+  };
+
   useEffect(() => {
     const fetchQuestions = async () => {
-      const storedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
-      setAnswers(storedAnswers);
-
-      const savedStep = parseInt(localStorage.getItem("currentStep"), 10);
-      if (!isNaN(savedStep)) setCurrentStep(savedStep);
-
       const storedQuestions = JSON.parse(localStorage.getItem("questions") || "[]");
-      const studentId = localStorage.getItem("student_id");
       setQuestions(storedQuestions);
 
       const storedExamId = localStorage.getItem("selected_exam_id");
-      if (storedExamId) {
-        setSelectedExamId(parseInt(storedExamId));
+      if (storedExamId) setSelectedExamId(parseInt(storedExamId));
+      const studentId = localStorage.getItem("student_id");
+
+      // Sync answers from backend
+      if (studentId && storedExamId) {
+        try {
+          const response = await fetch(
+            `${baseURL}api/sync_answers/?student_id=${studentId}&exam_id=${storedExamId}`
+          );
+          const data = await response.json();
+          if (data.answers) {
+            setAnswers(data.answers);
+            localStorage.setItem("answers", JSON.stringify(data.answers));
+          }
+        } catch (err) {
+          console.error("Failed to sync answers:", err);
+          // fallback to localStorage answers on failure
+          const storedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
+          setAnswers(storedAnswers);
+        }
+      } else {
+        const storedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
+        setAnswers(storedAnswers);
       }
 
-      // Retrieve exam details for selected exam id
-      const examinationData = JSON.parse(localStorage.getItem("examinationData") || "[]");
+      // Sync currentStep using last answered question from login exam_progress
+      const examProgressAll = JSON.parse(localStorage.getItem("exam_progress") || "[]");
 
+      let startStep = 0;
+      if (examProgressAll.length > 0 && storedExamId) {
+        const progressForThisExam = examProgressAll.find(
+          (e) => e.exam_id === parseInt(storedExamId)
+        );
+
+        if (progressForThisExam) {
+          const lastAnsweredId = progressForThisExam.last_answered_question_id;
+          if (lastAnsweredId != null) {
+            const lastIndex = storedQuestions.findIndex(
+              (q) => Number(q.id) === Number(lastAnsweredId)
+            );
+            if (lastIndex !== -1) {
+              startStep = lastIndex + 1;
+              if (startStep >= storedQuestions.length) {
+                startStep = storedQuestions.length - 1;
+              }
+            }
+          }
+        }
+      }
+
+      // If user has a saved step in localStorage (maybe partial attempt), prioritize it
+      const savedStep = parseInt(localStorage.getItem("currentStep"), 10);
+      if (!isNaN(savedStep)) {
+        setCurrentStep(savedStep);
+      } else {
+        setCurrentStep(startStep);
+        localStorage.setItem("currentStep", startStep.toString());
+      }
+
+      // Load exam details
+      const examinationData = JSON.parse(localStorage.getItem("examinationData") || "[]");
       if (examinationData.length > 0 && storedExamId) {
         const examData = examinationData.find(
           (e) => e.exam_id === parseInt(storedExamId) || e.id === parseInt(storedExamId)
         );
         const savedTitle = localStorage.getItem("selected_exam_title") || (examData ? `${examData.course_name} - ${examData.stream_name}` : "");
-        setExamDetails({
-          name: savedTitle,
-        });
+        setExamDetails({ name: savedTitle });
       }
 
+      // Timer with elapsed time correction
       if (storedQuestions.length > 0 && storedQuestions[0].exam) {
         const examIdToUse = storedExamId ? parseInt(storedExamId) : storedQuestions[0].exam;
+
+        const savedTimeLeft = parseInt(localStorage.getItem("exam_time_left"));
+        const savedTimestamp = parseInt(localStorage.getItem("exam_time_saved_at"));
+        const now = Date.now();
+
+        if (savedTimeLeft && savedTimestamp) {
+          const elapsed = now - savedTimestamp;
+          const adjustedTimeLeft = savedTimeLeft - elapsed;
+          if (adjustedTimeLeft > 0) {
+            setTimeLeft(adjustedTimeLeft);
+            return;
+          }
+        }
 
         try {
           const response = await fetch(`${baseURL}api/get_exam_timer/?student_id=${studentId}&exam_id=${examIdToUse}`);
           const data = await response.json();
-          const restoredTime = parseInt(data.time_left_ms);
-          setTimeLeft(restoredTime > 0 ? restoredTime : storedQuestions[0].examduration * 60000);
+          const apiTimeLeft = parseInt(data.time_left_ms);
+          setTimeLeft(apiTimeLeft > 0 ? apiTimeLeft : storedQuestions[0].examduration * 60000);
         } catch {
           setTimeLeft(storedQuestions[0].examduration * 60000);
         }
@@ -97,6 +162,12 @@ const ExamTest = () => {
     localStorage.removeItem("student_id");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("selected_exam_id");
+    localStorage.removeItem("answers");
+    localStorage.removeItem("currentStep");
+    localStorage.removeItem("exam_time_left");
+    localStorage.removeItem("exam_time_saved_at");
+    localStorage.removeItem("exam_progress");
+    setShowLogoutModal(false);
     navigate("/login");
   };
 
@@ -126,6 +197,7 @@ const ExamTest = () => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         const updated = Math.max(prev - 1000, 0);
+
         localStorage.setItem("exam_time_left", updated.toString());
         localStorage.setItem("exam_time_saved_at", Date.now().toString());
 
@@ -148,31 +220,40 @@ const ExamTest = () => {
     return () => clearInterval(interval);
   }, [timeLeft, questions, selectedExamId, baseURL]);
 
-  const saveSingleAnswer = async (questionId) => {
-  const submitted_answer = answers[questionId] || "NA";
-  const studentId = localStorage.getItem("student_id");
-  const examIdToUse = localStorage.getItem("selected_exam_id") 
-    ? parseInt(localStorage.getItem("selected_exam_id")) 
-    : questions[0]?.exam;
-
-  if (!submitted_answer || !studentId || !examIdToUse || !questionId) return;
-
-  try {
-    await fetch(`${baseURL}api/save_single_answers/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse, question_id: questionId, submitted_answer }),
-    });
-
-    const updatedAnswers = { ...answers, [questionId]: submitted_answer };
+  const handleAnswerChange = (questionId, optionValue) => {
+    const updatedAnswers = { ...answers, [questionId]: optionValue };
     setAnswers(updatedAnswers);
     localStorage.setItem("answers", JSON.stringify(updatedAnswers));
-    localStorage.setItem("currentStep", (currentStep + 1).toString());
-  } catch (err) {
-    console.error("Error saving single answer", err);
-  }
-};
+  };
 
+  const saveSingleAnswer = async (questionId) => {
+    const submitted_answer = answers[questionId] || "NA";
+    const studentId = localStorage.getItem("student_id");
+    const examIdToUse = localStorage.getItem("selected_exam_id")
+      ? parseInt(localStorage.getItem("selected_exam_id"))
+      : questions[0]?.exam;
+
+    if (!submitted_answer || !studentId || !examIdToUse || !questionId) return;
+
+    try {
+      await fetch(`${baseURL}api/save_single_answers/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_id: studentId,
+          exam_id: examIdToUse,
+          question_id: questionId,
+          submitted_answer,
+          time_left_ms: timeLeft,
+        }),
+      });
+
+      setStep(currentStep + 1);
+    } catch (err) {
+      console.error("Error saving single answer", err);
+      toast.error("Error saving answer. Please try again.");
+    }
+  };
 
   const saveResultAfterExam = async () => {
     const studentId = localStorage.getItem("student_id");
@@ -189,6 +270,9 @@ const ExamTest = () => {
       localStorage.removeItem("exam_time_left");
       localStorage.removeItem("exam_time_saved_at");
       localStorage.removeItem("selected_exam_id");
+      localStorage.removeItem("answers");
+      localStorage.removeItem("currentStep");
+      localStorage.removeItem("exam_progress");
 
       setExamSubmitted(true);
     } catch (error) {
@@ -241,7 +325,7 @@ const ExamTest = () => {
                         name={`question-${questions[currentStep].id}`}
                         value={`option ${i + 1}`}
                         checked={answers[questions[currentStep].id] === `option ${i + 1}`}
-                        onChange={() => setAnswers({ ...answers, [questions[currentStep].id]: `option ${i + 1}` })}
+                        onChange={() => handleAnswerChange(questions[currentStep].id, `option ${i + 1}`)}
                         className="mr-2 accent-red-600"
                       />
                       {questions[currentStep][opt]}
@@ -267,17 +351,14 @@ const ExamTest = () => {
           </button>
 
           {currentStep > 0 && (
-            <button onClick={() => setCurrentStep(currentStep - 1)} className="bg-gray-500 text-white px-6 py-2 rounded-lg">
+            <button onClick={() => setStep(currentStep - 1)} className="bg-gray-500 text-white px-6 py-2 rounded-lg">
               Previous
             </button>
           )}
 
           {currentStep < questions.length && (
             <button
-              onClick={async () => {
-                await saveSingleAnswer(questions[currentStep].id);
-                setCurrentStep((prev) => prev + 1);
-              }}
+              onClick={() => saveSingleAnswer(questions[currentStep].id)}
               className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
             >
               {currentStep === questions.length - 1 ? "Next" : "Next"}
@@ -292,8 +373,10 @@ const ExamTest = () => {
           {questions.map((_, index) => (
             <button
               key={index}
-              className={`py-2 rounded-full text-lg ${answers[questions[index]?.id] ? "bg-green-500 text-white" : "bg-gray-300"}`}
-              onClick={() => setCurrentStep(index)}
+              className={`py-2 rounded-full text-lg ${
+                answers[questions[index]?.id] ? "bg-green-500 text-white" : "bg-gray-300"
+              }`}
+              onClick={() => setStep(index)}
             >
               {index + 1}
             </button>
