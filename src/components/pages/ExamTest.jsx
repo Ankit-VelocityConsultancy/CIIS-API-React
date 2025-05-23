@@ -96,8 +96,14 @@ const ExamTest = () => {
         const examData = examinationData.find(
           (e) => e.exam_id === parseInt(storedExamId) || e.id === parseInt(storedExamId)
         );
-        const savedTitle = localStorage.getItem("selected_exam_title") || (examData ? `${examData.course_name} - ${examData.stream_name}` : "");
-        setExamDetails({ name: savedTitle });
+        // const savedTitle = localStorage.getItem("selected_exam_title") || (examData ? `${examData.course_name} - ${examData.stream_name}` : "");
+        // setExamDetails({ name: savedTitle });
+        const savedTitle = localStorage.getItem("selected_exam_title") || "";
+        const parts = savedTitle.split(" - ");
+        const filteredParts = parts.filter(p => p && p.trim() !== "");
+        const displayName = filteredParts.join(" - ");
+        setExamDetails({ name: displayName });
+
       }
 
       // Timer with elapsed time correction
@@ -289,7 +295,7 @@ const ExamTest = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="bg-white p-8 rounded shadow-md text-center max-w-md">
           <h2 className="text-xl font-semibold mb-4">The Examination has been submitted successfully for</h2>
-          <h4 className="text-md text-gray-700 mb-2">{examDetails.name}</h4>
+            <h4 className="text-md text-gray-700 mb-2">{examDetails.name}</h4>
           <button onClick={() => navigate("/exam")} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             Dashboard
           </button>
