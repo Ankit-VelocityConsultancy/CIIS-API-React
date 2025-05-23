@@ -184,9 +184,19 @@ const Exam = () => {
                   return (
                     <div key={exam.exam_id} className="p-6 border rounded-lg shadow-md bg-white">
                       <h3 className="text-xl font-semibold text-blue-600">
-                        {examInfo
-                          ? `${examInfo.course_name} - ${examInfo.stream_name} - ${examInfo.substream_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear}`
-                          : "Exam Details"}
+                        {examInfo ? (
+                          [
+                            examInfo.course_name,
+                            examInfo.stream_name,
+                            examInfo.substream_name,
+                            examInfo.subject_name,
+                            `${examInfo.studypattern || ""} ${examInfo.semyear || ""}`.trim(),
+                          ]
+                            .filter((val) => val && val.trim() !== "")
+                            .join(" - ")
+                        ) : (
+                          "Exam Details"
+                        )}
                       </h3>
                       <p className="text-gray-600 mt-2">
                         Exam ID: <span className="font-semibold">{exam.exam_id}</span>
