@@ -201,7 +201,7 @@ export function Login() {
     >
       <Card className="w-full max-w-lg p-6 rounded-3xl shadow-xl">
         <CardHeader className="text-center">
-          <img src={logo} alt="Logo" className="mx-auto h-16" />
+          {/* <img src={logo} alt="Logo" className="mx-auto h-16" /> */}
         </CardHeader>
         <CardContent>
           <Form {...form}>
