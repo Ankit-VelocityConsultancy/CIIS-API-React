@@ -58,9 +58,6 @@ const StudentRegistrationViewPage = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [idCardModalOpen, setIdCardModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
-  const [finalSemesterModal, setFinalSemesterModal] = useState(false);
-
-
   const [reregisterFormData, setReregisterFormData] = useState({
     student_id: "", 
     type: "Re-registration",
@@ -241,38 +238,28 @@ useEffect(() => {
     }, [baseURL]);
     
 
-    useEffect(() => {
-      if (openEnrollModal && selectedStudentId) {
-        setLoading(true);
-        const apiToken = localStorage.getItem("access");
-    
-        axios
-          .get(`${baseURL}api/get_student_enroll_to_next_year/${selectedStudentId}/`, {
-            headers: {
-              Authorization: `Bearer ${apiToken}`,
-            },
-          })
-          .then((response) => {
-            if (response.data.status === "success") {
-              setFormData(response.data.data);
-            } else {
-              if (response.data.message === "Student is in Final Semester / Year!") {
-                setFinalSemesterModal(true); // ✅ show modal instead of alert
-                setOpenEnrollModal(false);   // ✅ optionally close main modal
-              } else {
-                setError(response.data.message || "Failed to fetch data");
-              }
-            }
-          })
-          .catch((error) => {
-            const errMsg = error?.response?.data?.message || "Error fetching data";
-            setError(errMsg);
-          })
-          .finally(() => setLoading(false));
-      }
-    }, [openEnrollModal, selectedStudentId, baseURL]);
-    
 
+  useEffect(() => {
+    if (openEnrollModal && selectedStudentId) {
+      setLoading(true);
+      const apiToken = localStorage.getItem("access"); // Get token from storage
+      axios
+        .get(`${baseURL}api/get_student_enroll_to_next_year/${selectedStudentId}/`, {
+          headers: {
+            Authorization: `Bearer ${apiToken}`, // 🔥 Include token
+          },
+        })
+        .then((response) => {
+          if (response.data.status === "success") {
+            setFormData(response.data.data);
+          } else {
+            setError("Failed to fetch data");
+          }
+        })
+        .catch(() => setError("Error fetching data"))
+        .finally(() => setLoading(false));
+    }
+  }, [openEnrollModal, selectedStudentId, baseURL]); // ✅ Fix: Added `baseURL` as a dependency
 
   useEffect(() => {
     if (StudEnrollmodalOpen) {
@@ -482,52 +469,12 @@ const handleOpenAddModal = (studentId) => {
 };
 
 
-const handleEnrollConfirmation = async () => {
-  console.log("Enroll button clicked ✅");
-
-  if (!formData || !selectedStudentId) {
-    alert("Missing data");
-    return;
-  }
-
-  const apiToken = localStorage.getItem("access");
-
-  const payload = {
-    student_id: selectedStudentId,
-    current_semyear: formData.current_semyear,
-    total_semyear: formData.total_semyear,
-    next_semyear: formData.next_semyear,
-  };
-
-  console.log("Sending payload:", payload);
-
-  try {
-    const response = await axios.post(
-      `${baseURL.replace(/\/$/, "")}/api/registered_save_enrollment_to_next_semyear/`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("API response:", response.data);
-
-    if (response.data.status === "success") {
+  const handleEnrollConfirmation = () => {
+    if (window.confirm("Enroll to Next Semester / Year?")) {
       setSuccessModal(true);
-    } else {
-      alert(response.data.message || "Enrollment failed.");
     }
-  } catch (error) {
-    console.error("Enrollment API error:", error);
-    alert("Something went wrong while enrolling.");
-  }
-};
-
-
-
+  };
+  
   const closeSuccessModal = () => {
     setSuccessModal(false);
     closeModal(); // Close main modal after success
@@ -1884,27 +1831,10 @@ const openIDCardModal = async (studentId) => {
         </div>
       )}
 
-      {finalSemesterModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md max-w-sm text-center">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">Notice</h2>
-            <p className="text-gray-700 mb-4">Student is in Final Semester / Year!</p>
-            <button
-              onClick={() => setFinalSemesterModal(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-
 
 
 
     </div>
-
-    
   );
 };
 

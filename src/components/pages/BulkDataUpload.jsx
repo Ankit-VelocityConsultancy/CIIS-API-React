@@ -66,11 +66,11 @@ const BulkdataUpload = () => {
       setTimeout(() => {
         setSuccessMessagee("");
         setErrorMessagee("");
-      }, 120000);
+      }, 10000);
     } catch (error) {
       setErrorMessagee(error.message);
       setSuccessMessagee("");
-      setTimeout(() => setErrorMessagee(""), 120000);
+      setTimeout(() => setErrorMessagee(""), 10000);
     }
   };
 
@@ -104,16 +104,16 @@ const BulkdataUpload = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setErrorMessage("");
-        }, 120000);
+        }, 10000);
      
       } else {
         setErrorMessage(response.data.message);
-        setTimeout(() => setErrorMessage(""), 120000);
+        setTimeout(() => setErrorMessage(""), 10000);
       }
     } catch (error) {
       setErrorMessage(error.message);
       setSuccessMessage("");
-      setTimeout(() => setErrorMessage(""), 120000);
+      setTimeout(() => setErrorMessage(""), 10000);
     }
   };
 

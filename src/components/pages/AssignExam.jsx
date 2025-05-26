@@ -57,6 +57,17 @@ const AssignExamination = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [formError, setFormErrors] = useState({});
     const [successMessages, setSuccessMessages] = useState([]);
+    const [isSubjectWiseAnalysis, setIsSubjectWiseAnalysis] = useState(false);
+
+    // Dropdowns for Subject Wise Analysis tab
+  const [subjectUniversity, setSubjectUniversity] = useState("");
+  const [subjectCourse, setSubjectCourse] = useState("");
+  const [subjectStream, setSubjectStream] = useState("");
+  const [subjectSubstream, setSubjectSubstream] = useState("");
+  const [subjectSession, setSubjectSession] = useState("");
+  const [subjectStudyPattern, setSubjectStudyPattern] = useState("");
+  const [subjectSemYear, setSubjectSemYear] = useState("");
+  const [subjectCourseDuration, setSubjectCourseDuration] = useState("");
 
     const [reassignData, setReassignData] = useState({
       examstarttime: '',
@@ -175,6 +186,92 @@ const AssignExamination = () => {
         console.error('Error during reassign action:', error);
       }
     };
+
+    const fetchUniversities = async () => {
+    try {
+      const response = await axios.get(`${baseURL}api/universities/`, {
+        headers: { Authorization: `Bearer ${apiToken}` },
+      });
+      setUniversities(response.data);
+    } catch (error) {
+      console.error("Error fetching universities:", error);
+    }
+  };
+
+  const fetchSessions = async () => {
+    try {
+      const response = await axios.get(`${baseURL}api/session-names/`, {
+        headers: { Authorization: `Bearer ${apiToken}` },
+      });
+      setSessions(response.data);
+    } catch (err) {
+      console.error("Error fetching sessions:", err);
+    }
+  };
+
+  const fetchCourses = async (universityId) => {
+    try {
+      const response = await axios.get(`${baseURL}api/courses-with-id/?university_id=${universityId}`, {
+        headers: { Authorization: `Bearer ${apiToken}` },
+      });
+      setCourses(response.data.courses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  const fetchStreams = async (universityId, courseId) => {
+    try {
+      const response = await axios.get(`${baseURL}api/streams-with-id/?course_id=${courseId}&university_id=${universityId}`, {
+        headers: { Authorization: `Bearer ${apiToken}` },
+      });
+      setStreams(response.data.streams);
+    } catch (error) {
+      console.error("Error fetching streams:", error);
+    }
+  };
+
+  const fetchSubstreams = async (universityId, courseId, streamId) => {
+    try {
+      const response = await axios.get(`${baseURL}api/substreams-with-id/?course_id=${courseId}&university_id=${universityId}&stream_id=${streamId}`, {
+        headers: { Authorization: `Bearer ${apiToken}` },
+      });
+      setSubstreams(response.data.substreams);
+    } catch (error) {
+      console.error("Error fetching substreams:", error);
+    }
+  };
+
+  const fetchSemYearOptions = async () => {
+    try {
+      const response = await axios.get(`${baseURL}api/get_sem_year_by_stream/?course=${subjectCourse}&university=${subjectUniversity}&stream=${subjectStream}`, {
+        headers: { Authorization: `Bearer ${apiToken}` },
+      });
+      const formatted = response.data.streams.map((item) => ({
+        yearSem: `Semester ${item.sem}`,
+        value: item.sem,
+      }));
+      setSemYearOptions(formatted);
+    } catch (err) {
+      console.error("Error fetching semester/year options:", err);
+    }
+  };
+
+   useEffect(() => {
+    if (subjectUniversity) fetchCourses(subjectUniversity);
+  }, [subjectUniversity]);
+
+  useEffect(() => {
+    if (subjectUniversity && subjectCourse) fetchStreams(subjectUniversity, subjectCourse);
+  }, [subjectCourse]);
+
+  useEffect(() => {
+    if (subjectUniversity && subjectCourse && subjectStream) fetchSubstreams(subjectUniversity, subjectCourse, subjectStream);
+  }, [subjectStream]);
+
+  useEffect(() => {
+    if (subjectUniversity && subjectCourse && subjectStream) fetchSemYearOptions();
+  }, [subjectUniversity, subjectCourse, subjectStream]);
 
       useEffect(() => {
         const fetchUniversities = async () => {
@@ -457,6 +554,33 @@ const AssignExamination = () => {
           fetchSem();
         }
       }, [selectedViewStream, selectedViewCourse, selectedViewUniversity]);
+
+        useEffect(() => {
+        if (subjectStream && subjectCourse && subjectUniversity) {
+          const fetchSem = async () => {
+            setLoading(true); 
+            try {
+              const response = await axios.get(
+                `${baseURL}api/get_course_duration/?stream=${subjectStream}&course=${subjectCourse}&university=${subjectUniversity}`,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${apiToken}`,
+                  },
+                }
+              );
+              console.log("Fetched data:", JSON.stringify(response.data, null, 2));
+              setSubjectCourseDuration(response.data.sem || ""); 
+            } catch (err) {
+              setError("Error fetching semester data");
+              console.error("Error fetching data:", err);
+            } finally {
+              setLoading(false); 
+            }
+          };
+          fetchSem();
+        }
+      }, [subjectStream, subjectCourse, subjectUniversity]);
 
 
       useEffect(() => {
@@ -1078,6 +1202,11 @@ const handleSearch = async (event) => {
   }
 };
 
+const fetchSubjects = (event) => {
+   event.preventDefault();
+   console.log("In Fetch Student function....");
+}
+
 
     const handleNavigate = (path) => {
       navigate(path); // Navigate to the specified URL
@@ -1200,21 +1329,37 @@ const handleSearch = async (event) => {
     return (
     <div className="setexam-page">
               {/* Toggle between forms using buttons */}
+         <button
+          type="button"
+          className={`bg-[#dd3751] text-white mr-5 py-2 px-4 gap-2 rounded-md hover:bg-[#167fc7] ${!isViewSetExamination && !isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''}`}
+          onClick={() => {
+            setIsViewSetExamination(false);
+            setIsSubjectWiseAnalysis(false);
+          }}
+        >
+          Assign Student Examination
+        </button>
+        <button
+          type="button"
+          className={`bg-[#dd3751] text-white mr-5 py-2 px-4 gap-2 rounded-md hover:bg-[#167fc7] ${isViewSetExamination && !isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''}`}
+          onClick={() => {
+            setIsViewSetExamination(true);
+            setIsSubjectWiseAnalysis(false);
+          }}
+        >
+          View Assigned Student
+        </button>
           <button
-            type="button"
-            className="bg-[#dd3751] text-white p-4 py-2 px-4 m-4 rounded-md hover:bg-[#167fc7]"
-            onClick={() => setIsViewSetExamination(false)}
-          >
-            Assign Student Examination
-          </button>
-          <button
-            type="button"
-            className="bg-[#dd3751] text-white p-4 py-2 px-4 m-4 rounded-md hover:bg-[#167fc7]"
-            onClick={() => setIsViewSetExamination(true)}
-          >
-            View Assigned Student
-          </button>
-              {!isViewSetExamination ? (      
+          type="button"
+          className={`bg-[#dd3751] text-white py-2 px-4 gap-2 rounded-md hover:bg-[#167fc7] ${isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''}`}
+          onClick={() => {
+            setIsSubjectWiseAnalysis(true);
+            setIsViewSetExamination(false);
+          }}
+        >
+          Subject Wise Analysis
+        </button>
+              {!isViewSetExamination && !isSubjectWiseAnalysis && (  
                  <>
                   <h2 className="font-bold text-2xl m-4">Assign Examinations</h2>
                   {successMessages.length > 0 && (
@@ -1500,7 +1645,8 @@ const handleSearch = async (event) => {
                     )}
                   </form>
                   </>
-                  ) : (
+                  )}
+                 {isViewSetExamination && !isSubjectWiseAnalysis && (
                     <>
                   <h2 className="font-bold text-2xl m-4">VIEW ASSIGNED STUDENTS</h2>
                   <form onSubmit={handleSubmit} className="m-4 p-4 border rounded-lg shadow-md">
@@ -1739,6 +1885,78 @@ const handleSearch = async (event) => {
                   </form>
                   </>
                   )}
+                   {/* Tab 3: Subject Wise Analysis */}
+                  {isSubjectWiseAnalysis && (
+                  <div className="m-4 p-4 border rounded-lg shadow-md">
+                    <h2 className="text-xl font-bold mb-4">Subject Wise Analysis</h2>
+                    <form>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium">University</label>
+                          <select value={subjectUniversity} onChange={(e) => setSubjectUniversity(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select University</option>
+                            {universities.map((u) => (<option key={u.id} value={u.id}>{u.university_name}</option>))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Course</label>
+                          <select value={subjectCourse} onChange={(e) => setSubjectCourse(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select Course</option>
+                            {courses.map((c) => (<option key={c.course_id} value={c.course_id}>{c.name}</option>))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Stream</label>
+                          <select value={subjectStream} onChange={(e) => setSubjectStream(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select Stream</option>
+                            {streams.map((s) => (<option key={s.stream_id} value={s.stream_id}>{s.stream_name}</option>))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Substream</label>
+                          <select value={subjectSubstream} onChange={(e) => setSubjectSubstream(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select Substream</option>
+                            {substreams.map((s) => (<option key={s.substream_id} value={s.substream_id}>{s.substream_name}</option>))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Session</label>
+                          <select value={subjectSession} onChange={(e) => setSubjectSession(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select Session</option>
+                            {sessions.map((s) => (<option key={s.id} value={s.name}>{s.name}</option>))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Study Pattern</label>
+                          <select value={subjectStudyPattern} onChange={(e) => setSubjectStudyPattern(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select Pattern</option>
+                            <option value="Semester">Semester</option>
+                            <option value="Annual">Annual</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Semester / Year</label>
+                          <select value={subjectSemYear} onChange={(e) => setSubjectSemYear(e.target.value)} className="w-full p-2 border rounded-md">
+                            <option value="">Select Semester</option>
+                            {semYearOptions.map((s, i) => (<option key={i} value={s.value}>{s.yearSem}</option>))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium">Course Duration</label>
+                          <input type="number" min="1" max="10" value={subjectCourseDuration} onChange={(e) => setSubjectCourseDuration(e.target.value)} className="w-full p-2 border rounded-md" />
+                        </div>
+                      </div>
+                      {/* <button type="submit" className="mt-4 bg-[#dd3751] text-white py-2 px-4 rounded-md hover:bg-[#167fc7]">Fetch Subjects</button> */}
+                       <button
+                            type="submit"
+                            onClick={fetchSubjects}
+                            className="bg-[#dd3751] text-white py-2 px-4 m-4 rounded-md hover:bg-[#167fc7]"
+                          >
+                            Fetch Subjects
+                          </button>
+                    </form>
+                  </div>
+                )}
 
 {isReassignModalOpen && (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
