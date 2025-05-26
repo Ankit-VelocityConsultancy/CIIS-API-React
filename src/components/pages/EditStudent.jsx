@@ -537,9 +537,12 @@ const addRow = () => {
         gender : gender,
         category : category,
         address : address,
-        course: selectedCourseId,
-        stream: selectedStreamId,
-        substream: selectedSubstreamId,
+        course: selectedCourseId || null,
+        stream: selectedStreamId || null,
+        substream: selectedSubstreamId || null,
+        country: selectedCountryId || null,
+        state: selectedStateId || null,
+        city: selectedCityId || null,
         studypattern: studyPattern,
         session : session,
         entry_mode: admissionType,
@@ -557,9 +560,7 @@ const addRow = () => {
         cheque_no: chequeNo,
         amount, // Assuming 'fees' is the amount paid
         remarks,
-        country :selectedCountryId,
-        state : selectedStateId,
-        city : selectedCityId,
+        
       };
 
       console.log("Form payload:", payload); // Debugging log
