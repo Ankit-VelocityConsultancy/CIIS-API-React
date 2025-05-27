@@ -1887,9 +1887,9 @@ const fetchSubjects = (event) => {
                   )}
                    {/* Tab 3: Subject Wise Analysis */}
                   {isSubjectWiseAnalysis && (
-                  <div className="m-4 p-4 border rounded-lg shadow-md">
-                    <h2 className="text-xl font-bold mb-4">Subject Wise Analysis</h2>
-                    <form>
+                  <div>
+                    <h2 className="font-bold text-2xl m-4">Subject Wise Analysis</h2>
+                    <form className="m-4 p-4 border rounded-lg shadow-md">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                           <label className="block text-sm font-medium">University</label>
