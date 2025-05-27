@@ -627,39 +627,47 @@ const AssignExamination = () => {
       }, [studyPattern, CourseDuration]);
 
       
-      useEffect(() => {
-        if (selectedViewStream) {
-          const fetchSubjects = async () => {
-            setLoading(true);
-            setError(""); // Clear previous errors
-            try {
-              // Build URL based on selectedStream and (optional) selectedSubstream
-              let url = `${baseURL}api/get_all_subjects/?stream=${selectedViewStream}`;
-              if (selectedViewSubstream) {
-                url += `&substream=${selectedViewSubstream}`;
-              }
-      
-              const response = await axios.get(url, {
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${apiToken}`,
-                },
-              });
-      
-              console.log("Fetched subjects:", response.data.subjects);
-              setSubjects(response.data.subjects || []); // Use empty array if no data
-            } catch (err) {
-              console.error("Error fetching subjects:", err);
-              setError("Error fetching subjects. Please try again.");
-            } finally {
-              setLoading(false);
-            }
-          };
-      
-          fetchSubjects();
-        }
-      }, [selectedViewStream, selectedViewSubstream]);
-      
+useEffect(() => {
+  const fetchSubjects = async () => {
+    if (!selectedViewStream || !selectedViewSemYear) return;
+
+    setLoading(true);
+    setError(""); // reset error
+    setSubjects([]); // clear old subjects
+
+    try {
+      let url = `${baseURL}api/get_all_subjects/?stream=${selectedViewStream}`;
+      const semYearValue = selectedViewSemYear?.split(" ")[1];
+      if (semYearValue) url += `&semyear=${semYearValue}`;
+      if (selectedViewSubstream) url += `&substream=${selectedViewSubstream}`;
+
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiToken}`,
+        },
+      });
+
+      if (response.data.subjects) {
+        setSubjects(response.data.subjects);
+        setError("");
+      } else if (response.data.message === "No subjects found.") {
+        setSubjects([]);     // ✔ Empty list is fine
+        setError("");        // ✔ Don’t show error in dropdown
+      } else {
+        setError("Unexpected response from server.");
+      }
+    } catch (err) {
+      console.error("Error fetching subjects:", err);
+      setSubjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchSubjects();
+}, [selectedViewStream, selectedViewSubstream, selectedViewSemYear]);
+
 
 
       const validateForm = () => {
@@ -1791,11 +1799,11 @@ const fetchSubjects = (event) => {
                                   id="semYear"
                                   value={selectedViewSemYear}
                                   onChange={(e) => {
-                                    setSelectedViewSemYear(e.target.value);
-                                    if (formError.selectedViewSemYear) {
-                                      setFormErrors((prevErrors) => ({ ...prevErrors, selectedViewSemYear: "" }));
-                                    }
-                                  }}
+                                  setSelectedViewSemYear(e.target.value);
+                                  if (formError.selectedViewSemYear) {
+                                    setFormErrors((prevErrors) => ({ ...prevErrors, selectedViewSemYear: "" }));
+                                  }
+                                }}
                                   className="w-full p-2 border rounded-md bg-[#f5f5f5]"
                               >
                                   <option value="">Select Semester & Year</option>
@@ -1840,17 +1848,21 @@ const fetchSubjects = (event) => {
                               className="w-full p-2 border rounded-md bg-[#f5f5f5]"
                             >
                               <option value="">Select Subject</option>
-                              {loading && <option>Loading...</option>}
-                              {error && <option>{error}</option>}
-                              {subjects.length > 0 ? (
-                                subjects.map((subject) => (
-                                  <option key={subject.id} value={subject.id}>
-                                    {subject.name}
-                                  </option>
-                                ))
-                              ) : (
-                                !loading && <option>No subjects available</option>
-                              )}
+
+                                {loading ? (
+                                  <option disabled>Loading...</option>
+                                ) : error ? (
+                                  <option disabled>{error}</option>
+                                ) : subjects.length > 0 ? (
+                                  subjects.map((subject) => (
+                                    <option key={subject.id} value={subject.id}>
+                                      {subject.name}
+                                    </option>
+                                  ))
+                                ) : (
+                                  <option disabled>No subjects available</option>
+                                )}
+
                             </select>
                             {formError.selectedSubject && <p className="text-red-500 text-xs">{formError.selectedSubject}</p>}
                           </div>
