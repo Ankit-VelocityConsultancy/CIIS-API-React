@@ -96,14 +96,11 @@ const ExamTest = () => {
         const examData = examinationData.find(
           (e) => e.exam_id === parseInt(storedExamId) || e.id === parseInt(storedExamId)
         );
-        // const savedTitle = localStorage.getItem("selected_exam_title") || (examData ? `${examData.course_name} - ${examData.stream_name}` : "");
-        // setExamDetails({ name: savedTitle });
         const savedTitle = localStorage.getItem("selected_exam_title") || "";
         const parts = savedTitle.split(" - ");
         const filteredParts = parts.filter(p => p && p.trim() !== "");
         const displayName = filteredParts.join(" - ");
         setExamDetails({ name: displayName });
-
       }
 
       // Timer with elapsed time correction
@@ -295,7 +292,7 @@ const ExamTest = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="bg-white p-8 rounded shadow-md text-center max-w-md">
           <h2 className="text-xl font-semibold mb-4">The Examination has been submitted successfully for</h2>
-            <h4 className="text-md text-gray-700 mb-2">{examDetails.name}</h4>
+          <h4 className="text-md text-gray-700 mb-2">{examDetails.name}</h4>
           <button onClick={() => navigate("/exam")} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             Dashboard
           </button>
@@ -376,17 +373,27 @@ const ExamTest = () => {
       <div className="lg:w-1/4 bg-gray-200 p-4">
         <h2 className="text-2xl font-bold mb-4">Questions</h2>
         <div className="grid grid-cols-4 gap-2">
-          {questions.map((_, index) => (
-            <button
-              key={index}
-              className={`py-2 rounded-full text-lg ${
-                answers[questions[index]?.id] ? "bg-green-500 text-white" : "bg-gray-300"
-              }`}
-              onClick={() => setStep(index)}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {questions.map((_, index) => {
+            const qid = questions[index]?.id;
+            const answer = answers[qid];
+            const isAttempted =
+              answer === "option 1" ||
+              answer === "option 2" ||
+              answer === "option 3" ||
+              answer === "option 4";
+
+            return (
+              <button
+                key={index}
+                className={`py-2 rounded-full text-lg ${
+                  isAttempted ? "bg-green-500 text-white" : "bg-gray-300"
+                }`}
+                onClick={() => setStep(index)}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
         </div>
       </div>
 
