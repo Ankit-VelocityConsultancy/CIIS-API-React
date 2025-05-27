@@ -476,7 +476,7 @@ const SetExamination = () => {
       },
       {
         name: 'Subject',
-        selector: row => row.subject,
+        selector: row => row.subject_name,
         sortable: true
       },
       {

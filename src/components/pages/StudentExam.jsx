@@ -103,7 +103,7 @@ const Exam = () => {
       if (response.status === 200) {
         localStorage.setItem("questions", JSON.stringify(response.data));
 
-        const formattedTitle = `${examInfo.course_name} - ${examInfo.stream_name} - ${examInfo.substream_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear}`;
+        const formattedTitle = `${examInfo.course_name} - ${examInfo.stream_name} - ${examInfo.subject_name} - ${examInfo.studypattern} ${examInfo.semyear}`;
         localStorage.setItem("selected_exam_title", formattedTitle);
 
         // Save the selected exam id explicitly

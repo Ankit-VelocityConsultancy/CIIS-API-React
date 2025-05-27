@@ -616,60 +616,45 @@ const handleOpenAddModal = (studentId) => {
   };
 
   const columns = [
-  {
-    name: "Sr. No",
-    cell: (row) => (
-      <button onClick={() => toggleRow(row.enrollment_id)} className="text-xl">
-        {expandedRows[row.enrollment_id] ? (
-          <FaMinusCircle className="text-red-500" />
-        ) : (
-          <FaPlusCircle className="text-green-500" />
-        )}
-      </button>
-    ),
-    ignoreRowClick: true,
-    allowOverflow: true,
-    button: true,
-  },
-  { name: "Student Name", selector: (row) => row.student_name, sortable: true },
-  { name: "Enrollment ID", selector: (row) => row.enrollment_id, sortable: true },
-  { name: "University", selector: (row) => row.university_name, sortable: true },
-  { name: "Study Mode", selector: (row) => row.study_pattern_mode, sortable: true },
-  { name: "Entry Mode", selector: (row) => row.entry_mode, sortable: true },
-  { name: "Enrollment Date", selector: (row) => row.enrollment_date, sortable: true },
-  {
-    name: "Action",
-    cell: (row) => (
-      <div className="flex gap-2">
-        {/* Eye Icon for Viewing */}
-        <button
-          onClick={() => handleView(row.enrollment_id)}
-          className="bg-[#d3eaff] text-[#4259A6] p-2 rounded-md"
-        >
-          <FaEye />
+    {
+      name: "Sr. No",
+      cell: (row, index) => (
+        <button onClick={() => toggleRow(row.enrollment_id)} className="text-xl">
+          {expandedRows[row.enrollment_id] ? (
+            <FaMinusCircle className="text-red-500" />
+          ) : (
+            <FaPlusCircle className="text-green-500" />
+          )}
         </button>
-
-        {/* Pen Icon for Editing */}
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    { name: "Current Semester/Year", cell: (row) => <span className="font-bold">{row.current_semyear}</span>, sortable: true },
+    { name: "Enrollment ID", cell: (row) => <span className="font-bold">{row.enrollment_id}</span>, sortable: true },
+    { name: "Student Name", cell: (row) => <span className="font-bold">{row.student_name}</span>, sortable: true },
+    { name: "University Name", cell: (row) => <span className="font-bold">{row.university_name}</span>, sortable: true },
+    { name: "Source", cell: (row) => <span className="font-bold">{row.source}</span>, sortable: true },
+    { name: "Study Pattern / Mode", cell: (row) => <span className="font-bold">{row.study_pattern_mode}</span>, sortable: true },
+    { name: "Entry Mode", cell: (row) => <span className="font-bold">{row.entry_mode}</span>, sortable: true },
+    { name: "Enrollment Date", cell: (row) => <span className="font-bold">{row.enrollment_date}</span>, sortable: true },
+    {
+      name: "Action",
+      cell: (row) => (
         <button
-          onClick={() => handleEdit(row.enrollment_id)}
-          className="bg-[#d3eaff] text-[#4259A6] p-2 rounded-md"
+          onClick={() => handleViewEdit(row.enrollment_id)}
+          className="bg-blue-500 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 text-sm"
         >
-          <FaPen />
+          View/Edit
         </button>
-
-        {/* Print Icon */}
-        <button
-          onClick={() => handlePrint(row.enrollment_id)}
-          className="bg-[#d3eaff] text-[#4259A6] p-2 rounded-md"
-        >
-          <FaPrint />
-        </button>
-      </div>
-    ),
-    ignoreRowClick: true,
-    button: true,
-  },
-];
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+  ];
+  
 
 
   const handleCheckResultSubmit = (event) => {
