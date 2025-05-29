@@ -46,22 +46,51 @@ const Exam = () => {
   }, []);
 
   useEffect(() => {
-    const storedSubmittedExams = {};
-    examDetails.forEach((exam) => {
-      const isSubmitted = localStorage.getItem(`submitted_exam_${exam.exam_id}`);
-      if (isSubmitted === "true") {
-        storedSubmittedExams[exam.exam_id] = true;
-      }
-    });
-    setSubmittedExams(storedSubmittedExams);
-  }, [examDetails]);
+    const storedExamDetails = localStorage.getItem("examDetails");
+    const resultDataString = localStorage.getItem("result_data");
+    const currentStudentId = localStorage.getItem("student_id");
+
+    if (storedExamDetails && resultDataString && currentStudentId) {
+      const examDetailsData = JSON.parse(storedExamDetails);
+      const resultData = JSON.parse(resultDataString);
+
+      // Create a map: key => `${exam_id}_${examdetails_id}`, value => true if exam given
+      const examsGivenMap = {};
+
+      examDetailsData.forEach((exam) => {
+        const key = `${exam.exam_id}_${exam.id}`; // id is examDetails.id
+        const given = resultData.some(
+          (res) =>
+            res.student_id == currentStudentId &&
+            res.exam_id == exam.exam_id &&
+            res.examdetails_id == exam.id
+        );
+        examsGivenMap[key] = given;
+      });
+
+      setSubmittedExams(examsGivenMap);
+    }
+  }, []);
 
   const checkIfCanStartTest = async (exam_id) => {
     const student_id = localStorage.getItem("student_id");
 
+    // Get the result_data string from localStorage
+    const resultDataString = localStorage.getItem("result_data");
+
+    // Parse the JSON safely and get examdetails_id
+    let exam_details_id = null;
+    try {
+      const parsedResult = JSON.parse(resultDataString);
+      // parsedResult is an array, get examdetails_id from first element
+      exam_details_id = parsedResult[0]?.examdetails_id || null;
+    } catch (error) {
+      console.error("Failed to parse result_data from localStorage:", error);
+    }
+
     try {
       const response = await axios.get(`${baseURL}api/check_exam_result/`, {
-        params: { student_id, exam_id },
+        params: { student_id, exam_id, exam_details_id },
       });
 
       if (response.status === 200 && response.data.has_result) {
@@ -87,10 +116,14 @@ const Exam = () => {
     });
   }, [examDetails]);
 
-  const handleStartTest = async (examInfo, exam_id) => {
+  // Updated handleStartTest to accept examDetailsId and save it to localStorage
+  const handleStartTest = async (examInfo, exam_id, examDetailsId) => {
     const university = localStorage.getItem("university_id");
 
     try {
+      // Save the examDetailsId to localStorage
+      localStorage.setItem("exam_details_id", examDetailsId);
+
       const response = await axios.get(`${baseURL}api/filter-questions/`, {
         params: {
           examtype: examInfo.examtype,
@@ -124,6 +157,7 @@ const Exam = () => {
         <div className="bg-white shadow-md rounded-lg p-8 w-full">
           <div className="header-container flex flex-col items-center mb-8 w-full">
             <div className="flex justify-center w-full mb-4">
+              {/* Uncomment if you want to show university logo */}
               {/* <img
                 src={university_logo}
                 alt="University Logo"
@@ -178,44 +212,52 @@ const Exam = () => {
                 .map((exam) => {
                   const examInfo = examinationData.find((e) => e.id === exam.exam_id);
                   const isActive = examStatus[exam.exam_id];
-                  const isAlreadySubmitted = submittedExams[exam.exam_id];
+                  const key = `${exam.exam_id}_${exam.id}`;
+                  const isAlreadySubmitted = submittedExams[key] || false;
                   const canStart = canStartTest[exam.exam_id] && checkIfExamIsActive(exam);
 
                   return (
-                    <div key={exam.exam_id} className="p-6 border rounded-lg shadow-md bg-white">
+                    <div
+                      key={`${exam.exam_id}_${exam.id}`}
+                      className="p-6 border rounded-lg shadow-md bg-white"
+                    >
                       <h3 className="text-xl font-semibold text-blue-600">
-                        {examInfo ? (
-                          [
-                            examInfo.course_name,
-                            examInfo.stream_name,
-                            examInfo.substream_name,
-                            examInfo.subject_name,
-                            `${examInfo.studypattern || ""} ${examInfo.semyear || ""}`.trim(),
-                          ]
-                            .filter((val) => val && val.trim() !== "")
-                            .join(" - ")
-                        ) : (
-                          "Exam Details"
-                        )}
+                        {examInfo
+                          ? [
+                              examInfo.course_name,
+                              examInfo.stream_name,
+                              examInfo.substream_name,
+                              examInfo.subject_name,
+                              `${examInfo.studypattern || ""} ${examInfo.semyear || ""}`.trim(),
+                            ]
+                              .filter((val) => val && val.trim() !== "")
+                              .join(" - ")
+                          : "Exam Details"}
                       </h3>
                       <p className="text-gray-600 mt-2">
                         Exam ID: <span className="font-semibold">{exam.exam_id}</span>
                       </p>
                       <p className="text-gray-600">
-                        Time: <span className="font-medium">{exam.examstartdate} {exam.examstarttime}</span> -{" "}
-                        <span className="font-medium">{exam.examenddate} {exam.examendtime}</span>
+                        Time:{" "}
+                        <span className="font-medium">
+                          {exam.examstartdate} {exam.examstarttime}
+                        </span>{" "}
+                        -{" "}
+                        <span className="font-medium">
+                          {exam.examenddate} {exam.examendtime}
+                        </span>
                       </p>
 
                       <button
-                        onClick={() => handleStartTest(examInfo, exam.exam_id)}
-                        disabled={!isActive || isAlreadySubmitted || !canStart}
+                        onClick={() => handleStartTest(examInfo, exam.exam_id, exam.id)}
+                        disabled={!isActive || isAlreadySubmitted}
                         className={`w-full py-2 rounded-lg transition-colors mt-4 shadow-sm ${
-                          !isActive || isAlreadySubmitted || !canStart
+                          !isActive || isAlreadySubmitted
                             ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                             : "bg-[#fd0001] text-white hover:bg-red-700"
                         }`}
                       >
-                        {isAlreadySubmitted || !canStart ? "Exam Given" : isActive ? "Start Test" : "Test Expired"}
+                        {isAlreadySubmitted ? "Exam Given" : isActive ? "Start Test" : "Test Expired"}
                       </button>
                     </div>
                   );

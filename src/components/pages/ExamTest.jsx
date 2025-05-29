@@ -33,12 +33,13 @@ const ExamTest = () => {
       const storedExamId = localStorage.getItem("selected_exam_id");
       if (storedExamId) setSelectedExamId(parseInt(storedExamId));
       const studentId = localStorage.getItem("student_id");
+      const storedExamDetailsId = localStorage.getItem("exam_details_id") || "";
 
-      // Sync answers from backend
+      // Sync answers from backend including exam_details_id
       if (studentId && storedExamId) {
         try {
           const response = await fetch(
-            `${baseURL}api/sync_answers/?student_id=${studentId}&exam_id=${storedExamId}`
+            `${baseURL}api/sync_answers/?student_id=${studentId}&exam_id=${storedExamId}&exam_details_id=${storedExamDetailsId}`
           );
           const data = await response.json();
           if (data.answers) {
@@ -47,7 +48,6 @@ const ExamTest = () => {
           }
         } catch (err) {
           console.error("Failed to sync answers:", err);
-          // fallback to localStorage answers on failure
           const storedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
           setAnswers(storedAnswers);
         }
@@ -81,7 +81,6 @@ const ExamTest = () => {
         }
       }
 
-      // If user has a saved step in localStorage (maybe partial attempt), prioritize it
       const savedStep = parseInt(localStorage.getItem("currentStep"), 10);
       if (!isNaN(savedStep)) {
         setCurrentStep(savedStep);
@@ -206,12 +205,13 @@ const ExamTest = () => {
 
         if (updated % 10000 < 1000) {
           const studentId = localStorage.getItem("student_id");
+          const examDetailsId = localStorage.getItem("exam_details_id");
           const examIdToUse = selectedExamId || questions[0]?.exam;
           if (studentId && examIdToUse) {
             fetch(`${baseURL}api/save_exam_timer/`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse, time_left_ms: updated }),
+              body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse,exam_details_id: examDetailsId, time_left_ms: updated }),
             });
           }
         }
@@ -232,7 +232,10 @@ const ExamTest = () => {
   const saveSingleAnswer = async (questionId) => {
     const submitted_answer = answers[questionId] || "NA";
     const studentId = localStorage.getItem("student_id");
+    const examDetailsId = localStorage.getItem("exam_details_id");
+
     const examIdToUse = localStorage.getItem("selected_exam_id")
+    
       ? parseInt(localStorage.getItem("selected_exam_id"))
       : questions[0]?.exam;
 
@@ -247,6 +250,7 @@ const ExamTest = () => {
           exam_id: examIdToUse,
           question_id: questionId,
           submitted_answer,
+          exam_details_id: examDetailsId, // pass exam_details_id here
           time_left_ms: timeLeft,
         }),
       });
@@ -261,15 +265,63 @@ const ExamTest = () => {
   const saveResultAfterExam = async () => {
     const studentId = localStorage.getItem("student_id");
     const examIdToUse = selectedExamId || questions[0]?.exam;
+    const examDetailsId = localStorage.getItem("exam_details_id");
+
     if (!studentId || !examIdToUse) return;
 
     try {
       await fetch(`${baseURL}api/save_result_after_exam/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse }),
+        body: JSON.stringify({ 
+          student_id: studentId, 
+          exam_id: examIdToUse,
+          exam_details_id: examDetailsId  // <-- Pass exam_details_id here
+        }),
       });
 
+      // Update localStorage result_data here to reflect submitted exam immediately
+      const existingResultsStr = localStorage.getItem("result_data");
+      let existingResults = [];
+      if (existingResultsStr) {
+        existingResults = JSON.parse(existingResultsStr);
+      }
+
+      const examDetailsArr = JSON.parse(localStorage.getItem("examDetails") || "[]");
+      const matchingExamDetails = examDetailsArr.find(ed => ed.exam_id === examIdToUse);
+
+      if (matchingExamDetails) {
+        const newEntry = {
+          id: Math.max(0, ...existingResults.map(r => r.id || 0)) + 1,
+          student_id: parseInt(studentId),
+          exam_id: examIdToUse,
+          examdetails_id: matchingExamDetails.id,
+          total_question: "0",
+          attempted: "0",
+          total_marks: "0",
+          score: "0",
+          result: "Passed",
+          percentage: 0,
+        };
+
+        const exists = existingResults.some(
+          (r) =>
+            r.student_id === newEntry.student_id &&
+            r.exam_id === newEntry.exam_id &&
+            r.examdetails_id === newEntry.examdetails_id
+        );
+
+        if (!exists) {
+          existingResults.push(newEntry);
+        }
+
+        localStorage.setItem("result_data", JSON.stringify(existingResults));
+
+        // Dispatch event to notify other tabs/components
+        window.dispatchEvent(new Event("storage"));
+      }
+
+      // Clear relevant localStorage keys
       localStorage.removeItem("exam_time_left");
       localStorage.removeItem("exam_time_saved_at");
       localStorage.removeItem("selected_exam_id");
@@ -385,9 +437,7 @@ const ExamTest = () => {
             return (
               <button
                 key={index}
-                className={`py-2 rounded-full text-lg ${
-                  isAttempted ? "bg-green-500 text-white" : "bg-gray-300"
-                }`}
+                className={`py-2 rounded-full text-lg ${isAttempted ? "bg-green-500 text-white" : "bg-gray-300"}`}
                 onClick={() => setStep(index)}
               >
                 {index + 1}

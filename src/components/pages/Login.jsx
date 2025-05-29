@@ -107,6 +107,8 @@ export function Login() {
       const response = await axios.post(`${baseURL}api/login/`, payload);
 
       if (response.status === 200 || response.status === 201) {
+        const loginResponse = response.data;  // <--- Assign response data here
+
         const {
           token,
           email,
@@ -119,7 +121,9 @@ export function Login() {
           university,
           student_name,
           university_logo,
-        } = response.data;
+          exam_progress,
+          result_data,  // <--- Destructure result_data here
+        } = loginResponse;
 
         // Set Recoil state
         setAccessToken(token.access);
@@ -144,12 +148,16 @@ export function Login() {
         if (is_student) {
           localStorage.setItem("examDetails", JSON.stringify(exam_details || []));
           localStorage.setItem("examinationData", JSON.stringify(examination_data || []));
+
           localStorage.setItem("student_name", student_name || "");
           localStorage.setItem("student_id", student_id);
           localStorage.setItem("university_logo", university_logo || "");
-          localStorage.setItem("university_id", university.id);
+          localStorage.setItem("university_id", university?.id || "");
 
-          localStorage.setItem("exam_progress", JSON.stringify(loginResponse.exam_progress));
+          localStorage.setItem("exam_progress", JSON.stringify(exam_progress || []));
+
+          localStorage.setItem("result_data", JSON.stringify(result_data || []));  // <--- Save result_data here
+
           localStorage.setItem("selected_exam_id", yourSelectedExamId);
           navigate("/exam"); // student exam page
         } else {
