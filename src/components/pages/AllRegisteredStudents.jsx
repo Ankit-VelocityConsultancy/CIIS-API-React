@@ -218,24 +218,26 @@ useEffect(() => {
       }
     }, [selectedUniversity, apiToken]);
 
-    useEffect(() => {
-      const fetchStudents = async () => {
-        try {
-          const apiToken = localStorage.getItem("access");
-          const response = await axios.get(
-            `${baseURL}api/list_of_all_registered_student/`,
-            { headers: { Authorization: `Bearer ${apiToken}` } }
-          );
-          // console.log("Students:", response.data.data); // Debugging
-          setStudents(response.data.data);
-        } catch (error) {
-          setError(error.response ? error.response.data : error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchStudents();
-    }, [baseURL]);
+const fetchStudents = async () => {
+  setLoading(true);
+  try {
+    const apiToken = localStorage.getItem("access");
+    const response = await axios.get(
+      `${baseURL}api/list_of_all_registered_student/`,
+      { headers: { Authorization: `Bearer ${apiToken}` } }
+    );
+    setStudents(response.data.data);
+  } catch (error) {
+    setError(error.response ? error.response.data : error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchStudents();
+}, [baseURL]);
+
     
 
 
@@ -468,12 +470,44 @@ const handleOpenAddModal = (studentId) => {
     });
 };
 
+const handleEnrollConfirmation = async () => {
+  if (!selectedStudentId) {
+    alert("Student ID is missing!");
+    return;
+  }
 
-  const handleEnrollConfirmation = () => {
-    if (window.confirm("Enroll to Next Semester / Year?")) {
-      setSuccessModal(true);
+  if (window.confirm("Enroll to Next Semester / Year?")) {
+    try {
+      setLoading(true);
+      const apiToken = localStorage.getItem("access");
+      const response = await axios.post(
+        `${baseURL}api/get_student_enroll_to_next_year/${selectedStudentId}/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${apiToken}`,
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        setSuccessModal(true);
+        setFormData(response.data.data);
+        await fetchStudents();  // <-- Refresh student list here
+      } else {
+        alert(response.data.message || "Failed to enroll student.");
+      }
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Something went wrong while enrolling the student."
+      );
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+};
+
   
   const closeSuccessModal = () => {
     setSuccessModal(false);

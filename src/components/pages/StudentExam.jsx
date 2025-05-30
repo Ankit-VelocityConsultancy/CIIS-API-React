@@ -72,36 +72,57 @@ const Exam = () => {
     }
   }, []);
 
-  const checkIfCanStartTest = async (exam_id) => {
-    const student_id = localStorage.getItem("student_id");
+const checkIfCanStartTest = async (exam_id) => {
+  const student_id = localStorage.getItem("student_id");
 
-    // Get the result_data string from localStorage
-    const resultDataString = localStorage.getItem("result_data");
+  const examDetailsString = localStorage.getItem("examDetails");
+  let exam_details_id = null;
 
-    // Parse the JSON safely and get examdetails_id
-    let exam_details_id = null;
+  if (examDetailsString) {
     try {
-      const parsedResult = JSON.parse(resultDataString);
-      // parsedResult is an array, get examdetails_id from first element
-      exam_details_id = parsedResult[0]?.examdetails_id || null;
-    } catch (error) {
-      console.error("Failed to parse result_data from localStorage:", error);
-    }
+      const examDetailsArr = JSON.parse(examDetailsString);
+      const now = new Date();
 
-    try {
-      const response = await axios.get(`${baseURL}api/check_exam_result/`, {
-        params: { student_id, exam_id, exam_details_id },
+      // Filter all examDetails with the exam_id
+      const matchedExamDetails = examDetailsArr.filter(ed => Number(ed.exam_id) === Number(exam_id));
+
+      // Find currently active examDetail if any
+      const activeExamDetail = matchedExamDetails.find(ed => {
+        const start = new Date(ed.examstartdate);
+        const end = new Date(ed.examenddate);
+        return now >= start && now <= end;
       });
 
-      if (response.status === 200 && response.data.has_result) {
-        setCanStartTest((prev) => ({ ...prev, [exam_id]: false }));
-      } else {
-        setCanStartTest((prev) => ({ ...prev, [exam_id]: true }));
+      if (activeExamDetail) {
+        exam_details_id = activeExamDetail.id;
+      } else if (matchedExamDetails.length > 0) {
+        // fallback to highest id
+        exam_details_id = matchedExamDetails.reduce((maxId, ed) => (ed.id > maxId ? ed.id : maxId), matchedExamDetails[0].id);
       }
     } catch (error) {
-      console.error("Error checking exam result:", error);
+      console.error("Failed to parse examDetails from localStorage:", error);
     }
-  };
+  }
+
+  console.log("student_id:", student_id);
+  console.log("exam_id:", exam_id);
+  console.log("exam_details_id:", exam_details_id);
+
+  try {
+    const response = await axios.get(`${baseURL}api/check_exam_result/`, {
+      params: { student_id, exam_id, examdetails_id: exam_details_id },
+    });
+
+    if (response.status === 200 && response.data.has_result) {
+      setCanStartTest((prev) => ({ ...prev, [exam_id]: false }));
+    } else {
+      setCanStartTest((prev) => ({ ...prev, [exam_id]: true }));
+    }
+  } catch (error) {
+    console.error("Error checking exam result:", error);
+  }
+};
+
 
   const checkIfExamIsActive = (exam) => {
     const now = new Date();

@@ -5,6 +5,8 @@ import { useRecoilValue, useRecoilState } from "recoil";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const getSessionKey = (examId, examDetailsId) => `${examId}_${examDetailsId}`;
+
 const ExamTest = () => {
   const navigate = useNavigate();
   const baseURL = useRecoilValue(baseURLAtom);
@@ -13,17 +15,63 @@ const ExamTest = () => {
   const [questions, setQuestions] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(null);
+  // Replace single timeLeft with map keyed by exam_session
+  const [timeLeftMap, setTimeLeftMap] = useState({});
   const [examSubmitted, setExamSubmitted] = useState(false);
   const [examDetails, setExamDetails] = useState({ name: "" });
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState(null);
+  const [selectedExamDetailsId, setSelectedExamDetailsId] = useState(null); // new state to track examDetails
 
   // Helper to set currentStep and persist it
   const setStep = (step) => {
     setCurrentStep(step);
     localStorage.setItem("currentStep", step.toString());
   };
+
+  // Load timeLeft for current session from localStorage or backend
+  const loadTimeLeftForSession = async (examId, examDetailsId, studentId, defaultDurationMs) => {
+    const sessionKey = getSessionKey(examId, examDetailsId);
+
+    // Try localStorage first
+    const savedTimeLeftStr = localStorage.getItem(`exam_time_left_${sessionKey}`);
+    const savedTimestampStr = localStorage.getItem(`exam_time_saved_at_${sessionKey}`);
+
+    if (savedTimeLeftStr && savedTimestampStr) {
+      const savedTimeLeft = parseInt(savedTimeLeftStr);
+      const savedTimestamp = parseInt(savedTimestampStr);
+      const elapsed = Date.now() - savedTimestamp;
+      const adjustedTimeLeft = savedTimeLeft - elapsed;
+
+      if (adjustedTimeLeft > 0) {
+        setTimeLeftMap(prev => ({ ...prev, [sessionKey]: adjustedTimeLeft }));
+        return;
+      }
+    }
+
+    // Fallback: fetch from backend
+    try {
+      const res = await fetch(
+        `${baseURL}api/get_exam_timer/?student_id=${studentId}&exam_id=${examId}&exam_details_id=${examDetailsId}`
+      );
+      const data = await res.json();
+      const apiTimeLeft = parseInt(data.time_left_ms);
+
+      setTimeLeftMap(prev => ({
+        ...prev,
+        [sessionKey]: apiTimeLeft > 0 ? apiTimeLeft : defaultDurationMs,
+      }));
+    } catch {
+      setTimeLeftMap(prev => ({ ...prev, [sessionKey]: defaultDurationMs }));
+    }
+  };
+
+useEffect(() => {
+  if (selectedExamId !== parseInt(localStorage.getItem("selected_exam_id"))) {
+    localStorage.setItem("currentStep", 0);
+    setCurrentStep(0);
+  }
+}, [selectedExamId]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -32,8 +80,11 @@ const ExamTest = () => {
 
       const storedExamId = localStorage.getItem("selected_exam_id");
       if (storedExamId) setSelectedExamId(parseInt(storedExamId));
+
+      const storedExamDetailsId = localStorage.getItem("exam_details_id");
+      if (storedExamDetailsId) setSelectedExamDetailsId(parseInt(storedExamDetailsId));
+
       const studentId = localStorage.getItem("student_id");
-      const storedExamDetailsId = localStorage.getItem("exam_details_id") || "";
 
       // Sync answers from backend including exam_details_id
       if (studentId && storedExamId) {
@@ -102,31 +153,20 @@ const ExamTest = () => {
         setExamDetails({ name: displayName });
       }
 
-      // Timer with elapsed time correction
-      if (storedQuestions.length > 0 && storedQuestions[0].exam) {
-        const examIdToUse = storedExamId ? parseInt(storedExamId) : storedQuestions[0].exam;
+      // Load timer for current session
+      if (
+        storedQuestions.length > 0 &&
+        storedQuestions[0].exam &&
+        studentId &&
+        storedExamId &&
+        storedExamDetailsId
+      ) {
+        // Use default duration from first question examduration if available, else 120 mins fallback
+        const defaultDurationMs = storedQuestions[0].examduration
+          ? storedQuestions[0].examduration * 60 * 1000
+          : 120 * 60 * 1000;
 
-        const savedTimeLeft = parseInt(localStorage.getItem("exam_time_left"));
-        const savedTimestamp = parseInt(localStorage.getItem("exam_time_saved_at"));
-        const now = Date.now();
-
-        if (savedTimeLeft && savedTimestamp) {
-          const elapsed = now - savedTimestamp;
-          const adjustedTimeLeft = savedTimeLeft - elapsed;
-          if (adjustedTimeLeft > 0) {
-            setTimeLeft(adjustedTimeLeft);
-            return;
-          }
-        }
-
-        try {
-          const response = await fetch(`${baseURL}api/get_exam_timer/?student_id=${studentId}&exam_id=${examIdToUse}`);
-          const data = await response.json();
-          const apiTimeLeft = parseInt(data.time_left_ms);
-          setTimeLeft(apiTimeLeft > 0 ? apiTimeLeft : storedQuestions[0].examduration * 60000);
-        } catch {
-          setTimeLeft(storedQuestions[0].examduration * 60000);
-        }
+        await loadTimeLeftForSession(parseInt(storedExamId), parseInt(storedExamDetailsId), studentId, defaultDurationMs);
       }
     };
 
@@ -185,43 +225,47 @@ const ExamTest = () => {
     return { hours, minutes, seconds };
   };
 
+  // Countdown timer effect for current session
   useEffect(() => {
-    if (timeLeft === null) return;
+    if (!selectedExamId || !selectedExamDetailsId) return;
 
-    if (timeLeft <= 0) {
-      localStorage.removeItem("exam_time_left");
-      localStorage.removeItem("exam_time_saved_at");
-      localStorage.removeItem("selected_exam_id");
-      navigate("/exam");
-      return;
-    }
-
+    const sessionKey = getSessionKey(selectedExamId, selectedExamDetailsId);
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        const updated = Math.max(prev - 1000, 0);
+      setTimeLeftMap(prev => {
+        const currentTimeLeft = prev[sessionKey] ?? 0;
+        const updated = Math.max(currentTimeLeft - 1000, 0);
 
-        localStorage.setItem("exam_time_left", updated.toString());
-        localStorage.setItem("exam_time_saved_at", Date.now().toString());
+        // Save updated time & timestamp to localStorage with sessionKey
+        localStorage.setItem(`exam_time_left_${sessionKey}`, updated.toString());
+        localStorage.setItem(`exam_time_saved_at_${sessionKey}`, Date.now().toString());
 
+        // Periodically save to backend every 10 seconds (approx)
         if (updated % 10000 < 1000) {
           const studentId = localStorage.getItem("student_id");
-          const examDetailsId = localStorage.getItem("exam_details_id");
-          const examIdToUse = selectedExamId || questions[0]?.exam;
-          if (studentId && examIdToUse) {
+          if (studentId && selectedExamId && selectedExamDetailsId) {
             fetch(`${baseURL}api/save_exam_timer/`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ student_id: studentId, exam_id: examIdToUse,exam_details_id: examDetailsId, time_left_ms: updated }),
+              body: JSON.stringify({
+                student_id: studentId,
+                exam_id: selectedExamId,
+                exam_details_id: selectedExamDetailsId,
+                time_left_ms: updated,
+              }),
             });
           }
         }
 
-        return updated;
+        return { ...prev, [sessionKey]: updated };
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timeLeft, questions, selectedExamId, baseURL]);
+  }, [selectedExamId, selectedExamDetailsId, baseURL]);
+
+  // Expose current timeLeft for current session
+  const currentSessionKey = getSessionKey(selectedExamId, selectedExamDetailsId);
+  const timeLeft = timeLeftMap[currentSessionKey] ?? 0;
 
   const handleAnswerChange = (questionId, optionValue) => {
     const updatedAnswers = { ...answers, [questionId]: optionValue };
@@ -235,7 +279,6 @@ const ExamTest = () => {
     const examDetailsId = localStorage.getItem("exam_details_id");
 
     const examIdToUse = localStorage.getItem("selected_exam_id")
-    
       ? parseInt(localStorage.getItem("selected_exam_id"))
       : questions[0]?.exam;
 
