@@ -297,38 +297,53 @@ const fetchCoursesForUniversity = async (universityName) => {
       substream_id: selectedSubstream || null, // Substream ID (optional)
     };
     console.log(payload);
-  
+    
     try {
-  
-      const response = await axios.post(
-        `${baseURL}api/create-subject/`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access')}`, // Add the token to the headers
-          },
-        }
-      );
-  
-      console.log("Subject created:", response.data);
-      alert("Subject created successfully!");
-  
-      setSubjectName("");
-      setSubjectCode("");
-      setStudyPattern("");
-      setSelectedSemYear("");
-      setSelectedStream("");
-      setSelectedSubstream("");
-      setLoading(false);
-      setSuccessMessage("Subject added successfully!"); // Set the success message
-      setTimeout(() => {
-        setSuccessMessage(""); // Reset the success message after 10 seconds
-      }, 10000);
-    } catch (error) {
-      setLoading(false);
-      setError("Error creating subject");
-      console.error("Error creating subject:", error);
+  const response = await axios.post(
+    `${baseURL}api/create-subject/`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
+      },
     }
+  );
+
+  const responseData = response.data;
+
+  if (response.status === 201) {
+    // Subject created
+    console.log("Subject created:", responseData);
+    alert("Subject created successfully!");
+    setSuccessMessage("Subject added successfully!");
+
+  } else if (response.status === 200 && responseData.msg === "Subject already exists") {
+    // Duplicate subject
+    alert("Subject already exists!");
+    setError("Subject already exists.");
+  }
+
+  // Clear form and reset loading in both cases
+  setSubjectName("");
+  setSubjectCode("");
+  setStudyPattern("");
+  setSelectedSemYear("");
+  setSelectedStream("");
+  setSelectedSubstream("");
+  setLoading(false);
+
+  // Reset success message after 10 seconds
+  setTimeout(() => {
+    setSuccessMessage("");
+  }, 10000);
+  
+} catch (error) {
+  setLoading(false);
+  setError("Error creating subject");
+  console.error("Error creating subject:", error);
+}
+
+
   };
   
  const fetchStreamsForCourse = async (courseName, universityName) => {

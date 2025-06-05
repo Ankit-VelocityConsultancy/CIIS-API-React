@@ -69,6 +69,12 @@ const AssignExamination = () => {
   const [subjectSemYear, setSubjectSemYear] = useState("");
   const [subjectCourseDuration, setSubjectCourseDuration] = useState("");
 
+  const [subjectAssignedStudents, setSubjectAssignedStudents] = useState([]);
+  const [showSubjectTable, setShowSubjectTable] = useState(false);
+
+  const [selectedAssignedStudents, setSelectedAssignedStudents] = useState([]);
+
+
     const [reassignData, setReassignData] = useState({
       examstarttime: '',
       examendtime: '',
@@ -114,31 +120,51 @@ const AssignExamination = () => {
     };
   
     // Function to generate and download the empty Excel file
-    const handleDownload = () => {
-      // Prepare the data for the Excel file
-      const dataToExport = student.map((row, index) => ({
-        "Sr. No": index + 1,
-        "Student Name": row.student_name,
-        "Email": row.student_email,
-        "Mobile": row.student_mobile,
-        "Exam Start Time": row.examstarttime,
-        "Exam End Time": row.examendtime,
-        "Exam Start Date": row.examstartdate,
-        "Exam End Date": row.examenddate,
-        "Status": row.status,
-      }));
-    
-      // Create a worksheet
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    
-      // Create a workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
-    
-      // Export the workbook to an Excel file
-      XLSX.writeFile(workbook, "StudentData.xlsx");
+
+    const handleDownloadExcelFromAPI = async () => {
+    const payload = {
+      university: selectedViewUniversity,
+      course: selectedViewCourse,
+      stream: selectedViewStream,
+      session: ViewSession,
+      studypattern: ViewStudyPattern,
+      semyear: selectedViewSemYear?.split(" ")[1] || "",
+      substream: selectedViewSubstream
     };
 
+  try {
+    const response = await fetch(`${baseURL}api/export_exam_data_to_excel/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiToken}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to download: ${errorText}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "StudentExamReport.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Excel download failed:", err);
+    alert("Failed to download Excel file.");
+  }
+};
+
+
+
+    
     const openReassignModal = (row) => {
       setSelectedRow(row);
       setReassignModalOpen(true);
@@ -583,6 +609,28 @@ const AssignExamination = () => {
       }, [subjectStream, subjectCourse, subjectUniversity]);
 
 
+        useEffect(() => {
+        if (subjectStudyPattern && subjectCourseDuration) {
+          const duration = parseInt(subjectCourseDuration, 10); // Parse course duration as integer
+          const options = [];
+    
+          // Populate options based on Study Pattern and Duration
+          if (subjectStudyPattern === "Semester") {
+            for (let i = 1; i <= duration * 2; i++) {
+              options.push({ yearSem: `Semester ${i}`, value: `${i}` });
+            }
+          } else if (subjectStudyPattern === "Annual") {
+            for (let i = 1; i <= duration; i++) {
+              options.push({ yearSem: `Year ${i}`, value: `${i}` });
+            }
+          }
+    
+          setSemYearOptions(options); // Update the dropdown options
+          setSelectedSemYear(""); // Reset selected value when options change
+        }
+      }, [subjectStudyPattern, subjectCourseDuration]);
+
+
       useEffect(() => {
         if (ViewStudyPattern && ViewCourseDuration) {
           const duration = parseInt(ViewCourseDuration, 10); // Parse course duration as integer
@@ -668,6 +716,41 @@ useEffect(() => {
   fetchSubjects();
 }, [selectedViewStream, selectedViewSubstream, selectedViewSemYear]);
 
+
+const fetchAssignedStudents = async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    university: subjectUniversity,
+    course: subjectCourse,
+    stream: subjectStream,
+    substream: subjectSubstream,
+    session: subjectSession,
+    studypattern: subjectStudyPattern,
+    semyear: subjectSemYear,
+  };
+
+  try {
+    const response = await axios.post(`${baseURL}api/view_all_assigned_students_api/`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiToken}`,
+      },
+    });
+
+    if (response.data.students && Array.isArray(response.data.students)) {
+      setSubjectAssignedStudents(response.data.students);
+      setShowSubjectTable(true);
+    } else {
+      setSubjectAssignedStudents([]);
+      setShowSubjectTable(false);
+    }
+  } catch (error) {
+    console.error("Error fetching assigned students:", error);
+    setSubjectAssignedStudents([]);
+    setShowSubjectTable(false);
+  }
+};
 
 
       const validateForm = () => {
@@ -1876,9 +1959,10 @@ const fetchSubjects = (event) => {
                             Search
                           </button>
                         
-                          <button onClick={handleDownload} className="bg-[#dd3751] m-4 text-white py-2 px-4 rounded-md">
-                            Download Excel
+                          <button onClick={handleDownloadExcelFromAPI}      className="bg-[#dd3751] m-4 text-white py-2 px-4 rounded-md">
+                              Download Excel
                           </button>
+
                       
                       </div>
 
@@ -1959,14 +2043,123 @@ const fetchSubjects = (event) => {
                         </div>
                       </div>
                       {/* <button type="submit" className="mt-4 bg-[#dd3751] text-white py-2 px-4 rounded-md hover:bg-[#167fc7]">Fetch Subjects</button> */}
-                       <button
-                            type="submit"
-                            onClick={fetchSubjects}
-                            className="bg-[#dd3751] text-white py-2 px-4 m-4 rounded-md hover:bg-[#167fc7]"
-                          >
-                            Fetch Subjects
-                          </button>
+                      <button
+                        type="submit"
+                        onClick={fetchAssignedStudents}
+                        className="bg-[#dd3751] text-white py-2 px-4 m-4 rounded-md hover:bg-[#167fc7]">
+                        Fetch Students
+                      </button>
+
                     </form>
+
+                    {/* added by ankit */}
+
+                    {showSubjectTable && subjectAssignedStudents.length > 0 && (
+                    <div className="mt-6 overflow-x-auto">
+                        <h3 className="font-semibold text-xl mb-4">Assigned Students</h3>
+
+                      <table className="min-w-full border border-gray-300 rounded-md text-sm">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border px-4 py-2">
+                          <input
+                            type="checkbox"
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedAssignedStudents(subjectAssignedStudents);
+                              } else {
+                                setSelectedAssignedStudents([]);
+                              }
+                            }}
+                            checked={
+                              selectedAssignedStudents.length === subjectAssignedStudents.length &&
+                              subjectAssignedStudents.length > 0
+                            }
+                          />
+                        </th>
+                        <th className="border px-4 py-2">Sr No</th>
+                        <th className="border px-4 py-2">Student Name</th>
+                        <th className="border px-4 py-2">Email</th>
+                        <th className="border px-4 py-2">Mobile</th>
+                        <th className="border px-4 py-2">Enrollment Id</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {subjectAssignedStudents.map((student, index) => {
+                        const isChecked = selectedAssignedStudents.some((s) => s.student_id === student.student_id);
+                        return (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="border px-4 py-2">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {
+                                  if (isChecked) {
+                                    setSelectedAssignedStudents(selectedAssignedStudents.filter(s => s.student_id !== student.student_id));
+                                  } else {
+                                    setSelectedAssignedStudents([...selectedAssignedStudents, student]);
+                                  }
+                                }}
+                              />
+                            </td>
+                            <td className="border px-4 py-2">{index + 1}</td>
+                            <td className="border px-4 py-2">{student.name}</td>
+                            <td className="border px-4 py-2">{student.email}</td>
+                            <td className="border px-4 py-2">{student.mobile}</td>
+                            <td className="border px-4 py-2">{student.enrollment_id}</td>
+                          
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {selectedAssignedStudents.length > 0 && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const payload = {
+                          student_ids: JSON.stringify(selectedAssignedStudents.map((s) => s.student_id)),
+                          course: subjectCourse,
+                          stream: subjectStream,
+                          substream: subjectSubstream,
+                          session: subjectSession,
+                          studypattern: subjectStudyPattern,
+                          semyear: subjectSemYear,
+                        };
+
+                        const response = await fetch(`${baseURL}api/fetch_complete_student_data/`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${apiToken}`,
+                          },
+                          body: JSON.stringify(payload),
+                        });
+
+                        if (!response.ok) throw new Error("Export failed.");
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = "Student_Export.zip";
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                      } catch (err) {
+                        alert("Export failed. Please try again.");
+                        console.error(err);
+                      }
+                    }}
+                    className="bg-green-600 text-white px-4 py-2 rounded-md mt-4 hover:bg-green-700"
+                  >
+                    Export Complete Details
+                  </button>
+                )}
+
+                      </div>
+                    )}
+
                   </div>
                 )}
 
