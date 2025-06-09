@@ -246,7 +246,7 @@ export const Header = () => {
           </DropdownMenuItem>
         ) :  (
           <DropdownMenuItem
-            onClick={() => setShowLogoutModal(true)}
+            onClick={() => logOut()}
             className="text-destructive cursor-pointer focus:text-destructive"
           >
             Logout

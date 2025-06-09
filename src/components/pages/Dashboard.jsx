@@ -491,404 +491,155 @@ export const Dashboard = () => {
   }, []);
 
   return (
-    <>
-      {userType == "Admin" ? (
-        <div className="flex flex-col gap-6">
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center">
-                Action Legend
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <div className="flex items-center justify-start action-wrapper">
-                  <ThumbsUp /> = Upgrade User to Paid
-                </div>
-                <div className="flex items-center justify-start action-wrapper">
-                  <Trash2 /> = Delete User
-                </div>
-                <div className="flex items-center justify-start action-wrapper">
-                  <CircleCheck /> = Select User
-                </div>
-                <div className="flex items-center justify-start action-wrapper">
-                  <ThumbsDown /> = Downgrade User to Trial
-                </div>
-                <div className="flex items-center justify-start action-wrapper">
-                  <RotateCcw /> = Reset Signup Date
-                </div>
-                <div className="flex items-center justify-start action-wrapper">
-                  <SquarePen /> = Change Paid User
-                </div>
+  <>
+    {userType === "Admin" && (
+      <div className="flex flex-col gap-6">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Action Legend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="flex items-center justify-start action-wrapper">
+                <ThumbsUp /> = Upgrade User to Paid
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-center justify-start action-wrapper">
+                <Trash2 /> = Delete User
+              </div>
+              <div className="flex items-center justify-start action-wrapper">
+                <CircleCheck /> = Select User
+              </div>
+              <div className="flex items-center justify-start action-wrapper">
+                <ThumbsDown /> = Downgrade User to Trial
+              </div>
+              <div className="flex items-center justify-start action-wrapper">
+                <RotateCcw /> = Reset Signup Date
+              </div>
+              <div className="flex items-center justify-start action-wrapper">
+                <SquarePen /> = Change Paid User
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="user-type-wrapper flex flex-row items-center">
-            <div className="export-button">
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  <Button>Export Users</Button>
-                </DialogTrigger>
-                <DialogContent className="gap-8 sm:max-w-[500px]">
-                  <DialogHeader>
-                    <DialogTitle>Export Users</DialogTitle>
-                  </DialogHeader>
-                  <Form {...form}>
-                    <form
-                      method="post"
-                      className="space-y-5"
-                      onSubmit={form.handleSubmit(exportUser)}
-                    >
-                      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-                        <div className="flex flex-col space-y-1.5">
-                          <FormField
-                            control={form.control}
-                            name="start_date"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>Start Date</FormLabel>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "pl-3 text-left font-normal",
-                                          !field.value &&
-                                            "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value ? (
-                                          format(field.value, "yyyy-MM-dd")
-                                        ) : (
-                                          <span>Start Date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className="w-auto p-0"
-                                    align="start"
-                                  >
-                                    <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                      disabled={(date) =>
-                                        date > new Date() ||
-                                        date < new Date("1900-01-01")
-                                      }
-                                      initialFocus
-                                    />
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <div className="flex flex-col space-y-1.5">
-                          <FormField
-                            control={form.control}
-                            name="end_date"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>End Date</FormLabel>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "pl-3 text-left font-normal",
-                                          !field.value &&
-                                            "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value ? (
-                                          format(field.value, "yyyy-MM-dd")
-                                        ) : (
-                                          <span>End Date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className="w-auto p-0"
-                                    align="start"
-                                  >
-                                    <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                      disabled={(date) =>
-                                        date > new Date() ||
-                                        date < new Date("1900-01-01")
-                                      }
-                                      initialFocus
-                                    />
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="button-wrapper flex justify-end">
-                        <Button disabled={loading} type="submit">
-                          {loading && (
-                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+        <div className="user-type-wrapper flex flex-row items-center">
+          <div className="export-button">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>Export Users</Button>
+              </DialogTrigger>
+              <DialogContent className="gap-8 sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Export Users</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                  <form
+                    method="post"
+                    className="space-y-5"
+                    onSubmit={form.handleSubmit(exportUser)}
+                  >
+                    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+                      {/* Start Date */}
+                      <div className="flex flex-col space-y-1.5">
+                        <FormField
+                          control={form.control}
+                          name="start_date"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel>Start Date</FormLabel>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                        "pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value
+                                        ? format(field.value, "yyyy-MM-dd")
+                                        : "Start Date"}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                  </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                      date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                            </FormItem>
                           )}
-                          {loading ? "Exporting..." : "Export"}
-                        </Button>
+                        />
                       </div>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
-            </div>
+
+                      {/* End Date */}
+                      <div className="flex flex-col space-y-1.5">
+                        <FormField
+                          control={form.control}
+                          name="end_date"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel>End Date</FormLabel>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                        "pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value
+                                        ? format(field.value, "yyyy-MM-dd")
+                                        : "End Date"}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                  </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                      date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="button-wrapper flex justify-end">
+                      <Button disabled={loading} type="submit">
+                        {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+                        {loading ? "Exporting..." : "Export"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
-          {tableLoading ? (
-            <div className="flex flex-col space-y-3">
-              <div className="filter-column flex justify-between gap-4">
-                <Skeleton className="h-8 w-[400px]" />
-                <Skeleton className="h-8 w-[250px]" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            </div>
-          ) : (
-            <DataTable
-              data={data}
-              columns={columns}
-              title={"User Type"}
-              options={[
-                {
-                  value: "1",
-                  label: "Trial",
-                },
-                {
-                  value: "3",
-                  label: "DIY",
-                },
-                {
-                  value: "4",
-                  label: "DIY Assist",
-                },
-                {
-                  value: "5",
-                  label: "Accountant Plus",
-                },
-              ]}
-              filterKey={"user_status"}
-            />
-          )}
         </div>
-      ) : (
-        <div className="space-y-6">
-       
-
-         <h2 className="text-3xl text-uppercase">Literary Works</h2>
-         <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3">
-        
-          <Card className="w-full me-6">
-            <CardHeader>
-              <CardTitle className="text-xl">
-                The Great Gatsby
-              </CardTitle>
-              <CardDescription className="text-lg">Book</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 ">
-                <div className="flex items-center justify-start action-wrapper">
-                 2.3 MB
-                </div>
-                <div className="flex items-center justify-end action-wrapper">
-                  2022-02-15
-                </div>
-                
-              
-               
-              </div>
-              <div className="grid  md:grid-cols-2 pt-5 ">
-                <div className="grid md:grid-cols-2">
-                  <Download />
-                  <div className="flex justify-start">
-                    <Upload />  Shared 
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2">
-                  <div className="flex justify-center">
-                  <FilePenLine />
-                  </div>
-                  <div className="flex justify-center">
-                  <Trash2 />
-                  </div>
-                </div>
-             
-              
-           
-            
-               
-
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="w-full me-6">
-            <CardHeader>
-              <CardTitle className="text-xl">
-                To Kill A Mockingbird
-              </CardTitle>
-              <CardDescription className="text-lg">Book</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 ">
-                <div className="flex items-center justify-start action-wrapper">
-                 1.5 MB
-                </div>
-                <div className="flex items-center justify-end action-wrapper">
-                  2024-05-20
-                </div>
-                
-              
-               
-              </div>
-              <div className="grid  md:grid-cols-2 pt-5 ">
-                <div className="grid md:grid-cols-2">
-                  <Download />
-                  <div className="flex justify-start">
-                    <Upload />  Shared 
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2">
-                  <div className="flex justify-center">
-                  <FilePenLine />
-                  </div>
-                  <div className="flex justify-center">
-                  <Trash2 />
-                  </div>
-                </div>
-             
-              
-           
-            
-               
-
-              </div>
-            </CardContent>
-          </Card>
-         </div>
-
-         <h2 className="text-3xl text-uppercase">Motion Pictures</h2>
-         <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-3">
-        
-          <Card className="w-full me-6">
-            <CardHeader>
-              <CardTitle className="text-xl">
-                The Shawshank Redemption
-              </CardTitle>
-              <CardDescription className="text-lg">Movie</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 ">
-                <div className="flex items-center justify-start action-wrapper">
-                 3.5 GB
-                </div>
-                <div className="flex items-center justify-end action-wrapper">
-                  2020-01-14
-                </div>
-                
-              
-               
-              </div>
-              <div className="grid  md:grid-cols-2 pt-5 ">
-                <div className="grid md:grid-cols-2">
-                  <Download />
-                  <div className="flex justify-start">
-                    <Upload />  Shared 
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2">
-                  <div className="flex justify-center">
-                  <FilePenLine />
-                  </div>
-                  <div className="flex justify-center">
-                  <Trash2 />
-                  </div>
-                </div>
-             
-              
-           
-            
-               
-
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="w-full me-6">
-            <CardHeader>
-              <CardTitle className="text-xl">
-                Inception
-              </CardTitle>
-              <CardDescription className="text-lg">Movie</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 ">
-                <div className="flex items-center justify-start action-wrapper">
-                 4.5 GB
-                </div>
-                <div className="flex items-center justify-end action-wrapper">
-                  2023-10-02
-                </div>
-                
-              
-               
-              </div>
-              <div className="grid  md:grid-cols-2 pt-5 ">
-                <div className="grid md:grid-cols-2">
-                  <Download />
-                  <div className="flex justify-start">
-                    <Upload />  Shared 
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2">
-                  <div className="flex justify-center">
-                  <FilePenLine />
-                  </div>
-                  <div className="flex justify-center">
-                  <Trash2 />
-                  </div>
-                </div>
-             
-              
-           
-            
-               
-
-              </div>
-            </CardContent>
-          </Card>
-         </div>
-        
-        </div>
-      )}
-    </>
-  );
-};
+      </div>
+    )}
+  </>
+);
+}

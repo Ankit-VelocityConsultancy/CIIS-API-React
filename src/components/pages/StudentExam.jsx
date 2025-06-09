@@ -147,10 +147,7 @@ const checkIfCanStartTest = async (exam_id) => {
 
       const response = await axios.get(`${baseURL}api/filter-questions/`, {
         params: {
-          examtype: examInfo.examtype,
-          semyear: examInfo.semyear,
-          subject: examInfo.subject_name,
-          university,
+          exam_id
         },
       });
 
