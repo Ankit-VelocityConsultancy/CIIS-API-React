@@ -445,6 +445,16 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 </AccordionItem>
               </Accordion> 
 
+              {userType === "Admin" && (
+                <div className="role-section">
+                  <Navigation
+                    title="Roles"
+                    link="/view-roles"  // This will redirect directly to the roles page
+                    isCollapsed={isCollapsed}
+                  />
+                </div>
+              )}
+
             </div>
           </>
         ) : null}

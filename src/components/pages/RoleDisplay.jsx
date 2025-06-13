@@ -2,35 +2,37 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "../ui/button"; // Assuming you're using a button component
 import { useRecoilValue } from "recoil";
-import { baseURLAtom, accessTokenAtom } from "@/recoil/atoms";  // Assuming baseURLAtom and accessTokenAtom are in your Recoil state
+import { baseURLAtom, accessTokenAtom } from "@/recoil/atoms"; // Assuming you store baseURL and token in Recoil
 
 const RoleDisplay = () => {
   const [roles, setRoles] = useState([]);  // State to store roles
   const [loading, setLoading] = useState(true);  // Loading state
   const [error, setError] = useState(null);  // Error state
 
-  const baseURL = useRecoilValue(baseURLAtom);  // Get the base URL from Recoil
-  const accessToken = useRecoilValue(accessTokenAtom);  // Get the access token from Recoil
+  const baseURL = useRecoilValue(baseURLAtom);  // Fetch the baseURL from Recoil
+  const accessToken = useRecoilValue(accessTokenAtom);  // Fetch the accessToken from Recoil
 
   useEffect(() => {
     // Fetch roles from the API
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/get_roles/`, {
+        const response = await axios.get(`${baseURL}api/get_roles/`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,  // Use the token from Recoil
           },
         });
 
-        console.log(response);  // Check the structure of the response
+        // Log the response to see the structure
+        console.log(response);
 
-        // Check if roles exist in the response data
-        if (response.data && response.data.roles) {
-          setRoles(response.data.roles);  // Store the fetched roles in state
+        // Directly use response.data if it's an array
+        if (Array.isArray(response.data)) {
+          setRoles(response.data);  // Store the fetched roles in state
         } else {
           setError("No roles found.");
         }
       } catch (err) {
+        console.error("Error fetching roles:", err);
         setError("Failed to fetch roles.");  // Handle errors
       } finally {
         setLoading(false);  // Set loading to false once the data is fetched
@@ -38,7 +40,7 @@ const RoleDisplay = () => {
     };
 
     fetchRoles();  // Call the function to fetch roles
-  }, [baseURL, accessToken]);  // Dependency array now includes baseURL and accessToken
+  }, [baseURL, accessToken]);  // Add baseURL and accessToken as dependencies
 
   if (loading) {
     return <div>Loading...</div>;  // Show loading text while data is being fetched
@@ -66,6 +68,7 @@ const RoleDisplay = () => {
               <td>{index + 1}</td>
               <td>{role.name}</td>
               <td>
+                {/* Display Permissions (You can choose to display a subset or full permissions) */}
                 <Button
                   onClick={() => {
                     // Handle permissions click (navigate to permissions page)

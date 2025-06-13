@@ -49,6 +49,9 @@ import CanclledStudent from "./components/pages/CanclledStudent"
 
 import DocumentSummary from "./components/pages/DocumentSummary";  
 
+import RoleDisplay from "./components/pages/RoleDisplay";
+import RolePermissions from "./components/pages/RolePermissions";
+
 const App = () => {
 
   const isLoggedin = useRecoilValue(isLoggedinAtom);
@@ -95,7 +98,8 @@ const App = () => {
             <Route path="/test" element={<ExamTest />} />
             <Route path="/all-registered-student" element={<AllRegisteredStudents />} />
             <Route path="/canclled-students" element={<CanclledStudent />} />
-            
+            <Route path="/view-roles" element={<RoleDisplay />} />  {/* Display roles */}
+            <Route path="/role-permissions/:roleId" element={<RolePermissions />} />  {/* Manage role permissions */}
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
