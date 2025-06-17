@@ -50,7 +50,8 @@ import CanclledStudent from "./components/pages/CanclledStudent"
 import DocumentSummary from "./components/pages/DocumentSummary";  
 
 import RoleDisplay from "./components/pages/RoleDisplay";
-import RolePermissions from "./components/pages/RolePermissions";
+import Permissions from "./components/pages/Permissions";
+
 
 const App = () => {
 
@@ -99,7 +100,7 @@ const App = () => {
             <Route path="/all-registered-student" element={<AllRegisteredStudents />} />
             <Route path="/canclled-students" element={<CanclledStudent />} />
             <Route path="/view-roles" element={<RoleDisplay />} />  {/* Display roles */}
-            <Route path="/role-permissions/:roleId" element={<RolePermissions />} />  {/* Manage role permissions */}
+            <Route path="/role-permissions/:roleId" element={<Permissions />} />  {/* Manage role permissions */}
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
