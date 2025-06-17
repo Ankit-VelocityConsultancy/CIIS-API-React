@@ -51,7 +51,7 @@ import DocumentSummary from "./components/pages/DocumentSummary";
 
 import RoleDisplay from "./components/pages/RoleDisplay";
 import Permissions from "./components/pages/Permissions";
-
+import UsersTable from "./components/pages/UsersTable";
 
 const App = () => {
 
@@ -101,6 +101,8 @@ const App = () => {
             <Route path="/canclled-students" element={<CanclledStudent />} />
             <Route path="/view-roles" element={<RoleDisplay />} />  {/* Display roles */}
             <Route path="/role-permissions/:roleId" element={<Permissions />} />  {/* Manage role permissions */}
+            <Route path="/view-users" element={<UsersTable />} />  {/* Display Users */}
+
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

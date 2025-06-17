@@ -454,6 +454,16 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   />
                 </div>
               )}
+              {userType === "Admin" && (
+                <div className="role-section">
+                  <Navigation
+                    title="Users"
+                    link="/view-users"  // This will redirect directly to the roles page
+                    isCollapsed={isCollapsed}
+                  />
+                </div>
+              )}
+
 
             </div>
           </>
