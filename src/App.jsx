@@ -52,6 +52,13 @@ import DocumentSummary from "./components/pages/DocumentSummary";
 import RoleDisplay from "./components/pages/RoleDisplay";
 import Permissions from "./components/pages/Permissions";
 import UsersTable from "./components/pages/UsersTable";
+import NewUser from "./components/pages/NewUser";
+import CategoryList from "./components/pages/CategoryList";
+import SourceList from "./components/pages/SourceList";
+import RoleStatusList from "./components/pages/RoleStatusList";
+import LeadLabelTagList from "./components/pages/LeadLabelTagList";
+import CountryPage from "./components/pages/CountryPage";
+import StatePage from "./components/pages/StatePage";
 
 const App = () => {
 
@@ -102,7 +109,14 @@ const App = () => {
             <Route path="/view-roles" element={<RoleDisplay />} />  {/* Display roles */}
             <Route path="/role-permissions/:roleId" element={<Permissions />} />  {/* Manage role permissions */}
             <Route path="/view-users" element={<UsersTable />} />  {/* Display Users */}
-
+            <Route path="/users/new" element={<NewUser />} />
+            <Route path="/users/new/:userId" element={<NewUser />} />  {/* The :userId part is dynamic */}
+            <Route path="/category-list" element={<CategoryList />} />
+            <Route path="/source-list" element={<SourceList />} />
+            <Route path="/status-list" element={<RoleStatusList />} />
+            <Route path="/Tags-list" element={<LeadLabelTagList />} />
+            <Route path="/Country-list" element={<CountryPage />} />
+            <Route path="/State-list" element={<StatePage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

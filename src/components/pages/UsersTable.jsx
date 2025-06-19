@@ -3,6 +3,8 @@ import axios from "axios";
 import { Button, Table, Input, Select, Switch } from "antd";
 import { useRecoilValue } from "recoil";
 import { baseURLAtom, accessTokenAtom } from "@/recoil/atoms";
+import { PlusOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";  // Importing useNavigate for navigation
 
 const { Option } = Select;
 
@@ -15,6 +17,7 @@ const UsersTable = () => {
 
   const baseURL = useRecoilValue(baseURLAtom);
   const accessToken = useRecoilValue(accessTokenAtom);
+  const navigate = useNavigate();  // useNavigate hook to navigate between pages
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,7 +48,9 @@ const UsersTable = () => {
     .filter(
       (user) =>
         user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.mobile.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .filter((user) => {
       if (!statusFilter) return true;
@@ -53,13 +58,13 @@ const UsersTable = () => {
     });
 
   const handleEditUser = (id) => {
-    // Handle the edit action here
-    console.log("Edit User with ID:", id);
+    // Navigate to the "NewUser.jsx" page with the userId
+    navigate(`/users/new/${id}`);
   };
 
   const columns = [
     {
-      title: "#",
+      title: "Sr No",
       dataIndex: "id",
       key: "id",
       render: (text, record, index) => index + 1,
@@ -108,7 +113,7 @@ const UsersTable = () => {
       render: (_, record) => (
         <Button
           className="bg-orange-500 hover:bg-orange-600 text-white"
-          onClick={() => handleEditUser(record.id)}
+          onClick={() => handleEditUser(record.id)} // Pass the user id on click
         >
           Edit
         </Button>
@@ -138,10 +143,10 @@ const UsersTable = () => {
             <Option value="inactive">Inactive</Option>
           </Select>
           <Button
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow"
-            onClick={() => console.log("Add New User")}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow flex items-center"
+            onClick={() => navigate("/users/new")} // Navigate to "New User" form
           >
-            New User
+            <PlusOutlined className="mr-2" /> New User
           </Button>
         </div>
       </div>

@@ -463,6 +463,44 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   />
                 </div>
               )}
+              <Accordion type="single" collapsible>
+          <AccordionItem value="master-section" className="border-none">
+            <AccordionTrigger className={`hover:no-underline gap-2 bg-muted rounded-md p-0 h-9 px-2 ${isCollapsed && "w-12 flex- m-auto"}`}>
+              {!isCollapsed && (
+                <span className="flex mr-auto text-base">
+                  Master Data
+                </span>
+              )}
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 space-y-1">
+              <Navigation
+                title="Categories"
+                link="/category-list"
+                isCollapsed={isCollapsed}
+              />
+              <Navigation
+                title="Sources"
+                link="/source-list"
+                isCollapsed={isCollapsed}
+              />
+              <Navigation
+                title="Status"
+                link="/status-list"
+                isCollapsed={isCollapsed}
+              />
+              <Navigation
+                title="Country"
+                link="/Country-list"
+                isCollapsed={isCollapsed}
+              />
+              <Navigation
+                title="State"
+                link="/State-list"
+                isCollapsed={isCollapsed}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
 
             </div>
