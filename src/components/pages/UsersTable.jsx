@@ -16,7 +16,7 @@ const UsersTable = () => {
   const [statusFilter, setStatusFilter] = useState(null);
 
   const baseURL = useRecoilValue(baseURLAtom);
-  const accessToken = useRecoilValue(accessTokenAtom);
+  const accessToken =   (accessTokenAtom);
   const navigate = useNavigate();  // useNavigate hook to navigate between pages
 
   useEffect(() => {
