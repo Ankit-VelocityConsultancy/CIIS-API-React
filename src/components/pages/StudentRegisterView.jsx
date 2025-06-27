@@ -166,14 +166,14 @@ const StudentRegistrationViewPage = () => {
       cell: (row) => (row.is_enrolled ? "✔" : "✘"),
     },
     {
-      name: "View/Edit",
+      name: "Edit",
       cell: (row) => (
         <button
           onClick={() => handleViewEdit(row.enrollment_id)}
           className="bg-blue-500 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 text-lg"
           style={{ fontSize: '18px' }}  // Increased font size for View/Edit button
         >
-          View/Edit
+          Edit
         </button>
       ),
       ignoreRowClick: true,

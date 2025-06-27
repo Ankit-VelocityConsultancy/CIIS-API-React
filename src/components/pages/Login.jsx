@@ -144,6 +144,7 @@ export function Login() {
         localStorage.setItem("user_id", user_id || student_id);
         localStorage.setItem("version", version);
         localStorage.setItem("is_login", "true");
+        localStorage.setItem("userPermissions", JSON.stringify(loginResponse.permissions));
 
         if (is_student) {
           localStorage.setItem("examDetails", JSON.stringify(exam_details || []));

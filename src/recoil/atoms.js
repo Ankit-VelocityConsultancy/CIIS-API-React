@@ -62,6 +62,12 @@ export const userVersion = atom({
   default: localStorage.getItem('version') || null
 });
 
+export const userPermissionsAtom = atom({
+  key: "userPermissionsAtom",
+  default: {}, // Will store user.permissions like { university: { add: 1, view: 1, ... } }
+});
+
+
 // Custom Hook for logging out
 export const useLogOut = () => {
   const setAccessToken = useSetRecoilState(accessTokenAtom);

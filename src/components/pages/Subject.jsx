@@ -37,6 +37,10 @@ const Subject = () => {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   
+  const userPermissions = JSON.parse(localStorage.getItem("userPermissions"));
+  const subjectPermission = userPermissions?.subject || {};
+  const { add = 0, view = 0, edit = 0, delete: del = 0 } = subjectPermission;
+
   useEffect(() => {
     
   
@@ -506,6 +510,8 @@ const closeMessageModal = () => {
   return (
     <div className="quick-registration-page">
       <h1 className="font-bold text-2xl mb-4">Add Subject</h1>
+      {add==1 &&(
+
 
       <form onSubmit={submitForm}>
         <div className="flex flex-wrap mb-4">
@@ -736,10 +742,13 @@ const closeMessageModal = () => {
           </div>
         </div>
       </form>
+      )}
       {/* Show success message */}
       {successMessage && <div className="m-4 text-[#d24845]">{successMessage}</div>}
 
-      <h2 className="font-bold text-xl mt-6">Existing Subjects</h2>
+      {view ==1 && (
+        <>
+        <h2 className="font-bold text-xl mt-6">Existing Subjects</h2>
 
      <div className="stream-list mt-4">
         <table className="min-w-full border-collapse">
@@ -773,6 +782,8 @@ const closeMessageModal = () => {
             </tbody>
         </table>
         </div>
+        </>
+      )}
 
 {/* Modal for showing streams */}
 {showModal && (
@@ -871,18 +882,12 @@ const closeMessageModal = () => {
       </div>
 
       <div className="flex justify-end gap-4 mt-6">
-        <button
-          onClick={UpdateSubject}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-        >
-          Update
-        </button>
-        <button
-          onClick={closeStreamModal}
-          className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-        >
-          Close
-        </button>
+        {edit === 1 && (
+          <button onClick={UpdateSubject} className="bg-blue-500 ...">Update</button>
+        )}
+       {del === 1 && (
+          <button onClick={() => openDeleteConfirmModal(subject.id)} className="bg-red-500 ...">Delete</button>
+        )}
       </div>
     </div>
   </div>

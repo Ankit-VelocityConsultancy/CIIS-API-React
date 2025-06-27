@@ -73,7 +73,9 @@ const AssignExamination = () => {
   const [showSubjectTable, setShowSubjectTable] = useState(false);
 
   const [selectedAssignedStudents, setSelectedAssignedStudents] = useState([]);
-
+  const userPermissions = JSON.parse(localStorage.getItem("userPermissions"));
+  const assignexamPermission = userPermissions?.assignexam || {};
+  const subjectwiseAnalysisPermission = userPermissions?.subjectwiseanalysis || {};
 
     const [reassignData, setReassignData] = useState({
       examstarttime: '',
@@ -282,6 +284,19 @@ const AssignExamination = () => {
       console.error("Error fetching semester/year options:", err);
     }
   };
+
+    useEffect(() => {
+    if (assignexamPermission.add === 0 && assignexamPermission.view === 1) {
+      setIsViewSetExamination(true);
+    }
+    if (
+      assignexamPermission.add === 0 &&
+      assignexamPermission.view === 0 &&
+      subjectwiseAnalysisPermission.view === 1
+    ) {
+      setIsSubjectWiseAnalysis(true);
+    }
+  }, []);
 
    useEffect(() => {
     if (subjectUniversity) fetchCourses(subjectUniversity);
@@ -1420,36 +1435,53 @@ const fetchSubjects = (event) => {
     return (
     <div className="setexam-page">
               {/* Toggle between forms using buttons */}
-         <button
-          type="button"
-          className={`bg-[#dd3751] text-white mr-5 py-2 px-4 gap-2 rounded-md hover:bg-[#167fc7] ${!isViewSetExamination && !isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''}`}
-          onClick={() => {
-            setIsViewSetExamination(false);
-            setIsSubjectWiseAnalysis(false);
-          }}
-        >
-          Assign Student Examination
-        </button>
-        <button
-          type="button"
-          className={`bg-[#dd3751] text-white mr-5 py-2 px-4 gap-2 rounded-md hover:bg-[#167fc7] ${isViewSetExamination && !isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''}`}
-          onClick={() => {
-            setIsViewSetExamination(true);
-            setIsSubjectWiseAnalysis(false);
-          }}
-        >
-          View Assigned Student
-        </button>
-          <button
-          type="button"
-          className={`bg-[#dd3751] text-white py-2 px-4 gap-2 rounded-md hover:bg-[#167fc7] ${isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''}`}
-          onClick={() => {
-            setIsSubjectWiseAnalysis(true);
-            setIsViewSetExamination(false);
-          }}
-        >
-          Subject Wise Analysis
-        </button>
+            <div className="flex gap-4 flex-wrap mb-4">
+              {assignexamPermission.add === 1 && (
+                <button
+                  type="button"
+                  className={`bg-[#dd3751] text-white py-2 px-4 rounded-md hover:bg-[#167fc7] ${
+                    !isViewSetExamination && !isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''
+                  }`}
+                  onClick={() => {
+                    setIsViewSetExamination(false);
+                    setIsSubjectWiseAnalysis(false);
+                  }}
+                >
+                  Assign Student Examination
+                </button>
+              )}
+
+              {assignexamPermission.view === 1 && (
+                <button
+                  type="button"
+                  className={`bg-[#dd3751] text-white py-2 px-4 rounded-md hover:bg-[#167fc7] ${
+                    isViewSetExamination && !isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''
+                  }`}
+                  onClick={() => {
+                    setIsViewSetExamination(true);
+                    setIsSubjectWiseAnalysis(false);
+                  }}
+                >
+                  View Assigned Student
+                </button>
+              )}
+
+                  {subjectwiseAnalysisPermission.view === 1 && (
+                    <button
+                      type="button"
+                      className={`bg-[#dd3751] text-white py-2 px-4 rounded-md hover:bg-[#167fc7] ${
+                        isSubjectWiseAnalysis ? 'ring-2 ring-offset-2' : ''
+                      }`}
+                      onClick={() => {
+                        setIsSubjectWiseAnalysis(true);
+                        setIsViewSetExamination(false);
+                      }}
+                    >
+                      Subject Wise Analysis
+                    </button>
+                  )}
+            </div>
+
               {!isViewSetExamination && !isSubjectWiseAnalysis && (  
                  <>
                   <h2 className="font-bold text-2xl m-4">Assign Examinations</h2>

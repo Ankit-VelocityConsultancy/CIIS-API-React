@@ -421,11 +421,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     )}
                   </AccordionTrigger>
                   <AccordionContent className="pt-1 space-y-1">
-                  <Navigation
-                      title="Payment Modes"
-                      link="/payment-modes-list"
-                      isCollapsed={isCollapsed}
-                    />
+                  
                     <Navigation
                       title="Fee Reciept Options"
                       link="/fee-reciept-list"
@@ -463,6 +459,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   />
                 </div>
               )}
+              
               <Accordion type="single" collapsible>
           <AccordionItem value="master-section" className="border-none">
             <AccordionTrigger className={`hover:no-underline gap-2 bg-muted rounded-md p-0 h-9 px-2 ${isCollapsed && "w-12 flex- m-auto"}`}>
@@ -478,6 +475,11 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 link="/category-list"
                 isCollapsed={isCollapsed}
               />
+              <Navigation
+                      title="Payment Modes"
+                      link="/payment-modes-list"
+                      isCollapsed={isCollapsed}
+                    />
               <Navigation
                 title="Sources"
                 link="/source-list"
@@ -498,6 +500,12 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 link="/State-list"
                 isCollapsed={isCollapsed}
               />
+              <Navigation
+                title="Colors"
+                link="/Color-list"
+                isCollapsed={isCollapsed}
+              />
+              
             </AccordionContent>
           </AccordionItem>
         </Accordion>

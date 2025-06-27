@@ -24,6 +24,11 @@ const StreamListPage = () => {
   const baseURL = useRecoilValue(baseURLAtom);
   const apiToken = localStorage.getItem("access");
 
+  const userPermissions = JSON.parse(localStorage.getItem("userPermissions"));
+  const substreamPermission = userPermissions?.substream || {};
+  const { add = 0, view = 0, edit = 0, delete: del = 0 } = substreamPermission;
+
+
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
@@ -159,7 +164,9 @@ const StreamListPage = () => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Sub Stream List</h1>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 mb-6 md:grid-cols-2 lg:grid-cols-3">
+    {substreamPermission?.add == 1 &&(
+      <>
+            <form onSubmit={handleSubmit} className="grid gap-4 mb-6 md:grid-cols-2 lg:grid-cols-3">
         <div>
           <label className="block text-sm font-medium mb-1">University</label>
           <select
@@ -222,27 +229,31 @@ const StreamListPage = () => {
           </button>
         </div>
       </form>
+      </>
+    )}
 
       {successMessage && <p className="text-green-600 mb-4">{successMessage}</p>}
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {universities.map((uni, idx) => (
-          <div key={idx} className="border p-4 rounded shadow">
-            <h2 className="font-semibold mb-2">{uni.university_name}</h2>
-            <div className="flex flex-wrap gap-2">
-              {coursesByUniversity[uni.university_name]?.map((course, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleCourseClick(course, uni.university_name)}
-                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm"
-                >
-                  {course}
-                </button>
-              ))}
+      {substreamPermission?.view==1 && (
+        <div className="grid md:grid-cols-2 gap-4">
+          {universities.map((uni, idx) => (
+            <div key={idx} className="border p-4 rounded shadow">
+              <h2 className="font-semibold mb-2">{uni.university_name}</h2>
+              <div className="flex flex-wrap gap-2">
+                {coursesByUniversity[uni.university_name]?.map((course, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleCourseClick(course, uni.university_name)}
+                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm"
+                  >
+                    {course}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -267,10 +278,13 @@ const StreamListPage = () => {
         </div>
       )}
 
-      {showStreamModal && selectedStream && (
+      {showStreamModal && selectedStream && (edit === 1 || del === 1) && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-2xl">
-            <h3 className="text-lg font-bold mb-4">Edit Substreams for {selectedStream.stream_name}</h3>
+            <h3 className="text-lg font-bold mb-4">
+              Edit Substreams for {selectedStream.stream_name}
+            </h3>
+
             {updatedSubstreams.map((sub) => (
               <div key={sub.id} className="flex gap-2 mb-3">
                 <input
@@ -278,15 +292,20 @@ const StreamListPage = () => {
                   className="flex-1 p-2 border rounded"
                   value={sub.name}
                   onChange={(e) => handleSubstreamChange(sub.id, e.target.value)}
+                  disabled={edit !== 1} // disable input if no edit permission
                 />
-                <button
-                  onClick={() => deleteSubstream(sub.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
+
+                {del === 1 && (
+                  <button
+                    onClick={() => deleteSubstream(sub.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))}
+
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => setShowStreamModal(false)}
@@ -294,16 +313,20 @@ const StreamListPage = () => {
               >
                 Cancel
               </button>
-              <button
-                onClick={updateSubstreams}
-                className="bg-green-600 text-white px-4 py-2 rounded"
-              >
-                Update
-              </button>
+
+              {edit === 1 && (
+                <button
+                  onClick={updateSubstreams}
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  Update
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

@@ -34,6 +34,10 @@ const StreamListPage = () => {
   const apiToken = localStorage.getItem("access"); // Replace with your token source
   console.log("API Token=="+apiToken);
 
+  const userPermissions = JSON.parse(localStorage.getItem("userPermissions")) || {};
+  const streamPermissions = userPermissions?.stream || {};
+  const { add = 0, view = 0, edit = 0, delete: del = 0 } = streamPermissions;
+
   // Fetch universities with authentication
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -197,12 +201,13 @@ const validateForm = () => {
   };
   
   const openCourseModal = (course, course_id) => {
-    console.log('Course passed to modal:', course_id);  // Ensure this is the full object
-    setSelectedCourse(course);  // Set the full course object here
-    setShowCourseModal(true);  // Open the course modal
-    fetchStreamsForCourse(course, selectedUniversity);  // Pass both course and university
+    if (edit != 1 && del != 1) return; 
+    setSelectedCourse(course);
+    setShowCourseModal(true);
+    fetchStreamsForCourse(course, selectedUniversity);
     setSelectedCourseID(course_id);
-};
+  };
+
 
   
   // Function to close the second modal
@@ -363,6 +368,7 @@ const validateForm = () => {
     <div className="stream-list-page">
       <h1 className="font-bold text-2xl mb-4">Stream List</h1>
 
+      {add==1 && (
       <form onSubmit={handleSubmit} className="m-4 p-4 border rounded-lg shadow-md">
         <div className="flex gap-4">
           {/* University Dropdown */}
@@ -506,11 +512,14 @@ const validateForm = () => {
           </div>
         </div>
       </form>
+
+      )}
        {/* Show success message */}
        {successMessage && <div className="m-4 text-[#d24845]">{successMessage}</div>}
 
-      <h2 className="font-bold text-xl mt-6">Existing Streams</h2>
-
+      {view === 1 && (
+        <>
+              <h2 className="font-bold text-xl mt-6">Existing Streams</h2>
       <div className="stream-list mt-4">
         <table className="min-w-full border-collapse">
           <thead>
@@ -543,6 +552,8 @@ const validateForm = () => {
           </tbody>
         </table>
       </div>
+        </>
+      )}
 
       {/* Modal for showing all courses of a university */}
       {showModal && (
@@ -598,6 +609,8 @@ const validateForm = () => {
                     }
                     className="mt-2 p-2 border rounded-md w-full"
                     placeholder="Stream Name"
+                    disabled={edit != 1}
+
                   />
                 </div>
                 <div className="flex-1">
@@ -612,15 +625,19 @@ const validateForm = () => {
                     }
                     className="mt-2 p-2 border rounded-md w-full"
                     placeholder="Year"
+                    disabled={edit != 1}
+
                   />
                 </div>
                 {/* Delete Button for stream */}
-                <button
-                  onClick={() => openStreamDeleteConfirmModal(stream.stream_id)}
-                  className="bg-red-500 text-white py-1 px-2 rounded-md mt-2"
-                >
-                  Delete
-                </button>
+                {del === 1 && (
+                  <button
+                    onClick={() => openStreamDeleteConfirmModal(stream.stream_id)}
+                    className="bg-red-500 text-white py-1 px-2 rounded-md mt-2"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))
@@ -629,13 +646,14 @@ const validateForm = () => {
         )
       )}
 
-      <button
-        onClick={handleUpdateStreams}
-        className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-      >
-        Update Streams
-      </button>
-
+      {edit == 1 && (
+        <button
+          onClick={handleUpdateStreams}
+          className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+        >
+          Update Streams
+        </button>
+      )}
       {successMessage && (
         <p className="mt-2 text-green-500">{successMessage}</p>
       )}

@@ -26,6 +26,10 @@ const CourseListPage = () => {
   const [showCourseMessageModal, setShowCourseMessageModal] = useState(false);
   const [courseModalMessage, setCourseModalMessage] = useState("");
 
+  const userPermissions = JSON.parse(localStorage.getItem("userPermissions")) || {};
+  const coursePermissions = userPermissions?.course || {};
+  const { add = 0, view = 0, edit = 0, delete: del = 0 } = coursePermissions;
+
   useEffect(() => {
     const apiToken = localStorage.getItem("access");
     const fetchUniversities = async () => {
@@ -98,11 +102,18 @@ const CourseListPage = () => {
     }
   };
 
-  const openEditModal = (universityName, courseName) => {
-    setSelectedUniversity(universityName);
-    setSelectedCourses(courses[universityName].map(course => ({ ...course, isEditing: course.name === courseName })));
-    setShowModal(true);
-  };
+const openEditModal = (universityName, courseName) => {
+  if (edit !== 1 && del !== 1) return; // block modal opening
+  setSelectedUniversity(universityName);
+  setSelectedCourses(
+    courses[universityName].map(course => ({
+      ...course,
+      isEditing: course.name === courseName
+    }))
+  );
+  setShowModal(true);
+};
+
 
   const closeModal = () => {
     setShowModal(false);
@@ -194,39 +205,72 @@ const CourseListPage = () => {
   return (
     <div className="container py-4">
       <h2 className="mb-4">Course Management</h2>
+      
+      {add==1 &&(
+        <div className="border rounded p-4 mb-4 bg-light shadow-sm">
+            <form onSubmit={handleSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label htmlFor="university" className="form-label">University *</label>
+                  <select
+                    id="university"
+                    className="form-select"
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                  >
+                    <option value="">Select University</option>
+                    {universities.map((u) => (
+                      <option key={u.id} value={u.university_name}>{u.university_name}</option>
+                    ))}
+                  </select>
+                  {formError.university && (
+                    <div className="text-danger small">{formError.university}</div>
+                  )}
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="courseName" className="form-label">Course Name *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="courseName"
+                    value={courseName}
+                    onChange={(e) => setCourseName(e.target.value)}
+                  />
+                  {formError.courseName && (
+                    <div className="text-danger small">{formError.courseName}</div>
+                  )}
+                </div>
+              </div>
 
-      <form onSubmit={handleSubmit} className="mb-4">
-        <div className="row g-3">
-          <div className="col-md-6">
-            <label htmlFor="university" className="form-label">University *</label>
-            <select id="university" className="form-select" value={university} onChange={(e) => setUniversity(e.target.value)}>
-              <option value="">Select University</option>
-              {universities.map(u => (
-                <option key={u.id} value={u.university_name}>{u.university_name}</option>
-              ))}
-            </select>
-            {formError.university && <div className="text-danger small">{formError.university}</div>}
-          </div>
-          <div className="col-md-6">
-            <label htmlFor="courseName" className="form-label">Course Name *</label>
-            <input type="text" className="form-control" id="courseName" value={courseName} onChange={(e) => setCourseName(e.target.value)} />
-            {formError.courseName && <div className="text-danger small">{formError.courseName}</div>}
-          </div>
+              <div className="row g-3 mt-3">
+                <div className="col-md-6">
+                  <label htmlFor="file" className="form-label">Upload Course File</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    id="file"
+                    onChange={(e) => setFile(e.target.files[0])}
+                  />
+                </div>
+                <div className="col-md-6 d-flex align-items-end">
+                  <button type="submit" className="btn btn-danger w-100">Submit</button>
+                </div>
+              </div>
+            </form>
         </div>
-        <div className="row g-3 mt-3">
-          <div className="col-md-6">
-            <label htmlFor="file" className="form-label">Upload Course File</label>
-            <input type="file" className="form-control" id="file" onChange={(e) => setFile(e.target.files[0])} />
-          </div>
-          <div className="col-md-6 d-flex align-items-end">
-            <button type="submit" className="btn btn-danger w-100">Submit</button>
-          </div>
-        </div>
-      </form>
+      )}
+
 
       {successMessage && <div className="alert alert-success">{successMessage}</div>}
+              
+      {view === 1 ? (
+        <div className="border rounded p-3 mt-4 bg-white shadow-sm">
+          <DataTable columns={columns} data={filteredData} pagination responsive highlightOnHover striped />
+        </div>
+      ) : (
+        <div className="text-muted text-center mt-4">You do not have permission to view courses.</div>
+      )}
 
-      <DataTable columns={columns} data={filteredData} pagination responsive highlightOnHover striped />
 
       {showModal && (
         <div className="modal fade show" style={{ display: 'block' }}>
@@ -236,16 +280,58 @@ const CourseListPage = () => {
                 <h5 className="modal-title">Edit Courses for {selectedUniversity}</h5>
                 <button className="btn-close" onClick={closeModal}></button>
               </div>
+
               <div className="modal-body">
                 {selectedCourses.map(course => (
                   <div key={course.id} className="mb-3">
-                    <input type="text" className="form-control mb-2" value={course.name} onChange={(e) => setSelectedCourses(prev => prev.map(c => c.id === course.id ? { ...c, name: e.target.value } : c))} />
-                    <input type="text" className="form-control mb-2" placeholder="Year" value={course.year || ''} onChange={(e) => setSelectedCourses(prev => prev.map(c => c.id === course.id ? { ...c, year: e.target.value } : c))} />
-                    <button className="btn btn-success me-2" onClick={() => handleUpdateCourse(course.id, course.name, course.year)}>Update</button>
-                    <button className="btn btn-danger" onClick={() => openCourseDeleteConfirmModal(course.id)}>Delete</button>
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      value={course.name}
+                      onChange={(e) =>
+                        setSelectedCourses(prev =>
+                          prev.map(c =>
+                            c.id === course.id ? { ...c, name: e.target.value } : c
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      placeholder="Year"
+                      value={course.year || ''}
+                      onChange={(e) =>
+                        setSelectedCourses(prev =>
+                          prev.map(c =>
+                            c.id === course.id ? { ...c, year: e.target.value } : c
+                          )
+                        )
+                      }
+                    />
+                    {edit === 1 && (
+                      <button
+                        className="btn btn-success me-2"
+                        onClick={() =>
+                          handleUpdateCourse(course.id, course.name, course.year)
+                        }
+                      >
+                        Update
+                      </button>
+                    )}
+                    {del === 1 && (
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => openCourseDeleteConfirmModal(course.id)}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
+
+
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={closeModal}>Close</button>
               </div>

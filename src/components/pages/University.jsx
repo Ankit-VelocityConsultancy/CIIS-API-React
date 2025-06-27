@@ -4,6 +4,8 @@ import DataTable from "react-data-table-component";
 import { z } from "zod";
 import { baseURLAtom } from "../../recoil/atoms";
 import { useRecoilValue } from "recoil";
+import { userPermissionsAtom } from "../../recoil/atoms";
+
 
 const UniversityListPage = () => {
   const [universities, setUniversities] = useState([]);
@@ -25,6 +27,11 @@ const UniversityListPage = () => {
   const [showUniversityDeleteConfirmModal, setShowUniversityDeleteConfirmModal] = useState(false);
   const [showUniversityMessageModal, setShowUniversityMessageModal] = useState(false);
   const [universityModalMessage, setUniversityModalMessage] = useState("");
+
+const storedPermissions = localStorage.getItem("userPermissions");
+const userPermissions = storedPermissions ? JSON.parse(storedPermissions) : {};
+const universityPermissions = userPermissions?.university || {};
+const { add = 0, view = 0, edit = 0, delete: del = 0 } = universityPermissions;
 
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -170,21 +177,32 @@ const UniversityListPage = () => {
       name: "Actions",
       cell: row => (
         <div className="flex gap-2">
-          <button onClick={() => handleEdit(row)} className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600">
-            Edit
-          </button>
-          <button onClick={() => openUniversityDeleteConfirmModal(row)} className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600">
-            Delete
-          </button>
+          {edit === 1 && (
+            <button
+              onClick={() => handleEdit(row)}
+              className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+            >
+              Edit
+            </button>
+          )}
+          {del === 1 && (
+            <button
+              onClick={() => openUniversityDeleteConfirmModal(row)}
+              className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+            >
+              Delete
+            </button>
+          )}
         </div>
-      ),
-    },
+      )
+    }
+
   ];
 
   return (
     <div className="p-4 space-y-6">
       <h1 className="text-xl font-semibold">University List</h1>
-
+    {add == 1 && (
       <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
@@ -217,9 +235,16 @@ const UniversityListPage = () => {
         </button>
         {successMessage && <div className="text-green-600 font-medium mt-2">{successMessage}</div>}
       </form>
-
-      <DataTable columns={columns} data={universities} pagination highlightOnHover />
-
+        )}
+        
+      {view === 1 ? (
+        <DataTable columns={columns} data={universities} pagination highlightOnHover />
+      ) : (
+        <div className="text-center text-gray-500 py-8">
+          You do not have permission to view university data.
+        </div>
+      )}
+      
       {showUniversityDeleteConfirmModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-md w-full max-w-sm">

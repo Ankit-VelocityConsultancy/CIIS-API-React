@@ -59,14 +59,13 @@ import RoleStatusList from "./components/pages/RoleStatusList";
 import LeadLabelTagList from "./components/pages/LeadLabelTagList";
 import CountryPage from "./components/pages/CountryPage";
 import StatePage from "./components/pages/StatePage";
+import ColorListPage from "./components/pages/ColorListPage";
 
 const App = () => {
 
   const isLoggedin = useRecoilValue(isLoggedinAtom);
 
   return (
-    <Router>
-      {/* <AuthHandler /> */}
       <Routes>
         <Route path="login" element={<Login />} />
 
@@ -117,11 +116,12 @@ const App = () => {
             <Route path="/Tags-list" element={<LeadLabelTagList />} />
             <Route path="/Country-list" element={<CountryPage />} />
             <Route path="/State-list" element={<StatePage />} />
+            <Route path="/Color-list" element={<ColorListPage />} />
+
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-    </Router>
   );
 };
 
